@@ -1,0 +1,125 @@
+This document describes the software interface used by the libraries that vary accross the different robot platforms. This interface is the bare minimum supported by all the platforms. Individual platforms may provide addition functionality based on the available sensors/actuators.
+
+When controlling the robot joints we consider the robot's body as an array of joints. To control a joint you must use the index value for that joint. Below is the index to joint mapping that we use:
+index:  joint:
+1       Head Yaw
+2       Head Pitch
+3       Left Shoulder Pitch
+4       Left Shoulder Roll
+5       Left Elbow Yaw
+6       Left Elbow Roll
+7       Left Hip Yaw Pitch
+8       Left Hip Roll
+9       Left Hip Pitch
+10      Left Knee Pitch
+11      Left Ankle Pitch
+12      Left Ankle Roll
+13      Right Hip Pitch Yaw
+14      Right Hip Roll
+15      Right Hip Pitch
+16      Right Knee Pitch
+17      Right Ankle Pitch
+18      Right Ankle Roll
+19      Right Shoulder Pitch
+20      Right Shoulder Roll
+21      Right Elbow Yaw
+22      Right Elbow Roll
+
+
+
+Body:
+  set_actuator_command(cmd, index)
+    set the position of the given joint. Starting at index, set the joints to the cmd values (based on the size of the cmd array)
+  
+  set_actuator_velocity(vel, index)
+    set the velocity of the given joint. Starting at index, set the joint velocities to the vel values (based on the size of the vel array)
+
+  set_actuator_hardness(h, index)
+    set the hardness of the given joint. Starting at index, set the joint hardnesses to the h values (based on the size of the h array)
+
+  get_sensor_position(index)
+    return the current position of the given joint. If index is not specified then return an array of all joint positions.
+
+  get_sensor_imuAngle(index)
+    return the state of the 3-axis imu. if index is specified then return only that axis' value, otherwise return all 3. 
+
+  get_sensor_button()
+    return the state of the button (1 - pressed/0 - not pressed)
+
+  get_head_position()
+    convience function to return an array of all the head joint positions
+
+  get_larm_position()
+    convience function to return an array of all the left arm joint positions
+
+  get_rarm_position()
+    convience function to return an array of all the right arm joint positions
+
+  get_lleg_position()
+    convience function to return an array of all the left leg joint positions
+
+  get_rleg_position()
+    convience function to return an array of all the right leg joint positions
+
+  set_body_hardness(h)
+    convience function to set the hardness of all the joints in the body to the same value
+
+  set_head_hardness(h)
+    convience function to set the hardness of all the head joints to the same value 
+
+  set_larm_hardness(h)
+    convience function to set the hardness of all the left arm joints to the same value 
+
+  set_rarm_hardness(h)
+    convience function to set the hardness of all the right arm joints to the same value 
+
+  set_lleg_hardness(h)
+    convience function to set the hardness of all the left leg joints to the same value 
+
+  set_rleg_hardness(h)
+    convience function to set the hardness of all the right leg joints to the same value 
+
+  set_head_command(cmd)
+    convience function to set the head joint positions
+
+  set_larm_command(cmd)
+    convience function to set the left arm joint positions
+
+  set_rarm_command(cmd)
+    convience function to set the right arm joint positions
+
+  set_lleg_command(cmd)
+    convience function to set the left leg joint positions
+
+  set_rleg_command(cmd)
+    convience function to set the right leg joint positions
+
+  update()
+    this function is run at every time step on the robot. it actually updates the robot joint positions based on the target velocity and desired position.
+
+Camera:
+
+  set_param(param, val)
+    set the given camera parameter
+
+  get_param(param)
+    return the current value of the camera parameter
+
+  get_height()
+    return the height of the images the camera takes
+
+  get_width()
+    return the width of the images the camera takes
+
+  get_image()
+    return the actual image from the camera. This image should be in YUV422 format.
+
+  get_camera_position()
+    returns the position of the camera being used. This is needed for the Naos because they have to cameras. 
+
+  select(bottom)
+    select a camera (used for Nao). If bottom != 0 then select the bottom camera otherwise select the top camera.
+
+  get_select()
+    return the current selected camera.
+

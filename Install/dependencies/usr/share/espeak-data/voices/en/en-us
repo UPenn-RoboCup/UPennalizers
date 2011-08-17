@@ -1,0 +1,17 @@
+// moving towards US English
+name english-us
+language en-us 2
+language en-r
+language en 3
+gender male
+
+phonemes en_us
+dictrules 3 6
+option reduce_t 1
+
+stressLength 145 125 200 170 0 0 265 280
+stressAmp  17 16  20 20  20 22  22 20
+
+replace 03 I  i
+replace 03 I2 i
+replace 03 @  @/

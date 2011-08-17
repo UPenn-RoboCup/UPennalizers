@@ -1,0 +1,187 @@
+# 2009 RoboCup Standard Platform League Official Field
+# Author: Çetin Meriçli <cetin.mericli@boun.edu.tr>
+# on behalf of SPL TC and OC <spl_tech@tzi.de>,<spl_orga@tzi.de>
+# Date: 28 May 2009
+# Modified by Yvan Bourquin - www.cyberbotics.com:
+#   May 28, 2009: moved bounding objects to carpet edges instead of white lines
+
+PROTO SoccerField2009 []
+{
+Solid {
+  children [
+    DEF GREEN1 Transform {
+      translation -3.7 0 -2.7
+      children [
+        Shape {
+          appearance DEF GREEN_APPEARANCE Appearance {
+            material Material {
+              diffuseColor 1 1 1
+              shininess 0.05
+              specularColor 0.498039 0.498039 0.498039
+            }
+            texture ImageTexture {
+              url [
+                "textures/field_quarter2009.png"
+              ]
+              repeatS FALSE
+              repeatT FALSE
+            }
+          }
+          geometry IndexedFaceSet {
+            coord DEF QUATER_COORDS Coordinate {
+              point [
+                0 0 2.7
+                3.7 0 2.7
+                3.7 0 0
+                0 0 0
+              ]
+            }
+            texCoord TextureCoordinate {
+              point [
+                0 0
+                1 0
+                1 1
+                0 1
+              ]
+            }
+            coordIndex [
+              0, 1, 2, 3
+            ]
+            texCoordIndex [
+              0, 1, 2, 3
+            ]
+          }
+        }
+      ]
+    }
+    DEF GREEN2 Transform {
+      translation -3.7 0 0
+      children [
+        Shape {
+          appearance USE GREEN_APPEARANCE
+          geometry IndexedFaceSet {
+            coord USE QUATER_COORDS
+            texCoord TextureCoordinate {
+              point [
+                0 1
+                1 1
+                1 0
+                0 0
+              ]
+            }
+            coordIndex [
+              0, 1, 2, 3
+            ]
+            texCoordIndex [
+              0, 1, 2, 3
+            ]
+          }
+        }
+      ]
+    }
+    DEF GREEN3 Transform {
+      translation 3.7 0 0
+      rotation 0 1 0 3.14159
+      children [
+        Shape {
+          appearance USE GREEN_APPEARANCE
+          geometry IndexedFaceSet {
+            coord USE QUATER_COORDS
+            texCoord TextureCoordinate {
+              point [
+                0 1
+                1 1
+                1 0
+                0 0
+              ]
+            }
+            coordIndex [
+              0, 1, 2, 3
+            ]
+            texCoordIndex [
+              0, 1, 2, 3
+            ]
+          }
+        }
+      ]
+    }
+    DEF GREEN3 Transform {
+      translation 3.7 0 2.7
+      rotation 0 1 0 3.14159
+      children [
+        Shape {
+          appearance USE GREEN_APPEARANCE
+          geometry IndexedFaceSet {
+            coord USE QUATER_COORDS
+            texCoord TextureCoordinate {
+              point [
+                0 0
+                1 0
+                1 1
+                0 1
+              ]
+            }
+            coordIndex [
+              0, 1, 2, 3
+            ]
+            texCoordIndex [
+              0, 1, 2, 3
+            ]
+          }
+        }
+      ]
+    }
+  ]
+  name "ground"
+  boundingObject Group {
+    children [
+      IndexedFaceSet {
+        coord Coordinate {
+          point [
+            3.7 0 2.7
+            3.7 0 -2.7
+            -3.7 0 -2.7
+            -3.7 0 2.7
+          ]
+        }
+        coordIndex [
+          0, 1, 2, 3
+        ]
+      }
+      Transform {
+        translation 4.2 0.5 0
+        children [
+          Box {
+            size 1 1 5.4
+          }
+        ]
+      }
+      Transform {
+        translation -4.2 0.5 0
+        children [
+          Box {
+            size 1 1 5.4
+          }
+        ]
+      }
+      Transform {
+        translation 0 0.5 3.2
+        children [
+          Box {
+            size 7.4 1 1
+          }
+        ]
+      }
+      Transform {
+        translation 0 0.5 -3.2
+        children [
+          Box {
+            size 7.4 1 1
+          }
+        ]
+      }
+    ]
+  }
+  locked TRUE
+}
+}

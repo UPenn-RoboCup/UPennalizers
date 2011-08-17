@@ -1,0 +1,28 @@
+2010-05-26:
+    * Many updates for incorporating new pushing limit rule in SPL
+    * Unpenalize button and Player button are merged into one button
+
+2009-11-23:
+
+    * Updated documentation
+    * Updated license information in file headers to GPL v3
+    * Some UI improvements (added detection of "online" robots)
+	  * STRUCT_VERSION is 7
+    * STRUCT_HEADER is "RGme"
+    
+2009-05-01:
+
+    * Moved sourcecode to sourceforge
+    * Added support for RoboCup Standard Platform League (SPL)
+      Notice: Changed STRUCT_HEADER to "RCGC"
+
+2006-06-07:
+
+    * Changed UDP port to 3939 to avoid collisions with Four-legged League
+    * Changed packet header and version
+    * Added field goalColour to TeamInfo struct
+    * Updated user interface to use cyan and magenta as team colors
+
+2007-11-09:
+
+    * Most recent version available for download.

@@ -1,0 +1,10 @@
+python setup.py build
+sudo python setup.py install
+
+# Running on Python
+import vcm
+import Image
+
+x = vcm.grab('big_img')
+im = Image.fromstring( "RGB", (320,240),x,"raw")
+im.show()

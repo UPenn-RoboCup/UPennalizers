@@ -1,0 +1,208 @@
+# The SoccerField proto correspond to the soccer field used in the Robocup 2008
+# Standard Platform League, Nao division.
+#
+# Author: 15 FEB 2008: Çetin Meriçli <cetin.mericli@boun.edu.tr>
+# on behalf of SPL TC and OC <spl_tech@tzi.de>,<spl_orga@tzi.de>
+# Modified: 12 JUNE 2008: moved bounding objects 1 meter back and resized floor textures
+
+PROTO SoccerField2008 []
+{
+Solid {
+  children [
+    Transform {
+      translation -4.53 0 -3.3
+      children [
+        Shape {
+          appearance DEF GREEN_APPEARANCE Appearance {
+            material Material {
+              diffuseColor 1 1 1
+              shininess 0.05
+              specularColor 0.498039 0.498039 0.498039
+            }
+            texture ImageTexture {
+              url [
+                "textures/field_quarter2008.png"
+              ]
+              repeatS FALSE
+              repeatT FALSE
+            }
+          }
+          geometry IndexedFaceSet {
+            coord Coordinate {
+              point [
+                0 0 3.3
+                4.53 0 3.3
+                4.53 0 0
+                0 0 0
+              ]
+            }
+            texCoord TextureCoordinate {
+              point [
+                0 0
+                1 0
+                1 1
+                0 1
+              ]
+            }
+            coordIndex [
+              0, 1, 2, 3, -1
+            ]
+            texCoordIndex [
+              0, 1, 2, 3
+            ]
+          }
+        }
+      ]
+    }
+    Transform {
+      translation -4.53 0 0
+      children [
+        Shape {
+          appearance USE GREEN_APPEARANCE
+          geometry IndexedFaceSet {
+            coord Coordinate {
+              point [
+                0 0 3.3
+                4.53 0 3.3
+                4.53 0 0
+                0 0 0
+              ]
+            }
+            texCoord TextureCoordinate {
+              point [
+                0 1
+                1 1
+                1 0
+                0 0
+              ]
+            }
+            coordIndex [
+              0, 1, 2, 3, -1
+            ]
+            texCoordIndex [
+              0, 1, 2, 3
+            ]
+          }
+        }
+      ]
+    }
+    Transform {
+      translation 4.53 0 0
+      rotation 0 1 0 3.14159
+      children [
+        Shape {
+          appearance USE GREEN_APPEARANCE
+          geometry IndexedFaceSet {
+            coord Coordinate {
+              point [
+                0 0 3.3
+                4.53 0 3.3
+                4.53 0 0
+                0 0 0
+              ]
+            }
+            texCoord TextureCoordinate {
+              point [
+                0 1
+                1 1
+                1 0
+                0 0
+              ]
+            }
+            coordIndex [
+              0, 1, 2, 3, -1
+            ]
+            texCoordIndex [
+              0, 1, 2, 3
+            ]
+          }
+        }
+      ]
+    }
+    Transform {
+      translation 4.53 0 3.3
+      rotation 0 1 0 3.14159
+      children [
+        Shape {
+          appearance USE GREEN_APPEARANCE
+          geometry IndexedFaceSet {
+            coord Coordinate {
+              point [
+                0 0 3.3
+                4.53 0 3.3
+                4.53 0 0
+                0 0 0
+              ]
+            }
+            texCoord TextureCoordinate {
+              point [
+                0 0
+                1 0
+                1 1
+                0 1
+              ]
+            }
+            coordIndex [
+              0, 1, 2, 3, -1
+            ]
+            texCoordIndex [
+              0, 1, 2, 3
+            ]
+          }
+        }
+      ]
+    }
+  ]
+  name "ground"
+  boundingObject Group {
+    children [
+      IndexedFaceSet {
+        coord Coordinate {
+          point [
+            3.4 0 2.2
+            3.4 0 -2.2
+            -3.4 0 -2.2
+            -3.4 0 2.2
+          ]
+        }
+        coordIndex [
+          0, 1, 2, 3
+        ]
+      }
+      Transform {
+        translation 4.9 0.5 0
+        children [
+          Box {
+            size 1 1 6.4
+          }
+        ]
+      }
+      Transform {
+        translation -4.9 0.5 0
+        children [
+          Box {
+            size 1 1 6.4
+          }
+        ]
+      }
+      Transform {
+        translation 0 0.5 3.7
+        children [
+          Box {
+            size 10.8 1 1
+          }
+        ]
+      }
+      Transform {
+        translation 0 0.5 -3.7
+        children [
+          Box {
+            size 10.8 1 1
+          }
+        ]
+      }
+    ]
+  }
+  locked TRUE
+}
+}
