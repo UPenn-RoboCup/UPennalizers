@@ -15,8 +15,6 @@ require('sit')
 require('falling')
 require('standup')
 require('kick')
---require('kfmotion')
-require('pickup')
 
 sm = fsm.new(relax);
 sm:add_state(stance);
@@ -26,9 +24,7 @@ sm:add_state(sit);
 sm:add_state(standup);
 sm:add_state(falling);
 sm:add_state(kick);
-sm:add_state(pickup);
 
---sm:add_state(kfmotion);
 
 sm:set_transition(sit, 'done', relax);
 sm:set_transition(sit, 'standup', stance);
@@ -46,7 +42,6 @@ sm:set_transition(stance, 'sit', sit);
 
 sm:set_transition(walk, 'sit', sit);
 sm:set_transition(walk, 'stance', stance);
-sm:set_transition(walk, "pickup", pickup);
 
 -- falling behaviours
 sm:set_transition(walk, 'fall', falling);
@@ -57,13 +52,6 @@ sm:set_transition(standup, 'fail', standup);
 -- kick behaviours
 sm:set_transition(walk, 'kick', kick);
 sm:set_transition(kick, 'done', walk);
-
--- block behavior
---sm:set_transition(walk, 'kfmotion', kfmotion);
---sm:set_transition(kfmotion, 'done', walk);
-
--- Pickup behavior
-sm:set_transition(pickup, "done", walk);
 
 
 

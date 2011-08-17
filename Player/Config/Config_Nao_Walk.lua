@@ -97,8 +97,8 @@ walk.velLimitX = {-.06, .08};
 walk.velLimitY = {-.045, .045};
 walk.velLimitA = {-.4, .4};
 
-walk.qLArm = math.pi/180*vector.new({105,20,-45});
-walk.qRArm = math.pi/180*vector.new({125,-45,-75});
+--walk.qLArm = math.pi/180*vector.new({105,20,-45});
+--walk.qRArm = math.pi/180*vector.new({125,-45,-75});
 
 walk.hardnessArm = vector.new({.3,.3,.1});
 walk.hardnessLeg = vector.new({1,1,1,1,1,1});
