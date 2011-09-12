@@ -54,6 +54,7 @@ function get_camera_status()
   status.joint = vector.zeros(20);
   tmp = Body.get_head_position();
   status.joint[1],status.joint[2] = tmp[1], tmp[2];
+  mycount = mycount + 1;
   return status;
 end
 
