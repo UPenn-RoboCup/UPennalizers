@@ -238,7 +238,9 @@ static const struct luaL_reg cutil_lib [] = {
   {NULL, NULL}
 };
 
+#ifdef __cplusplus
 extern "C"
+#endif
 int luaopen_cutil (lua_State *L) {
   luaL_register(L, "cutil", cutil_lib);
 

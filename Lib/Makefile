@@ -114,7 +114,8 @@ setup_webots: webots setup_util setup_image
 	cd $(WEBOTSCONTDIR) && MODE=$(MODE) make && cd $(CWD)
 	@echo "\n"
 
-setup_webots_op: webots_op setup_util setup_image setup_velocity
+#setup_webots_op: webots_op setup_util setup_image setup_velocity
+setup_webots_op: webots_op setup_util setup_image 
 	@echo "Setting up Webots Lua/C++ Libraries...\n"
 	find $(WEBOTSOPDIR) $(REGEX) -exec cp -v {} $(INSTDIR) \;
 	cd $(PLAYERDIR)/Config && rm Config.lua && ln -s Config_Webots_OP.lua Config.lua && cd $(CWD)
@@ -176,12 +177,12 @@ setup_naoqi: naoqi setup_util
 clean: 
 	cd $(IMAGEDIR) && make clean && cd $(CWD)
 	cd $(UTILDIR) && make clean && cd $(CWD)
-	cd $(VELODIR) && make clean && cd $(CWD)
+#	cd $(VELODIR) && make clean && cd $(CWD)
 	cd $(NAODIR) && make clean && cd $(CWD)
 	cd $(NAOQIDIR) && make clean && cd $(CWD)
-	cd $(LC2DIR) && make clean && cd $(CWD)
+#	cd $(LC2DIR) && make clean && cd $(CWD)
 	cd $(WEBOTSDIR) && make clean && cd $(CWD)
 	cd $(WEBOTSOPDIR) && make clean && cd $(CWD)
 	cd $(WEBOTSCONTDIR) && make clean && cd $(CWD)
-	cd $(HPDIR) && make clean && cd $(CWD)
+#	cd $(HPDIR) && make clean && cd $(CWD)
 	cd $(OPDIR) && make clean && cd $(CWD)
