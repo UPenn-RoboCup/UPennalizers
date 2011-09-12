@@ -36,7 +36,7 @@ shared.image.height = vector.zeros(1);
 --shared.image.labelA = (processed_img_width)*(processed_img_height);
 --shared.image.labelB = ((processed_img_width)/Config.vision.scaleB)*((processed_img_height)/Config.vision.scaleB);
 -- calculate image shm size
-shsize.image = (shared.image.yuyv + shared.image.labelA + shared.image.labelB) + 2^16;
+--shsize.image = (shared.image.yuyv + shared.image.labelA + shared.image.labelB) + 2^16;
 
 shared.ball = {};
 shared.ball.detect = vector.zeros(1);
@@ -47,7 +47,6 @@ shared.ball.dr = vector.zeros(1);
 shared.ball.da = vector.zeros(1);
 shared.ball.axisMajor = vector.zeros(1);
 shared.ball.axisMinor = vector.zeros(1);
-shsize.image = (shared.image.yuyv + shared.image.labelA + shared.image.labelB) + 2^16;
 
 
 shared.goal = {};
