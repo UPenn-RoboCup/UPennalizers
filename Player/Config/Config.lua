@@ -1,1 +1,1 @@
-Config_Nao.lua
+Config_Webots_OP.lua
