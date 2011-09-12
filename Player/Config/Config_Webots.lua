@@ -14,6 +14,7 @@ function loadconfig(configName)
 end
 
 loadconfig('Config_Nao')
+loadconfig('Config_Webots_Walk')
 
 --Location Specific Camera Parameters--
 loadconfig('Config_Nao_Camera_Webots')
@@ -22,4 +23,12 @@ loadconfig('Config_Nao_Camera_Webots')
 dev.body = 'NaoWebotsBody'; 
 dev.camera = 'NaoWebotsCam';
 dev.kinematics = 'NaoWebotsKinematics';
+
+
+-- keyframe files
+
+km.kick_right = 'km_Webots_KickForwardRight.lua';
+km.kick_left = 'km_Webots_KickForwardLeft.lua';
+km.standup_front = 'km_Webots_StandupFromFront.lua';
+km.standup_back = 'km_Webots_StandupFromBack.lua';
 
