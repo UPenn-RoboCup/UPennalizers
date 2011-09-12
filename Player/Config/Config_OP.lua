@@ -36,8 +36,8 @@ game.nPlayers = 3;
 -- FSM Parameters
 
 fsm = {};
-fsm.game = 'Dodgeball';
---fsm.game = 'OpDemo'
+--fsm.game = 'Dodgeball';
+fsm.game = 'OpDemo'
 --fsm.game = 'RoboCup';
 if( fsm.game == 'RoboCup' ) then
   if (game.playerID == 1) then
@@ -76,10 +76,10 @@ team.nonDefenderPenalty = 0.5; -- dist from goal
 -- keyframe files
 
 km = {};
-km.kick_right = 'km_OP_KickForwardRight.lua';
-km.kick_left = 'km_OP_KickForwardLeft.lua';
-km.standup_front = 'km_OP_StandupFromFront.lua';
-km.standup_back = 'km_OP_StandupFromBack.lua';
+km.kick_right = 'km_Nao_KickForwardRight.lua';
+km.kick_left = 'km_Nao_KickForwardLeft.lua';
+km.standup_front = 'km_Nao_StandupFromFrontFaster.lua';
+km.standup_back = 'km_Nao_StandupFromBackFasterNew.lua';
 
 -- Load the Sitting and standing paramters from the RObot config file
 -- See up top

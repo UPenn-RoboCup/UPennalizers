@@ -10,7 +10,9 @@ function entry()
   print("BodyFSM:".._NAME.." entry");
   t0 = Body.get_time();
   walk.set_velocity(0,0,0);
-  Motion.event("sit");
+  if(Config.platform.name ~= 'webots_op') then
+    Motion.event("sit");
+  end
 end
 
 function update()
@@ -22,5 +24,6 @@ function update()
 end
 
 function exit()
+  walk.start()
   Motion.event("standup");
 end

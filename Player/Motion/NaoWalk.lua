@@ -692,6 +692,10 @@ function stop()
 --  stopRequest = 2;
 end
 
+function stopAlign()
+  stop()
+end
+
 function get_odometry(u0)
   if (not u0) then
     u0 = vector.new({0, 0, 0});

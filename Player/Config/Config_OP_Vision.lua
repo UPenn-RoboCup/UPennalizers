@@ -23,7 +23,7 @@ vision.enable_spot_detection = 0;
 -- use this to enable midfield landmark detection
 vision.enable_midfield_landmark_detection = 1;
 -- Enable Velocity filter
-vision.enable_velocity_detection = 1;
+vision.enable_velocity_detection = 0;
 -- use this to enable copying images to shm (for colortables, testing)
 vision.copy_image_to_shm = 1;
 -- use this to enable storing all images

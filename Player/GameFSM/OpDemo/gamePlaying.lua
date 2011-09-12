@@ -19,6 +19,7 @@ function entry()
 	count = 0;
   -- set indicator
   Body.set_indicator_state({0,1,0});
+
 end
 
 function update()

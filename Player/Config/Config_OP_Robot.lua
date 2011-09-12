@@ -13,8 +13,12 @@ dev.kinematics = 'DarwinOPKinematics';
 dev.comm='NullComm';
 dev.monitor_comm = 'NSLMonitorCommWired';
 dev.game_control='NSLGameControl';
+dev.walk='NaoWalk';
+dev.kick='NaoKick';
+--[[
 dev.walk='NSLWalk';
 dev.kick='NSLKick';
+--]]
 
 -- keyframe files
 km = {};
