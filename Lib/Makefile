@@ -80,7 +80,7 @@ webots:
 	@cd $(WEBOTSDIR) && MODE=$(MODE) make && cd $(CWD)
 	@echo "\n"
 
-webots_op:;
+webots_op:
 	@echo "Compiling Webots OP Lua/C++ Libraries...\n"
 	@cd $(WEBOTSOPDIR) && MODE=$(MODE) make && cd $(CWD)
 	@echo "\n"
@@ -96,19 +96,21 @@ util::
 	@cd $(UTILDIR) && MODE=$(MODE) make && cd $(CWD)
 	@echo "\n"
 
-velocity::
+velocity:
 	@echo "Compiling Velocity Code...\n"
 	@cd $(VELODIR) && MODE=$(MODE) make && cd $(CWD)
 	@echo "\n"
 	
 setup_nao: nao setup_util setup_image
 	@echo "Setting up Nao Lua/C++ Libraries...\n"
+	mkdir -p $(INSTDIR)
 	find $(NAODIR) -regex '.*\($(SHLIBEXT)\|$(LUAEXT)\)' -exec cp -v {} $(INSTDIR) \;
 	cd $(PLAYERDIR)/Config && rm Config.lua && ln -s Config_Nao.lua Config.lua && cd $(CWD)
 	@echo "\n"
 
 setup_webots: webots setup_util setup_image
 	@echo "Setting up Webots Lua/C++ Libraries...\n"
+	mkdir -p $(INSTDIR)
 	find $(WEBOTSDIR) $(REGEX) -exec cp -v {} $(INSTDIR) \;
 	cd $(PLAYERDIR)/Config && rm Config.lua && ln -s Config_Webots.lua Config.lua && cd $(CWD)
 	cd $(WEBOTSCONTDIR) && MODE=$(MODE) make && cd $(CWD)
@@ -117,6 +119,7 @@ setup_webots: webots setup_util setup_image
 #setup_webots_op: webots_op setup_util setup_image setup_velocity
 setup_webots_op: webots_op setup_util setup_image 
 	@echo "Setting up Webots Lua/C++ Libraries...\n"
+	mkdir -p $(INSTDIR)
 	find $(WEBOTSOPDIR) $(REGEX) -exec cp -v {} $(INSTDIR) \;
 	cd $(PLAYERDIR)/Config && rm Config.lua && ln -s Config_Webots_OP.lua Config.lua && cd $(CWD)
 	cd $(WEBOTSCONTDIR) && MODE=$(MODE) make && cd $(CWD)
@@ -126,6 +129,7 @@ setup_webots_op: webots_op setup_util setup_image
 
 setup_lc2: lc2 setup_util setup_image
 	@echo "Setting up LC2 Lua/C++ Libraries...\n"
+	mkdir -p $(INSTDIR)
 	find $(LC2DIR) -regex '.*\($(SHLIBEXT)\|$(LUAEXT)\)' -exec cp -v {} $(INSTDIR) \;
 	touch $(PLAYERDIR)/Config/Config.lua
 	cd $(PLAYERDIR)/Config && rm Config.lua && ln -s Config_LC2.lua Config.lua && cd $(CWD)
@@ -134,6 +138,7 @@ setup_lc2: lc2 setup_util setup_image
 
 setup_hp: hp setup_util setup_image
 	@echo "Setting up HP Lua/C++ Libraries...\n"
+	mkdir -p $(INSTDIR)
 	find $(HPDIR) -regex '.*\($(SHLIBEXT)\|$(LUAEXT)\)' -exec cp -v {} $(INSTDIR) \;
 	touch $(PLAYERDIR)/Config/Config.lua
 	cd $(PLAYERDIR)/Config && rm Config.lua && ln -s Config_HP.lua Config.lua && cd $(CWD)
@@ -142,6 +147,7 @@ setup_hp: hp setup_util setup_image
 
 setup_op: op setup_util setup_image setup_velocity
 	@echo "Setting up Darwin OP Lua/C++ Libraries...\n"
+	mkdir -p $(INSTDIR)
 	find $(OPDIR) -regex '.*\($(SHLIBEXT)\|$(LUAEXT)\)' -exec cp -v {} $(INSTDIR) \;
 	touch $(PLAYERDIR)/Config/Config.lua
 	cd $(PLAYERDIR)/Config && rm Config.lua && ln -s Config_OP.lua Config.lua && cd $(CWD)
@@ -151,11 +157,13 @@ setup_op: op setup_util setup_image setup_velocity
 
 setup_image: image
 	@echo "Setting up Image Processing Lua/C++ Libraries...\n"
+	mkdir -p $(INSTDIR)
 	find $(IMAGEDIR) $(REGEX) -exec cp -v {} $(INSTDIR) \;
 	@echo "\n"
 
 setup_util: util
 	@echo "Setting up Utility Lua/C++ Libraries...\n"
+	mkdir -p $(INSTDIR)
 	find $(UTILDIR) $(REGEX) -exec cp -v {} $(INSTDIR) \;
 	find $(UTILDIR) $(REGEX) -exec cp -v {} $(WEBOTSCONTDIR) \;
 	find $(UTILDIR) $(REGEX) -exec cp -v {} $(NAODEPLUA51DIR) \;
@@ -163,6 +171,7 @@ setup_util: util
 
 setup_velocity: velocity
 	@echo "Setting up Velocity Lua/C++ Libraries...\n"
+	mkdir -p $(INSTDIR)
 	find $(VELODIR) $(REGEX) -exec cp -v {} $(INSTDIR) \;
 	find $(VELODIR) $(REGEX) -exec cp -v {} $(WEBOTSCONTDIR) \;
 	find $(VELODIR) $(REGEX) -exec cp -v {} $(NAODEPLUA51DIR) \;
@@ -171,6 +180,7 @@ setup_velocity: velocity
 
 setup_naoqi: naoqi setup_util
 	@echo "Setting up NaoQi module...\n"
+	mkdir -p $(INSTDIR)
 	rsync -avr --exclude=".*" $(NAOQIDIR)/build/sdk/lib/naoqi/* ../Install/naoqi/lib/naoqi/
 	@echo "\n"
 
