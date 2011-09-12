@@ -48,7 +48,7 @@ end
 
 function get_camera_status()
   status = {};
-  status.select = 0;
+  status.select = get_select();
   status.count = mycount;
   status.time = unix.time();
   status.joint = vector.zeros(20);
