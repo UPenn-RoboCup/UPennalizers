@@ -57,8 +57,7 @@ walk.tDelayBalance = .6;
 walk.gyro0={-1944,-1694};
 
 --Gyro calibration constant
-walk.gyroFactor=0.273*math.pi/180 *300/1024;  --For degree per second unit
-walk.gyroFactor=0.001; --Rough value for nao
+walk.gyroFactor = 0.0;  --For degree per second unit
 
 walk.ankleImuParamX={0.15, -0.40*walk.gyroFactor, 
 	1*math.pi/180, 5*math.pi/180};
