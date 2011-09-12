@@ -691,7 +691,7 @@ extern "C" {
 
 #include "lua.h"
 #include "lauxlib.h"
-#include <malloc/malloc.h>
+#include <malloc.h>
 #include <assert.h>	/* for a few sanity tests */
 
 /* -----------------------------------------------------------------------------
