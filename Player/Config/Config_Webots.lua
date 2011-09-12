@@ -15,6 +15,7 @@ end
 
 loadconfig('Config_Nao')
 loadconfig('Config_Webots_Walk')
+loadconfig('Config_Webots_Nao_Vision')
 
 --Location Specific Camera Parameters--
 loadconfig('Config_Nao_Camera_Webots')
