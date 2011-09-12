@@ -24,6 +24,8 @@ width = controller.wb_camera_get_width(tags.camera);
 image = carray.cast(controller.wb_camera_get_image(tags.camera),
 		    'c', 3*height*width);
 
+mycount = 0;
+
 function set_param()
 end
 
@@ -52,6 +54,7 @@ function get_camera_status()
   status.joint = vector.zeros(20);
   tmp = Body.get_head_position();
   status.joint[1],status.joint[2] = tmp[1], tmp[2];
+  mycount = mycount + 1;
   return status;
 end
 
