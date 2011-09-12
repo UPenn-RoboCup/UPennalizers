@@ -8,8 +8,7 @@ darwin = false;
 local cwd = unix.getcwd();
 
 -- the webots sim is run from the WebotsController dir (not Player)
-if string.find(cwd, 'WebotsController') then
-  webots = true;
+if string.find(cwd, 'WebotsController') then webots = true;
   cwd = cwd..'/Player'
   package.path = cwd..'/?.lua;'..package.path;
 end
@@ -157,14 +156,16 @@ if (webots) then
   print('webots');
   require 'Vision'
   require 'World'
+
   Vision.entry();
   World.entry();
+  -- set game state to playing
+  gcm.set_game_state(3);
   while 1 do
     Vision.update();
     World.update_odometry();
     World.update_vision();
     update();
-    
   end
 end
 
