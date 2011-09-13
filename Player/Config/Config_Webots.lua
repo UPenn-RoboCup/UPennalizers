@@ -34,3 +34,15 @@ km.kick_left = 'km_Webots_KickForwardLeft.lua';
 km.standup_front = 'km_Webots_StandupFromFront.lua';
 km.standup_back = 'km_Webots_StandupFromBack.lua';
 
+-- FSM Parameters
+
+fsm = {};
+fsm.game = 'RoboCup';
+if (game.playerID == 1) then
+  fsm.body = {'NaoGoalie'};
+  fsm.head = {'NaoGoalie'};
+else
+  fsm.body = {'NaoPlayer'};
+  fsm.head = {'NaoPlayer'};
+end
+
