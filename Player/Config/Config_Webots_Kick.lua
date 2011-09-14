@@ -14,8 +14,8 @@ kick.torsoSensorParamY={1-math.exp(-.010/0.2), 0}
 
 --Imu feedback parameters, alpha / gain / deadband / max
 
-gyroFactor=0.273*math.pi/180 *300/1024;  --For degree per second unit
-gyroFactor=0.001; --Rough value for nao
+--gyroFactor=0.273*math.pi/180 *300/1024;  --For degree per second unit
+--gyroFactor=0.001; --Rough value for nao
 gyroFactor=0.000; --Zero out gyroFactor
 
 kick.ankleImuParamX={0.1, -0.3*gyroFactor, 
