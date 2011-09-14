@@ -2,6 +2,7 @@ module(..., package.seeall);
 
 require('parse_hostname')
 require('vector')
+require('os')
 
 platform = {};
 platform.name = 'naoWebots'
@@ -30,8 +31,8 @@ dev.kinematics = 'NaoWebotsKinematics';
 -- Game Parameters
 
 game = {};
-game.teamNumber = 26;
-game.playerID = 1;
+game.teamNumber = os.getenv('TEAM_ID') + 0;
+game.playerID = os.getenv('PLAYER_ID') + 0;
 game.robotID = game.playerID;
 game.teamColor = 1;
 game.nPlayers = 4;
