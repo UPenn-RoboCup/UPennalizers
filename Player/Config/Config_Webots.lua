@@ -27,12 +27,15 @@ dev.camera = 'NaoWebotsCam';
 dev.kinematics = 'NaoWebotsKinematics';
 
 
--- keyframe files
+-- Game Parameters
 
-km.kick_right = 'km_Webots_KickForwardRight.lua';
-km.kick_left = 'km_Webots_KickForwardLeft.lua';
-km.standup_front = 'km_Webots_StandupFromFront.lua';
-km.standup_back = 'km_Webots_StandupFromBack.lua';
+game = {};
+game.teamNumber = 26;
+game.playerID = 1;
+game.robotID = game.playerID;
+game.teamColor = 1;
+game.nPlayers = 4;
+
 
 -- FSM Parameters
 
@@ -45,4 +48,13 @@ else
   fsm.body = {'NaoPlayer'};
   fsm.head = {'NaoPlayer'};
 end
+
+
+-- keyframe files
+
+km.kick_right = 'km_Webots_KickForwardRight.lua';
+km.kick_left = 'km_Webots_KickForwardLeft.lua';
+km.standup_front = 'km_Webots_StandupFromFront.lua';
+km.standup_back = 'km_Webots_StandupFromBack.lua';
+
 
