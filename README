@@ -1,1 +1,39 @@
-Full Robocup code base as used by the UPennalizers in Robocup 2011
+This project is a modularized software framework for use with humanoid robot
+development and research. The modularized platform separates low level
+components that vary from robot to robot from the high level logic that does not
+vary across robots. The low level components include processes to communicate
+with motors and sensors on the robot, including the camera. The high level
+components include the state machines that control how the humanoids move around
+and process sensor data. By separating into these levels, we achieve a more
+adaptable system that is easily ported to different humanoids.
+
+The project began with the University of Pennsylvania RoboCup code base from
+the 2011 RoboCup season and is continuing to evolve into an ever more
+generalized and versatile robot software framework.
+
+
+
+This is a work of the University of Pennsylvania along with help from:
+  * IPRE faculty and students (http://calicoproject.org/Main_Page)
+
+
+Documentation:
+  There is some basic documentation included with the code in the Doc directory.
+
+  Currently there are a few external sources of documentation:
+  * UPenn wiki:   https://fling.seas.upenn.edu/~robocup/wiki/index.php
+  * IPRE wiki:    http://calicoproject.org/Luar
+  * GitHub wiki:  https://github.com/UPenn-RoboCup/UPennalizers/wiki 
+
+  Please bear with us as we are in the process of consolidating all of the
+  information into one place.
+
+  
+Copyright:
+  All code sources associated with this project are freely available under the
+  GPLv3 license.
+
+Contact Information:
+  UPenn EMail:            upennalizers@gmail.com
+  Project Mailing List:   http://myro.roboteducation.org/mailman/listinfo/luar-users
+
