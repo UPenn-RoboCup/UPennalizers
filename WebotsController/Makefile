@@ -36,14 +36,15 @@ endif
 endif
 
 INCLUDE_DIR = $(WEBOTS_HOME)/include
+LUAINCLUDE = -I/usr/local/include -I/usr/include/lua5.1
 LIB_DIR = $(WEBOTS_HOME)/lib
 
 all: controller
 
 %.o: %.cc
-	$(CXX) $(CXXFLAGS) -I$(INCLUDE_DIR) -o $@ -c $<
+	$(CXX) $(CXXFLAGS) $(LUAINCLUDE) -I$(INCLUDE_DIR) -o $@ -c $<
 %.o: %.c
-	$(CC) $(CXXFLAGS) -I$(INCLUDE_DIR) -I$(INCLUDE_DIR)/controller/c -o $@ -c $<
+	$(CC) $(CXXFLAGS) $(LUAINCLUDE) -I$(INCLUDE_DIR) -I$(INCLUDE_DIR)/controller/c -o $@ -c $<
 
 controller_wrap.c: controller.i
 	swig -lua -I$(WEBOTS_HOME)/include/controller/c controller.i
