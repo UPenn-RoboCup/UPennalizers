@@ -36,7 +36,7 @@ endif
 
 BOOST_INCLUDE_DIRS = -I/usr/local/include/boost
 
-INCLUDE_DIRS = -I/usr/local/include $(BOOST_INCLUDE_DIRS)
+INCLUDE_DIRS = -I/usr/local/include -I/usr/include/lua5.1 $(BOOST_INCLUDE_DIRS)
 LIB_DIR = /usr/local/lib
 
 all: shm 

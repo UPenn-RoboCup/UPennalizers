@@ -37,7 +37,7 @@ endif
   LIBRT=
 endif
 
-INCLUDE_DIRS = -I/usr/local/include
+INCLUDE_DIRS = -I/usr/local/include -I/usr/include/lua5.1
 LIB_DIR = /usr/local/lib
 
 all: cutil

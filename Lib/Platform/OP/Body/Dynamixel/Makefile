@@ -34,7 +34,7 @@ ifeq ($(OSTYPE),darwin)
   LIBRT=
 endif
 
-INCLUDE_DIRS = -I/usr/local/include -I/usr/include -I/usr/include/lua
+INCLUDE_DIRS = -I/usr/local/include -I/usr/include -I/usr/include/lua -I/usr/include/lua5.1
 LIB_DIR = /usr/local/lib -L/usr/lib
 
 all: DynamixelPacket

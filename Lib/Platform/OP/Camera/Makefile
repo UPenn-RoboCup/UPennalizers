@@ -32,7 +32,7 @@ ifeq ($(OSTYPE),darwin)
   LDFLAGS= -arch i386
 endif
 
-INCLUDE_DIR = -I/usr/local/include -I/usr/include -I/usr/include/lua
+INCLUDE_DIR = -I/usr/local/include -I/usr/include -I/usr/include/lua -I/usr/include/lua5.1
 LIB_DIR = /usr/local/lib -L/usr/lib
 
 LIBNAME= darwinCam

@@ -29,7 +29,7 @@ ifeq ($(OSTYPE),darwin)
   LDFLAGS= -arch i386
 endif
 
-INCLUDE_DIR = /usr/local/include
+INCLUDE_DIRS = -I/usr/local/include -I/usr/include/lua5.1
 LIB_DIR = /usr/local/lib
 
 LIBNAME= NaoKinematics
@@ -37,11 +37,11 @@ LIBNAME= NaoKinematics
 all: kinematics
 
 %.o: %.cpp
-	$(CXX) $(CXXFLAGS) -I$(INCLUDE_DIR) -o $@ -c $<
+	$(CXX) $(CXXFLAGS) $(INCLUDE_DIRS) -o $@ -c $<
 %.o: %.cc
-	$(CXX) $(CXXFLAGS) -I$(INCLUDE_DIR) -o $@ -c $<
+	$(CXX) $(CXXFLAGS) $(INCLUDE_DIRS) -o $@ -c $<
 %.o: %.c
-	$(CC) $(CXXFLAGS) -I$(INCLUDE_DIR) -o $@ -c $<
+	$(CC) $(CXXFLAGS) $(INCLUDE_DIRS) -o $@ -c $<
 
 kinematics: luaNaoKinematics.o naoKinematics.o Transform.o
 	$(LD) $(LDFLAGS) -o $(LIBNAME).$(SHLIBEXT) $(LIBOPTS) $^ -L$(LIB_DIR) -lm

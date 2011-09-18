@@ -145,7 +145,8 @@ setup_hp: hp setup_util setup_image
 	cp $(INSTDIR)/unix.so $(PLAYERDIR)/
 	@echo "\n"
 
-setup_op: op setup_util setup_image setup_velocity
+#setup_op: op setup_util setup_image setup_velocity
+setup_op: op setup_util setup_image 
 	@echo "Setting up Darwin OP Lua/C++ Libraries...\n"
 	mkdir -p $(INSTDIR)
 	find $(OPDIR) -regex '.*\($(SHLIBEXT)\|$(LUAEXT)\)' -exec cp -v {} $(INSTDIR) \;

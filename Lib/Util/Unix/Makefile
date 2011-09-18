@@ -36,7 +36,7 @@ endif
 
 BOOST_HOME = /usr/local/boost
 
-INCLUDES = -I/usr/local/include
+INCLUDES = -I/usr/local/include -I/usr/include/lua5.1
 LIB_DIR = /usr/local/lib
 
 all: unix stty getch
