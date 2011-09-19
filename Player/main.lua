@@ -166,9 +166,10 @@ if (webots) then
     World.update_odometry();
     World.update_vision();
     update();
+
+    io.stdout:flush();
   end
 
-  io.stdout:flush();
 end
 
 print('Running: '..Config.platform.name)
