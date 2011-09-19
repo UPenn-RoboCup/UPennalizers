@@ -66,6 +66,43 @@ static int lua_shm_delete(lua_State *L) {
   return 0;
 }
 
+static int lua_shm_create_empty_variable(lua_State *L) {
+  managed_shared_memory *shm = lua_checkshm(L, 1);
+
+  const char *key = luaL_checkstring(L, 2);
+  std::vector<value_t> val(1);
+
+  // get the number of bytes 
+  int nbytes = lua_tointeger(L, 3);
+  // calculate size of the shm array (based on sizeof(value_t)
+  int nval = nbytes >> 3;
+  if (nbytes & 0b111) {
+    // if the data does not fit evenly into the value_t types
+    nval++;
+  }
+
+  // Find key in shm
+  std::pair<value_t*, std::size_t> ret;
+  ret = shm->find<value_t>(key);
+  value_t *pr = ret.first;
+  int n = ret.second;
+
+  if (pr == NULL) {
+    // construct the shm key if it doesn't exist
+    //printf("Size of memory segment: %u bytes\n", shm->get_size());
+    //printf("Size of value_t: %u bytes\n", sizeof(value_t) );
+    pr = shm->construct<value_t>(key)[nval]();
+  } else if (n != nval) {
+    // if it exists but is not the correct size
+    // create a new key with the correct size
+    printf("WARNING: Input size %d != current block size %d. Resizing %s block.\n", nval, n, key);
+    shm->destroy_ptr(pr);
+    pr = shm->construct<value_t>(key)[nval]();
+  }
+
+  return 0;
+}
+
 static int lua_shm_set(lua_State *L) {
   managed_shared_memory *shm = lua_checkshm(L, 1);
 
@@ -94,6 +131,10 @@ static int lua_shm_set(lua_State *L) {
     light_bytes = lua_tointeger(L, 4);
     // calculate size of the shm array (based on sizeof(value_t)
     nval = light_bytes >> 3;
+    if (light_bytes & 0b111) {
+      // if the data does not fit evenly into the value_t types
+      nval++;
+    }
   }
   
   // Find key in shm
@@ -241,6 +282,7 @@ static const struct luaL_reg shm_functions[] = {
 };
 
 static const struct luaL_reg shm_methods[] = {
+  {"empty", lua_shm_create_empty_variable},
   {"set", lua_shm_set},
   {"get", lua_shm_get},
   {"pointer", lua_shm_pointer},
