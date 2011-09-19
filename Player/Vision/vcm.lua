@@ -30,13 +30,13 @@ shared.image.headAngles = vector.zeros(2);
 shared.image.fps = vector.zeros(1);
 shared.image.horizonA = vector.zeros(1);
 shared.image.horizonB = vector.zeros(1);
---shared.image.yuyv = 2*Config.camera.width*Config.camera.height; -- 2 bytes per pixel (32 bits describes 2 pixels)
+shared.image.yuyv = 2*Config.camera.width*Config.camera.height; -- 2 bytes per pixel (32 bits describes 2 pixels)
 shared.image.width = vector.zeros(1);
 shared.image.height = vector.zeros(1);
---shared.image.labelA = (processed_img_width)*(processed_img_height);
---shared.image.labelB = ((processed_img_width)/Config.vision.scaleB)*((processed_img_height)/Config.vision.scaleB);
+shared.image.labelA = (processed_img_width)*(processed_img_height);
+shared.image.labelB = ((processed_img_width)/Config.vision.scaleB)*((processed_img_height)/Config.vision.scaleB);
 -- calculate image shm size
---shsize.image = (shared.image.yuyv + shared.image.labelA + shared.image.labelB) + 2^16;
+shsize.image = (shared.image.yuyv + shared.image.labelA + shared.image.labelB) + 2^16;
 
 shared.ball = {};
 shared.ball.detect = vector.zeros(1);
