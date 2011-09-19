@@ -32,7 +32,8 @@ dev.kinematics = 'NaoWebotsKinematics';
 
 game = {};
 game.teamNumber = os.getenv('TEAM_ID') + 0;
-game.playerID = os.getenv('PLAYER_ID') + 0;
+-- webots player ids begin at 0 but we use 1 as the first id
+game.playerID = os.getenv('PLAYER_ID') + 1;
 game.robotID = game.playerID;
 game.teamColor = 1;
 game.nPlayers = 4;
