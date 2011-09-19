@@ -163,8 +163,7 @@ function init_shm_keys(shmHandle, shmTable)
       end
     elseif (type(v) == 'number') then 
       if (not shm_key_exists(shmHandle, k) or shmHandle:size(k) ~= v) then
-        local tmp = carray.new('c', v);
-        shmHandle:set(k, carray.pointer(tmp), v);
+        shmHandle:empty(k, v);
       end
     elseif (type(v) == 'table') then
       if (not shm_key_exists(shmHandle, k, #v)) then
