@@ -6,12 +6,8 @@
 COMPUTER=`uname`
 export COMPUTER
 
-#PLAYER_ID=$1
-PLAYER_ID=1
-export PLAYER_ID
-#TEAM_ID=$2
-TEAM_ID=18
-export TEAM_ID
+export PLAYER_ID=$1
+export TEAM_ID=$2
 
 PLATFORM=webots
 export PLATFORM
