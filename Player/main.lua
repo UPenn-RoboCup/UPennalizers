@@ -167,6 +167,8 @@ if (webots) then
     World.update_vision();
     update();
   end
+
+  io.stdout:flush();
 end
 
 print('Running: '..Config.platform.name)
