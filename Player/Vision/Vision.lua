@@ -199,9 +199,9 @@ function update_shm(status)
             and vcm.get_debug_store_ball_detections() == 1)
         or ((goalCyan.detect == 1 or goalYellow.detect == 1) 
             and vcm.get_debug_store_goal_detections() == 1)) then
-      --vcm.set_image_yuyv(camera.image);
-      --vcm.set_image_labelA(labelA.data);
-      --vcm.set_image_labelB(labelB.data);
+      vcm.set_image_yuyv(camera.image);
+      vcm.set_image_labelA(labelA.data);
+      vcm.set_image_labelB(labelB.data);
     end
   end
 
