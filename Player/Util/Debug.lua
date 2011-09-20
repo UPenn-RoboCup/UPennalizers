@@ -4,9 +4,10 @@ require('shm');
 require('carray');
 require('cutil');
 require('vector');
+require('Config');
 
 -- intialize debug shm handle
-debugShmHandle = shm.new('debug');
+debugShmHandle = shm.new('luarDebug'..Config.game.teamNumber..Config.game.playerID..(os.getenv('USER') or ''));
 if (not util.shm_key_exists(debugShmHandle, 'debuglevel', 1)) then
   debugShmHandle.debuglevel = 1;
 end
