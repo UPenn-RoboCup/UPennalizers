@@ -135,10 +135,6 @@ function update()
 
     -- update battery indicator
     Body.set_indicator_batteryLevel(Body.get_battery_level());
-
-    -- Debug info
-    local ball = wcm.get_ball();
-    print('Ball Velocity: ('..ball.vx..', '..ball.vy..')');
   end
   
   -- check if the last update completed without errors
