@@ -1,12 +1,13 @@
 module(..., package.seeall);
 
 require('io')
+require('os')
 require('unix');
 
 local volume = 25;
 
 -- define speak queue file
-fifo = '/tmp/speakFIFO';
+fifo = '/tmp/speakFIFO'..(os.getenv('USER') or '');
 
 -- clean up old fifo if it exists
 unix.system('rm -f '..fifo);
@@ -26,7 +27,7 @@ if not fid then
 end
 
 -- start espeak background process
-if (unix.system('(/usr/local/bin/espeak --stdout -s 130 -a '..volume..' < '..fifo..' | aplay) > /dev/null 2>&1 &') ~= 0) then
+if (unix.system('(/usr/bin/env espeak --stdout -s 130 -a '..volume..' < '..fifo..' | aplay) > /dev/null 2>&1 &') ~= 0) then
   error('Could not run speak process');
 end
 
