@@ -27,9 +27,9 @@ dev = {};
 dev.body = 'NaoWebotsBody'; 
 dev.camera = 'NaoWebotsCam';
 dev.kinematics = 'NaoWebotsKinematics';
-dev.comm = 'NaoComm';
+dev.comm = 'WebotsNaoComm';
 dev.monitor_comm = 'NaoMonitorComm';
-dev.game_control = 'NaoGameControl';
+dev.game_control = 'WebotsNaoGameControl';
 dev.walk = 'NaoWalk';
 dev.kick = 'NaoKick';
 
