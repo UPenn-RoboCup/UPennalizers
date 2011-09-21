@@ -152,6 +152,9 @@ if (webots) then
   require('cognition');
   cognition.entry();
 
+  -- set game state to Playing
+  gcm.set_game_state(3);
+
   while (true) do
     -- update cognitive process
     cognition.update();
