@@ -101,6 +101,19 @@ static int lua_gamecontrolpacket_parse(lua_State *L) {
     lua_pushstring(L, "player");
     lua_createtable(L, MAX_NUM_PLAYERS, 0);
     // TODO: Populate robot info tables
+    for (int iplayer = 0; iplayer < MAX_NUM_PLAYERS; iplayer++) {
+      lua_createtable(L, 0, 2);
+
+      lua_pushstring(L, "penalty");
+      lua_pushnumber(L, data->teams[iteam].players[iplayer].penalty);
+      lua_settable(L, -3);
+
+      lua_pushstring(L, "secsRemaining");
+      lua_pushnumber(L, data->teams[iteam].players[iplayer].secsTillUnpenalised);
+      lua_settable(L, -3);
+
+      lua_rawseti(L, -2, iplayer+1);
+    }
     lua_settable(L, -3);
 
     lua_rawseti(L, -2, iteam+1);
