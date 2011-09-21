@@ -149,18 +149,13 @@ end
 
 -- if using Webots simulator just run update
 if (webots) then
-  print('webots');
-  require 'Vision'
-  require 'World'
+  require('cognition');
+  cognition.entry();
 
-  Vision.entry();
-  World.entry();
-  -- set game state to playing
-  gcm.set_game_state(3);
-  while 1 do
-    Vision.update();
-    World.update_odometry();
-    World.update_vision();
+  while (true) do
+    -- update cognitive process
+    cognition.update();
+    -- update motion process
     update();
 
     io.stdout:flush();
