@@ -1,0 +1,16 @@
+#!/bin/sh
+
+case "$1" in
+  start)
+    sleep 20
+    if [ nao = `whoami` ]; then
+      touch /home/nao/nao.test
+      cd /home/nao/Player
+      /usr/bin/screen -d -m /usr/local/bin/lua run_cognition.lua > /tmp/cognition_debug.txt
+    else
+      su -c 'cd /home/nao/Player; /usr/bin/screen -d -m /usr/local/bin/lua run_cognition.lua' - nao
+    fi
+    ;;
+esac
+
+exit 0
