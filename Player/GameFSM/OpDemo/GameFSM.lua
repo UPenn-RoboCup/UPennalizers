@@ -1,6 +1,7 @@
 module(..., package.seeall);
 
 require('fsm')
+require('gcm')
 
 require('gameInitial')
 require('gamePlaying')
@@ -15,6 +16,9 @@ sm:set_transition(gameInitial, "playing", gamePlaying);
 sm:set_transition(gamePlaying, "penalized", gamePenalized);
 
 sm:set_transition(gamePenalized, "playing", gamePlaying);
+
+-- set state debug handle to shared memory settor
+sm:set_state_debug_handle(gcm.set_fsm_game_state);
 
 function entry()
   sm:entry()

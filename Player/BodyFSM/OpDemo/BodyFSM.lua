@@ -2,6 +2,7 @@ module(..., package.seeall);
 
 require('Body')
 require('fsm')
+require('gcm')
 
 require('bodyIdle')
 require('bodyChase')
@@ -35,6 +36,8 @@ sm:set_transition(bodySearch, "button", bodyIdle);
 sm:set_transition(bodyChase, "button", bodyIdle);
 sm:set_transition(bodyApproach, "button", bodyIdle);
 
+-- set state debug handle to shared memory settor
+sm:set_state_debug_handle(gcm.set_fsm_body_state);
 
 function entry()
   sm:entry()

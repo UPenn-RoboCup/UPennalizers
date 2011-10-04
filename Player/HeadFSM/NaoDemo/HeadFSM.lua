@@ -1,6 +1,7 @@
 module(..., package.seeall);
 require('Body')
 require('fsm')
+require('gcm')
 
 require('headIdle')
 require('headStart')
@@ -31,6 +32,9 @@ sm:set_transition(headSweep, 'done', headTrack);
 
 sm:set_transition(headScan, 'ball', headTrack);
 sm:set_transition(headScan, 'timeout', headScan);
+
+-- set state debug handle to shared memory settor
+sm:set_state_debug_handle(gcm.set_fsm_head_state);
 
 function entry()
   sm:entry()

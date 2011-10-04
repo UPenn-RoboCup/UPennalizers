@@ -5,6 +5,7 @@ require('UltraSound')
 require('fsm')
 require('vector')
 require('mcm')
+require('gcm')
 
 require('relax')
 require('stance')
@@ -54,6 +55,8 @@ sm:set_transition(walk, 'kick', kick);
 sm:set_transition(kick, 'done', walk);
 
 
+-- set state debug handle to shared memory settor
+sm:set_state_debug_handle(gcm.set_fsm_motion_state);
 
 -- TODO: fix kick->fall transition
 --sm:set_transition(kick, 'fall', falling);
