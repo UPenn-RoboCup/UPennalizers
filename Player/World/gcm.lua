@@ -26,6 +26,12 @@ shared.team.player_id = vector.zeros(1);
 shared.team.color = vector.zeros(1);
 shared.team.role = vector.zeros(1);
 
+shared.fsm = {};
+shared.fsm.body_state = '';
+shared.fsm.head_state = '';
+shared.fsm.motion_state = '';
+shared.fsm.game_state = '';
+
 util.init_shm_segment(getfenv(), _NAME, shared, shsize);
 
 
