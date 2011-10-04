@@ -151,12 +151,19 @@ function update(self)
     self.currentState = self.nextState;
     self.nextState = nil;
     self.currentState.entry();
+    if (self.state_debug_handle) then
+      self.state_debug_handle(self.currentState._NAME);
+    end
   end
 
   self.nextState = nil;
   self.nextAction = nil;
 
   return ret;
+end
+
+function set_state_debug_handle(self, h)
+  self.state_debug_handle = h;
 end
 
 function exit(self)
