@@ -27,9 +27,9 @@ vision.enable_midfield_landmark_detection = 0;
 -- Enable the Velocity filter
 vision.enable_velocity_detection = 0;
 -- use this to enable copying images to shm (for colortables, testing)
-vision.copy_image_to_shm = 0;
+vision.copy_image_to_shm = 1;
 -- use this to enable storing all images
-vision.store_all_images = 0;
+vision.store_all_images = 1;
 -- use this to enable storing images where the goal was detected
 vision.store_goal_detections = 0;
 -- use this to enable storing images where the ball was detected
