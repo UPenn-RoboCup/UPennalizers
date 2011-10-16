@@ -2,6 +2,7 @@
   Lua module to provide shared memory IPC
 */
 
+#include <boost/utility/binary.hpp>
 #include <boost/interprocess/managed_shared_memory.hpp>
 #include <boost/interprocess/allocators/allocator.hpp>
 #include <vector>
@@ -76,7 +77,7 @@ static int lua_shm_create_empty_variable(lua_State *L) {
   int nbytes = lua_tointeger(L, 3);
   // calculate size of the shm array (based on sizeof(value_t)
   int nval = nbytes >> 3;
-  if (nbytes & 0b111) {
+  if (nbytes & BOOST_BINARY(111)) {
     // if the data does not fit evenly into the value_t types
     nval++;
   }
@@ -131,7 +132,7 @@ static int lua_shm_set(lua_State *L) {
     light_bytes = lua_tointeger(L, 4);
     // calculate size of the shm array (based on sizeof(value_t)
     nval = light_bytes >> 3;
-    if (light_bytes & 0b111) {
+    if (light_bytes & BOOST_BINARY(111)) {
       // if the data does not fit evenly into the value_t types
       nval++;
     }
