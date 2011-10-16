@@ -28,11 +28,12 @@ ifeq ($(OSTYPE),darwin)
   SHLIBEXT= dylib
   LIBOPTS= -bundle -undefined dynamic_lookup
   MEXEXT=mexmaci
+  CXXFLAGS= -O2
+ifeq ($(MODE),32)
   CC=gcc -arch i386
   CXX=g++ -arch i386
-  CXXFLAGS= -O2
   LD=g++ -arch i386
-  LIBRT=
+endif
 endif
 
 INCLUDE_DIRS = -I/usr/local/include -I/usr/include/lua5.1
