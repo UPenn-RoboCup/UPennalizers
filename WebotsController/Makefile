@@ -61,4 +61,4 @@ webotsController: webotsController.o
 	$(LD) -o $@.$(SHLIBEXT) $(LIBOPTS) $^ -L$(LIB_DIR) -lController
 
 clean:
-	rm -f controller.$(SHLIBEXT) *.o *.so
+	rm -f controller.$(SHLIBEXT) *.o *.so *.dylib 
