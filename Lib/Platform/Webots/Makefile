@@ -1,23 +1,23 @@
 CWD= $(shell pwd)
 
-all: body camera kinematics comm game_control
+all:: body camera kinematics comm game_control
 
-body:
+body::
 	cd Body && make && cd $(CWD)
 
-camera:
+camera::
 	cd Camera && make && cd $(CWD)
 
-comm:
+comm::
 	cd Comm && make && cd $(CWD)
 
-game_control:
+game_control::
 	cd GameControl && make && cd $(CWD)
 
-kinematics:
+kinematics::
 	cd Kinematics && MODE=$(MODE) make && cd $(CWD)
 
-clean:
+clean::
 	cd Body && make clean && cd $(CWD)
 	cd Camera && make clean && cd $(CWD)
 	cd Kinematics && make clean && cd $(CWD)
