@@ -20,35 +20,23 @@ sudo rsync -avr --exclude=".*" dependencies/etc/* $1/etc/
 # sync usr dependencies to the nao root
 sudo rsync -avr --exclude=".*" --exclude="local" dependencies/usr/* $1/usr/
 
-# compile and install code 
-cd ../Lib/ && make setup_nao && cd $CWD
-sudo rsync -avr --exclude=".*" ../Player $2/nao/
-sudo chown -R 1001 $2/nao
-sudo chgrp -R 18 $2/nao
-
-# install naoqi module
-cd ../Lib/ && make setup_naoqi && cd $CWD
-sudo rsync -avr --exclude=".*"  naoqi/ $2/nao/naoqi/
-sudo chown -R 1001 $2/nao/naoqi
-sudo chgrp -R 18 $2/nao/naoqi
-
 # link /home/local to /usr/local
 sudo ln -s /home/local/ $1/usr/local
 
 # install matlab -- optional
-read -p "copy matlab? (y/n): "
-if [ $REPLY == "y" ]; then
-  read -p "local matlab dir: "
-  sudo mkdir -p $2/local/matlab
-  sudo rsync -avr $REPLY/* $2/local/matlab/
-fi
+#read -p "copy matlab? (y/n): "
+#if [ $REPLY == "y" ]; then
+#  read -p "local matlab dir: "
+#  sudo mkdir -p $2/local/matlab
+#  sudo rsync -avr $REPLY/* $2/local/matlab/
+#fi
 
 # remove aldebaran startups?
-read -p "remove aldebaran connman startup? (y/n): "
+read -p "remove aldebaran connman startup (recommended)? (y/n): "
 if [ $REPLY == "y" ]; then
   sudo rm -f $1/etc/rc5.d/S15connman
 fi
-read -p "remove aldebaran naopathe startup? (y/n): "
+read -p "remove aldebaran naopathe startup (recommended)? (y/n): "
 if [ $REPLY == "y" ]; then
   sudo rm -f $1/etc/rc5.d/S50naopathe
 fi
