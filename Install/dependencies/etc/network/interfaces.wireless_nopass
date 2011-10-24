@@ -7,17 +7,16 @@ iface lo inet loopback
 #iface eth0 inet dhcp
 auto eth0
 iface eth0 inet static
-	address 192.168.0.101
-	netmask 255.255.255.0
-	network 192.168.0.0
+  address 192.168.0.101
+  netmask 255.255.255.0
+  network 192.168.0.0
 
 # Static wireless IP with no password
 auto wlan0
 iface wlan0 inet static
-	address 158.130.103.221
-	netmask 255.255.254.0
-	network 158.130.0.0
-    gateway 158.130.102.1
-up iwconfig wlan0 essid AirPennNet-Guest
-
+  address 192.168.1.101
+  netmask 255.255.254.0
+  network 192.168.1.0
+  gateway 192.168.1.1
+up iwconfig wlan0 essid robocup
 

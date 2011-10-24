@@ -16,7 +16,7 @@ auto wlan0
 iface wlan0 inet manual
 up ifconfig wlan0 up
 up wpa_supplicant -iwlan0 -Dwext -c/etc/wpa_supplicant/wpa_supplicant.conf -B
-up sleep 1 && ifconfig wlan0 172.18.22.103 netmask 255.255.0.0 && route add -net default gw 172.18.254.6
+up sleep 1 && ifconfig wlan0 192.168.26.101 netmask 255.255.0.0 && route add -net default gw 192.168.254.6
 down killall wpa_supplicant
 down ifconfig wlan0 down
 
