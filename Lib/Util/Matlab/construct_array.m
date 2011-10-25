@@ -1,4 +1,5 @@
-%Ashleigh
+% contruct_array is a matlab struct that can be used to reconstruct 
+% segmented arrays broadcasted by the monitor code
 
 function h = construct_array(name)
   h.name = name;
