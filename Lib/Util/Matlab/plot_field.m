@@ -1,4 +1,5 @@
 function h = plot_field()
+% plots the robocup field on the current axis
 
   fieldX = [-3.00  3.00 3.00 -3.00 -3.00];
   fieldY = [-2.00 -2.00 2.00  2.00 -2.00];
