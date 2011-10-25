@@ -10,9 +10,14 @@ ifndef OSTYPE
   #export OSTYPE
 endif
 
+ARCH= $(shell uname -m)
 ifeq ($(OSTYPE),linux)
-  SHLIBEXT=so
+ifeq ($(ARCH),x86_64)
+  MEXEXT=mexa64
+else
   MEXEXT=mexglx
+endif
+  SHLIBEXT=so
   LIBRT=-lrt
 endif
 ifeq ($(OSTYPE),darwin)
@@ -39,5 +44,5 @@ mexshm: mexshm.cpp
 	mex -O $^ $(BOOST_INCLUDE_DIRS) $(LIBRT)
 
 clean:
-	rm -f *.o
-	rm -f *.$(MEXEXT)
+	rm -f *.o *.$(SHLIBEXT) *.$(MEXEXT)
+
