@@ -29,7 +29,7 @@ function h = plot_localization(axesHandle, dispDir)
 
 
   % cell array of the robot plot handles (teamColor x playerID)
-  h.robotPlots = cell(2,0);
+  h.robotPlots = cell(0,0);
 
   h.update = @update;
 
