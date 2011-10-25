@@ -1,4 +1,4 @@
-function h = plot_field
+function h = plot_field()
 
   fieldX = [-3.00  3.00 3.00 -3.00 -3.00];
   fieldY = [-2.00 -2.00 2.00  2.00 -2.00];

@@ -26,16 +26,13 @@ ifeq ($(OSTYPE),darwin)
   INCLUDES=-I/usr/include
 endif
 
-all: naoComm monitorComm time mexshm
+all: naoComm naoCommWired time mexshm
 
 naoComm: naoComm.cc
 	mex -O $^ $(INCLUDES)
 
-monitorComm: monitorComm.cc
-	gcc -c libMonitor.cc
-#	mex -v -O $^ libMonitor.o -I/usr/include
-	mex -O $^ libMonitor.o $(INCLUDES)
-
+naoCommWired: naoCommWired.cc
+	mex -O $^ $(INCLUDES)
 
 time: time.cc timeScalar.cc
 	mex -O $^ $(BOOST_INCLUDE_DIRS) $(LIBRT)
