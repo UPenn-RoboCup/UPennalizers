@@ -1,4 +1,9 @@
 function st = lua2mat(str)
+% function that will convert serialized Lua data into
+% a matlab struct
+%
+% NOTE: This is not a complete solution, some serialized 
+%       types are not supported
 
   str = char(str);
   str = regexprep(str, '\{', 'struct(');  
