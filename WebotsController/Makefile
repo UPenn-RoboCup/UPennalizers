@@ -18,11 +18,13 @@ ifndef OSTYPE
 endif
 
 ifeq ($(OSTYPE),linux)
+	MODE ?= 32
   SHLIBEXT= so
   LIBOPTS= -shared -fpic
   SYS_INC= 
 endif
 ifeq ($(OSTYPE),darwin)
+	MODE ?= 64
   WEBOTS_HOME= /Applications/Webots
   SHLIBEXT= dylib
   LIBOPTS= -bundle -undefined dynamic_lookup
