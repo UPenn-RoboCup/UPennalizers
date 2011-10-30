@@ -27,7 +27,6 @@ REGEX=-regex '.*\($(SHLIBEXT)\|$(LUAEXT)\)'
 
 ifndef OSTYPE
   OSTYPE = $(shell uname -s|awk '{print tolower($$0)}')
-  #export OSTYPE
 endif
 ifeq ($(OSTYPE),linux)
 	MODE ?= 32
