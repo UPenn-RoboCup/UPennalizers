@@ -2,7 +2,6 @@
 
 CWD= $(shell pwd)
 
-MODE ?= 32
 
 NAODIR= Platform/Nao
 NAOQIDIR= NaoQi
@@ -31,9 +30,11 @@ ifndef OSTYPE
   #export OSTYPE
 endif
 ifeq ($(OSTYPE),linux)
+	MODE ?= 32
   SHLIBEXT= so
 endif
 ifeq ($(OSTYPE),darwin)
+	MODE ?= 64
   SHLIBEXT= dylib
   REGEX=\( -regex '.*.$(LUAEXT)' -or -regex '.*.$(SHLIBEXT)' \)
 endif
