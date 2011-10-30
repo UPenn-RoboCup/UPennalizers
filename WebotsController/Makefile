@@ -15,45 +15,48 @@ LIBOPTS= -shared -fpic
 
 ifndef OSTYPE
   OSTYPE = $(shell uname -s|awk '{print tolower($$0)}')
-  #export OSTYPE
 endif
 
 ifeq ($(OSTYPE),linux)
   SHLIBEXT= so
   LIBOPTS= -shared -fpic
+  SYS_INC= 
 endif
 ifeq ($(OSTYPE),darwin)
   WEBOTS_HOME= /Applications/Webots
   SHLIBEXT= dylib
   LIBOPTS= -bundle -undefined dynamic_lookup
+  SYS_INC= -I/usr/include/sys
 ifeq ($(MODE),32)
   CC=gcc -arch i386
   CXX=g++ -arch i386
   LD= ld -arch i386
 endif
   CXXFLAGS= -O2
-
 endif
 
-INCLUDE_DIR = $(WEBOTS_HOME)/include
-LUAINCLUDE = -I/usr/local/include -I/usr/include/lua5.1
-LIB_DIR = $(WEBOTS_HOME)/lib
+WEBOTS_INC= -I$(WEBOTS_HOME)/include
+WEBOTS_C_INC= -I$(WEBOTS_HOME)/include/controller/c
+
+LUA_INC= -I/usr/local/include -I/usr/include/lua5.1
+
+LIB_DIR= $(WEBOTS_HOME)/lib
 
 all: controller
 
 %.o: %.cc
-	$(CXX) $(CXXFLAGS) $(LUAINCLUDE) -I$(INCLUDE_DIR) -o $@ -c $<
+	$(CXX) $(CXXFLAGS) $(LUAINCLUDE) $(WEBOTS_INC) $(SYS_INC) -o $@ -c $<
 %.o: %.c
-	$(CC) $(CXXFLAGS) $(LUAINCLUDE) -I$(INCLUDE_DIR) -I$(INCLUDE_DIR)/controller/c -o $@ -c $<
+	$(CC) $(CXXFLAGS) $(LUA_INC) $(WEBOTS_INC) $(WEBOTS_C_INC) $(SYS_INC) -o $@ -c $<
 
 controller_wrap.c: controller.i
-	swig -lua -I$(WEBOTS_HOME)/include/controller/c controller.i
+	swig -lua $(WEBOTS_C_INC) controller.i
 
 controller: controller_wrap.o
-	$(LD) -o $@.$(SHLIBEXT) $(LIBOPTS) $^ -L$(LIB_DIR) -lController
+	$(LD) -o $@.$(SHLIBEXT) $(LIBOPTS) $^ -L$(LIB_DIR) -lController /usr/lib/crt1.o
 ifeq ($(OSTYPE),darwin)
-	ln -s controller.dylib controller.so
-	ln -s unix.dylib unix.so
+	ln -s -f controller.dylib controller.so
+	ln -s -f unix.dylib unix.so
 endif
 
 # Old handwritten controller code:
@@ -61,4 +64,4 @@ webotsController: webotsController.o
 	$(LD) -o $@.$(SHLIBEXT) $(LIBOPTS) $^ -L$(LIB_DIR) -lController
 
 clean:
-	rm -f controller.$(SHLIBEXT) *.o *.so *.dylib 
+	rm -f controller.$(SHLIBEXT) controller_wrap.c *.o *.so *.dylib 
