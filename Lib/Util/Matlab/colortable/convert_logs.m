@@ -14,21 +14,38 @@ function convert_logs(logdir)
 
 for fileIter = 1:length(nameList);
 
-	% load the log
-	load(pathList(fileIter).name);
-
 	fprintf('converting log: %s...', pathList(fileIter).name);
-	
-	% convert to yuyv
-	log2yuyv;
-	
-	% save yuyv
-	if (~strcmp(logdir(end),'/'))
-		logdir(end+1) = '/';
-	end
-	
-	save([logdir 'yuyv' timestampList(fileIter).name], 'yuyvMontage');
-	
-	fprintf('done\n');
 
+	% load the log
+	logmat = load(pathList(fileIter).name);
+  yuyvMontage = uint32([]);
+  
+  % get the field the images are stored in
+  %   will usually be 'camera'
+  if (isfield(logmat, 'LOG'))
+    if isfield(logmat.LOG,'camera_bot')
+      cam = 'camera_bot';
+    elseif isfield(logmat.LOG, 'camera_top')
+      cam = 'camera_top';
+    else
+      cam = 'camera';
+    end
+	
+    % create the yuyv montage array
+    %   an array of just the image data
+    for i = 1:length(logmat.LOG.(cam))
+      yuyvMontage(:,:,1,i) = logmat.LOG.(cam)(i).yuyv;
+    end
+
+    % save yuyv array
+    if (~strcmp(logdir(end),'/'))
+      logdir(end+1) = '/';
+    end
+    save([logdir 'yuyv' timestampList(fileIter).name], 'yuyvMontage');
+
+    fprintf('done\n');
+  else
+    fprintf('malformed log file: no LOG field\n');
+  end
 end
+
