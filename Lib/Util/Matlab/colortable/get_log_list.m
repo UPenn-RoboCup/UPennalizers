@@ -1,5 +1,5 @@
 function [pathList, nameList, timestampList] = get_log_list(logdir)
-
+% returns the names of all log files the given directory
 
 if(~exist(logdir, 'dir'))
 	error('Directory does not exist.');
@@ -34,3 +34,4 @@ for fileIter = 1:size(dirList,1)
 		
 	end
 end
+

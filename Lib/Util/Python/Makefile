@@ -53,4 +53,4 @@ pyshm: pyshm.o
 	$(CXX) -Wl,-soname,"lib$@.$(SHLIBEXT)" $(LIBOPTS) $^ $(LIBRT) $(LIBLNK) -o $@.$(SHLIBEXT)
 
 clean:
-	rm -f *.o *.$(SHLIBEXT) *.$(MEXEXT)
+	rm -f *.o *.$(SHLIBEXT) 
