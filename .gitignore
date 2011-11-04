@@ -7,7 +7,6 @@
 *.mat
 *.mexglx
 *.mexa64
-*.mexa64
 *.mexmaci
 
 # compiled sources
