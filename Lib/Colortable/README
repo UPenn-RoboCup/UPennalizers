@@ -1,6 +1,0 @@
-UPenn colortable utility
-In Matlab, run colortable
-This will bring up a GUI interface to load a montage file,
-and then select/deselect pixels using the mouse.
-You can then save the resulting selections and colortable file.
-
