@@ -1,0 +1,23 @@
+# Python compiled files and saved data files
+*.pyc
+*.npy
+*.pkl
+
+# MATLAB compiled files and saved data files
+*.mat
+*.mexglx
+*.mexa64
+*.mexa64
+*.mexmaci
+
+# compiled sources
+*.o
+*.so
+*.dylib
+
+# generic log files
+*.log
+
+# Player copy of the compiled libraries
+Player/Lib/*
+
