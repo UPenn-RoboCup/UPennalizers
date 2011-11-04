@@ -20,3 +20,6 @@
 # Player copy of the compiled libraries
 Player/Lib/*
 
+# auto-generated webots controller wrapper
+WebotsController/controller_wrap.c
+
