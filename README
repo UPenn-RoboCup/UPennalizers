@@ -12,28 +12,33 @@ the 2011 RoboCup season and is continuing to evolve into an ever more
 generalized and versatile robot software framework.
 
 
-
 This is a work of the University of Pennsylvania along with help from:
-  * IPRE faculty and students (http://calicoproject.org/Main_Page)
+  * IPRE faculty and students: http://calicoproject.org/Main_Page
+  * RoMeLa at Virginia Tech: http://www.romela.org/main/Robotics_and_Mechanisms_Laboratory
 
 
 Documentation:
-  There is some basic documentation included with the code in the Doc directory.
+  The GitHub Wiki hosts the main source of documentation for this project:
+    - https://github.com/UPenn-RoboCup/UPennalizers/wiki 
 
-  Currently there are a few external sources of documentation:
-  * UPenn wiki:   https://fling.seas.upenn.edu/~robocup/wiki/index.php
-  * IPRE wiki:    http://calicoproject.org/Luar
-  * GitHub wiki:  https://github.com/UPenn-RoboCup/UPennalizers/wiki 
+  Faculty and students at the IPRE project have been adding additional documentation
+  on their site:
+    - http://calicoproject.org/Luar
 
-  Please bear with us as we are in the process of consolidating all of the
-  information into one place.
 
-  
+Mailing List:
+  Anyone using the project is invited to join the mailing list for additional discussion.
+    To register visit: http://myro.roboteducation.org/mailman/listinfo/luar-users
+
+  Thank you to IPRE for setting this up.
+
+
 Copyright:
   All code sources associated with this project are freely available under the
   GPLv3 license.
 
+
 Contact Information:
-  UPenn EMail:            upennalizers@gmail.com
-  Project Mailing List:   http://myro.roboteducation.org/mailman/listinfo/luar-users
+  UPenn EMail:      upennalizers@gmail.com
+  UPenn Website:    https://fling.seas.upenn.edu/~robocup/wiki/index.php
 
