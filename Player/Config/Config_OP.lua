@@ -10,7 +10,7 @@ function loadconfig(configName)
   end
 end
 
-loadconfig('Config_OP_Walk')
+loadconfig('Config_OP_Walk_old')
 loadconfig('Config_OP_World')
 loadconfig('Config_OP_Kick')
 loadconfig('Config_OP_Vision')
@@ -76,10 +76,10 @@ team.nonDefenderPenalty = 0.5; -- dist from goal
 -- keyframe files
 
 km = {};
-km.kick_right = 'km_Nao_KickForwardRight.lua';
-km.kick_left = 'km_Nao_KickForwardLeft.lua';
-km.standup_front = 'km_Nao_StandupFromFrontFaster.lua';
-km.standup_back = 'km_Nao_StandupFromBackFasterNew.lua';
+km.kick_right = 'km_KickForwardRight.lua';
+km.kick_left = 'km_KickForwardLeft.lua';
+km.standup_front = 'km_OP_StandupFromFront.lua';
+km.standup_back = 'km_OP_StandupFromBack.lua';
 
 -- Load the Sitting and standing paramters from the RObot config file
 -- See up top

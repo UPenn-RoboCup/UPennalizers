@@ -11,10 +11,11 @@ dev.camera = 'darwinCam';
 dev.kinematics = 'DarwinOPKinematics';
 --dev.comm='NSLComm';
 dev.comm='NullComm';
-dev.monitor_comm = 'NSLMonitorCommWired';
+dev.monitor_comm = 'NSLCommWired';
 dev.game_control='NSLGameControl';
 dev.walk='NaoWalk';
-dev.kick='NaoKick';
+--dev.kick='NaoKick';
+dev.kick = 'ik_kick'
 --[[
 dev.walk='NSLWalk';
 dev.kick='NSLKick';
