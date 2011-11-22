@@ -13,7 +13,7 @@ loadconfig('Config_OP')
 loadconfig('Config_WebotsOP_Camera')
 
 -- Change the platform
-platform.name = 'webots_op'
+platform.name = 'WebotsOP'
 
 -- Device Interface Libraries
 dev.body = 'DarwinOPWebotsBody';

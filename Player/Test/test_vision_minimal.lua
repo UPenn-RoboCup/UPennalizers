@@ -40,7 +40,7 @@ require('Config');
 require('shm')
 
 --[[
-if Config.platform.name=='nao' then
+if Config.platform.name=='Nao' then
 	print("Waiting for VCM initializing....")
 	shm.destroy('shmVcm')
 	dcmShm=shm.new('shmVcm')

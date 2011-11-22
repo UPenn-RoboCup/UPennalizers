@@ -2,7 +2,7 @@ module(..., package.seeall);
 require('vector')
 
 platform = {};
-platform.name = 'darwinop'
+platform.name = 'OP'
 
 -- Device Interface Libraries
 dev = {};

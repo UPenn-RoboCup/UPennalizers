@@ -5,7 +5,7 @@ require('vector')
 require('os')
 
 platform = {};
-platform.name = 'naoWebots'
+platform.name = 'WebotsNao'
 
 function loadconfig(configName)
   local localConfig=require(configName);

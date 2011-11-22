@@ -47,7 +47,7 @@ require('Motion')
 
 Motion.entry();
 
-if( Config.platform.name=='darwinop' ) then
+if( Config.platform.name=='OP' ) then
   darwin = true;
 end
 
