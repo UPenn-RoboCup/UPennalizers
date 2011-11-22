@@ -40,9 +40,11 @@ endif
 
 all none:
 	@echo "Please do:"
-	@echo "   make SETUP_PLATFORM"
+	@echo "   make [ARCH] SETUP_PLATFORM"
 	@echo "where SETUP_PLATFORM is one of following:"
 	@echo "   $(PLATFORMS)"
+	@echo "and ARCH is one of following:"
+	@echo "   MODE=32(Default) MODE=64"
 
 colortable:
 	@echo "Compiling Colortable Mex Files...\n"
@@ -109,14 +111,14 @@ setup_nao: nao setup_util setup_image
 	@echo "Setting up Nao Lua/C++ Libraries...\n"
 	mkdir -p $(INSTDIR)
 	find $(NAODIR) -regex '.*\($(SHLIBEXT)\|$(LUAEXT)\)' -exec cp -v {} $(INSTDIR) \;
-	cd $(PLAYERDIR)/Config && rm Config.lua && ln -s Config_Nao.lua Config.lua && cd $(CWD)
+	cd $(PLAYERDIR)/Config && ln -s Config_Nao.lua Config.lua && cd $(CWD)
 	@echo "\n"
 
 setup_webots_nao: webots_nao setup_util setup_image
 	@echo "Setting up Webots Lua/C++ Libraries...\n"
 	mkdir -p $(INSTDIR)
 	find $(WEBOTSNAODIR) $(REGEX) -exec cp -v {} $(INSTDIR) \;
-	cd $(PLAYERDIR)/Config && rm Config.lua && ln -s Config_WebotsNao.lua Config.lua && cd $(CWD)
+	cd $(PLAYERDIR)/Config && ln -s Config_WebotsNao.lua Config.lua && cd $(CWD)
 	cd $(WEBOTSCONTDIR) && MODE=$(MODE) make && cd $(CWD)
 	@echo "\n"
 
@@ -125,7 +127,7 @@ setup_webots_op: webots_op setup_util setup_image
 	@echo "Setting up Webots Lua/C++ Libraries...\n"
 	mkdir -p $(INSTDIR)
 	find $(WEBOTSOPDIR) $(REGEX) -exec cp -v {} $(INSTDIR) \;
-	cd $(PLAYERDIR)/Config && rm Config.lua && ln -s Config_WebotsOP.lua Config.lua && cd $(CWD)
+	cd $(PLAYERDIR)/Config && ln -s Config_WebotsOP.lua Config.lua && cd $(CWD)
 	cd $(WEBOTSCONTDIR) && MODE=$(MODE) make && cd $(CWD)
 	cd $(WEBOTSCONTDIR) && touch Player && cd $(CWD)  
 	cd $(WEBOTSCONTDIR) && rm Player && ln -s ../Player Player && cd $(CWD)
@@ -136,7 +138,7 @@ setup_lc2: lc2 setup_util setup_image
 	mkdir -p $(INSTDIR)
 	find $(LC2DIR) -regex '.*\($(SHLIBEXT)\|$(LUAEXT)\)' -exec cp -v {} $(INSTDIR) \;
 	touch $(PLAYERDIR)/Config/Config.lua
-	cd $(PLAYERDIR)/Config && rm Config.lua && ln -s Config_LC2.lua Config.lua && cd $(CWD)
+	cd $(PLAYERDIR)/Config && ln -s Config_LC2.lua Config.lua && cd $(CWD)
 	cp $(INSTDIR)/unix.so $(PLAYERDIR)/
 	@echo "\n"
 
@@ -145,7 +147,7 @@ setup_hp: hp setup_util setup_image
 	mkdir -p $(INSTDIR)
 	find $(HPDIR) -regex '.*\($(SHLIBEXT)\|$(LUAEXT)\)' -exec cp -v {} $(INSTDIR) \;
 	touch $(PLAYERDIR)/Config/Config.lua
-	cd $(PLAYERDIR)/Config && rm Config.lua && ln -s Config_HP.lua Config.lua && cd $(CWD)
+	cd $(PLAYERDIR)/Config && ln -s Config_HP.lua Config.lua && cd $(CWD)
 	cp $(INSTDIR)/unix.so $(PLAYERDIR)/
 	@echo "\n"
 
@@ -155,7 +157,7 @@ setup_op: op setup_util setup_image
 	mkdir -p $(INSTDIR)
 	find $(OPDIR) -regex '.*\($(SHLIBEXT)\|$(LUAEXT)\)' -exec cp -v {} $(INSTDIR) \;
 	touch $(PLAYERDIR)/Config/Config.lua
-	cd $(PLAYERDIR)/Config && rm Config.lua && ln -s Config_OP.lua Config.lua && cd $(CWD)
+	cd $(PLAYERDIR)/Config && ln -s Config_OP.lua Config.lua && cd $(CWD)
 	cp $(INSTDIR)/unix.so $(PLAYERDIR)/
 	cp $(INSTDIR)/unix.so $(PLAYERDIR)/Vision/
 	@echo "\n"
@@ -201,3 +203,4 @@ clean:
 	cd $(WEBOTSCONTDIR) && make clean && cd $(CWD)
 #	cd $(HPDIR) && make clean && cd $(CWD)
 	cd $(OPDIR) && make clean && cd $(CWD)
+	cd $(PLAYERDIR)/Config && rm Config.lua && cd $(CWD)
