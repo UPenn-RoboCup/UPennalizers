@@ -53,7 +53,7 @@ controller: controller_wrap.o
 	$(LD) -o $@.$(SHLIBEXT) $(LIBOPTS) $^ -L$(LIB_DIR) -lController
 ifeq ($(OSTYPE),darwin)
 	ln -s controller.dylib controller.so
-	ln -s unix.dylib unix.so
+#	ln -s unix.dylib unix.so
 endif
 
 # Old handwritten controller code:
@@ -61,4 +61,4 @@ webotsController: webotsController.o
 	$(LD) -o $@.$(SHLIBEXT) $(LIBOPTS) $^ -L$(LIB_DIR) -lController
 
 clean:
-	rm -f controller.$(SHLIBEXT) *.o *.so *.dylib 
+	rm -f controller.$(SHLIBEXT) controller_wrap.c *.o *.so *.dylib 

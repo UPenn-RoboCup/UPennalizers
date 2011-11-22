@@ -1,35 +1,31 @@
 module(... or '', package.seeall)
 
-require('unix')
-
-webots = false;
-darwin = false;
-
-local cwd = unix.getcwd();
-
--- the webots sim is run from the WebotsController dir (not Player)
-if string.find(cwd, 'WebotsController') then webots = true;
-  cwd = cwd..'/Player'
-  package.path = cwd..'/?.lua;'..package.path;
+-- Get Platform for package path
+cwd = '.';
+local platform = os.getenv('PLATFORM') or '';
+if (string.find(platform,'webots')) then cwd = cwd .. '/Player';
 end
 
-computer = os.getenv('COMPUTER') or '';
+-- Get Computer for Lib suffix
+local computer = os.getenv('COMPUTER') or '';
 if (string.find(computer, 'Darwin')) then
   -- MacOS X uses .dylib:
-  package.cpath = cwd..'/Lib/?.dylib;'..package.cpath;
+  package.cpath = cwd .. '/Lib/?.dylib;' .. package.cpath;
 else
-  package.cpath = cwd..'/Lib/?.so;'..package.cpath;
+  package.cpath = cwd .. '/Lib/?.so;' .. package.cpath;
 end
 
-package.path = cwd..'/Util/?.lua;'..package.path;
-package.path = cwd..'/Config/?.lua;'..package.path;
-package.path = cwd..'/Lib/?.lua;'..package.path;
-package.path = cwd..'/Dev/?.lua;'..package.path;
-package.path = cwd..'/Motion/?.lua;'..package.path;
-package.path = cwd..'/Motion/keyframes/?.lua;'..package.path;
-package.path = cwd..'/Vision/?.lua;'..package.path;
-package.path = cwd..'/World/?.lua;'..package.path;
+package.path = cwd .. '/?.lua;' .. package.path;
+package.path = cwd .. '/Util/?.lua;' .. package.path;
+package.path = cwd .. '/Config/?.lua;' .. package.path;
+package.path = cwd .. '/Lib/?.lua;' .. package.path;
+package.path = cwd .. '/Dev/?.lua;' .. package.path;
+package.path = cwd .. '/Motion/?.lua;' .. package.path;
+package.path = cwd .. '/Motion/keyframes/?.lua;' .. package.path;
+package.path = cwd .. '/Vision/?.lua;' .. package.path;
+package.path = cwd .. '/World/?.lua;' .. package.path;
 
+require('unix')
 require('Config')
 require('shm')
 require('vector')
@@ -37,18 +33,25 @@ require('vcm')
 require('gcm')
 require('wcm')
 require('mcm')
-
 require('Speak')
-
 require('getch')
-
 require('Body')
 require('Motion')
 
 Motion.entry();
 
-if( Config.platform.name=='OP' ) then
+darwin = false;
+webots = false;
+
+
+-- Enable OP specific 
+if(Config.platform.name == 'OP') then
   darwin = true;
+end
+
+-- Enable Webots specific
+if (string.find(Config.platform.name,'Webots')) then
+  webots = true;
 end
 
 init = false;
@@ -57,6 +60,7 @@ ready = false;
 if( webots or darwin) then
   ready = true;
 end
+
 
 smindex = 0;
 initToggle = true;
@@ -166,7 +170,6 @@ if (webots) then
 
 end
 
-print('Running: '..Config.platform.name)
 if( darwin ) then
   local tDelay = 0.005 * 1E6; -- Loop every 5ms
   while 1 do

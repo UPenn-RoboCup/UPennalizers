@@ -139,7 +139,7 @@ setup_lc2: lc2 setup_util setup_image
 	find $(LC2DIR) -regex '.*\($(SHLIBEXT)\|$(LUAEXT)\)' -exec cp -v {} $(INSTDIR) \;
 	touch $(PLAYERDIR)/Config/Config.lua
 	cd $(PLAYERDIR)/Config && ln -s Config_LC2.lua Config.lua && cd $(CWD)
-	cp $(INSTDIR)/unix.so $(PLAYERDIR)/
+	cp $(INSTDIR)/unix.$(SHLIBEXT) $(PLAYERDIR)/
 	@echo "\n"
 
 setup_hp: hp setup_util setup_image
@@ -148,7 +148,7 @@ setup_hp: hp setup_util setup_image
 	find $(HPDIR) -regex '.*\($(SHLIBEXT)\|$(LUAEXT)\)' -exec cp -v {} $(INSTDIR) \;
 	touch $(PLAYERDIR)/Config/Config.lua
 	cd $(PLAYERDIR)/Config && ln -s Config_HP.lua Config.lua && cd $(CWD)
-	cp $(INSTDIR)/unix.so $(PLAYERDIR)/
+	cp $(INSTDIR)/unix.$(SHLIBEXT) $(PLAYERDIR)/
 	@echo "\n"
 
 #setup_op: op setup_util setup_image setup_velocity
@@ -156,10 +156,10 @@ setup_op: op setup_util setup_image
 	@echo "Setting up Darwin OP Lua/C++ Libraries...\n"
 	mkdir -p $(INSTDIR)
 	find $(OPDIR) -regex '.*\($(SHLIBEXT)\|$(LUAEXT)\)' -exec cp -v {} $(INSTDIR) \;
-	touch $(PLAYERDIR)/Config/Config.lua
+#	touch $(PLAYERDIR)/Config/Config.lua
 	cd $(PLAYERDIR)/Config && ln -s Config_OP.lua Config.lua && cd $(CWD)
-	cp $(INSTDIR)/unix.so $(PLAYERDIR)/
-	cp $(INSTDIR)/unix.so $(PLAYERDIR)/Vision/
+	cp $(INSTDIR)/unix.$(SHLIBEXT) $(PLAYERDIR)/
+	cp $(INSTDIR)/unix.$(SHLIBEXT) $(PLAYERDIR)/Vision/
 	@echo "\n"
 
 setup_image: image
@@ -172,7 +172,7 @@ setup_util: util
 	@echo "Setting up Utility Lua/C++ Libraries...\n"
 	mkdir -p $(INSTDIR)
 	find $(UTILDIR) $(REGEX) -exec cp -v {} $(INSTDIR) \;
-	find $(UTILDIR) $(REGEX) -exec cp -v {} $(WEBOTSCONTDIR) \;
+#	find $(UTILDIR) $(REGEX) -exec cp -v {} $(WEBOTSCONTDIR) \;
 	find $(UTILDIR) $(REGEX) -exec cp -v {} $(NAODEPLUA51DIR) \;
 	@echo "\n"
 
@@ -203,4 +203,4 @@ clean:
 	cd $(WEBOTSCONTDIR) && make clean && cd $(CWD)
 #	cd $(HPDIR) && make clean && cd $(CWD)
 	cd $(OPDIR) && make clean && cd $(CWD)
-	cd $(PLAYERDIR)/Config && rm Config.lua && cd $(CWD)
+	cd $(PLAYERDIR)/Config && rm -f Config.lua && cd $(CWD)
