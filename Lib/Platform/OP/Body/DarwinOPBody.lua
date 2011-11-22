@@ -205,6 +205,7 @@ function get_sensor_imuGyr0()
 end
 
 function set_indicator_state(color)
+  Body.set_actuator_eyeled({color[1],color[2],color[3]});
 end
 
 function set_indicator_team(teamColor)

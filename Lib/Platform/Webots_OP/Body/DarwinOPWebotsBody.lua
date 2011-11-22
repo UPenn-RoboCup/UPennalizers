@@ -29,7 +29,7 @@ indexRArm = 18; 		--RArm: 18 19 20
 nJointRArm = 3;
 
 jointReverse={
-	--Head: 1,2
+	1,--Head: 1,2
 	--LArm: 3,4,5
 	7,8,9,--LLeg: 6,7,8,9,10,11,
 	16,--RLeg: 12,13,14,15,16,17
@@ -338,13 +338,22 @@ end
 function set_indicator_ball(color)
   -- color is a 3 element vector
   -- convention is all zero indicates no detection
-  set_actuator_eyeled(color);
+  if( color[1]==0 and color[1]==0 and color[1]==0 ) then
+    set_actuator_eyeled({15,15,15});
+  else
+    set_actuator_eyeled({31*color[1],31*color[2],31*color[3]});
+  end
 end
 
 function set_indicator_goal(color)
   -- color is a 3 element vector
   -- convention is all zero indicates no detection
-  set_actuator_headled(color);
+  if( color[1]==0 and color[1]==0 and color[1]==0 ) then
+    set_actuator_headled({15,15,15});
+  else
+    set_actuator_headled({31*color[1],31*color[2],31*color[3]});
+  end
+
 end
 
 function get_battery_level()
