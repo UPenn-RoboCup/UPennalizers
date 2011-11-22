@@ -16,7 +16,7 @@ UTILDIR= Util
 MATLABDIR= Matlab
 COLORTABLEDIR= Colortable
 VELODIR= Velocity
-
+PLATFORMS = nao op webots_nao webots_op
 INSTDIR= ../Player/Lib
 WEBOTSCONTDIR= ../WebotsController
 PLAYERDIR= ../Player
@@ -38,7 +38,13 @@ ifeq ($(OSTYPE),darwin)
   REGEX=\( -regex '.*.$(LUAEXT)' -or -regex '.*.$(SHLIBEXT)' \)
 endif
 
-all: nao webots_nao webots_op op lc2 hp image util
+#all: nao webots_nao webots_op op lc2 hp image util
+
+none:
+	@echo "Please do:"
+	@echo "   make PLATFORM"
+	@echo "where PLATFORM is one of following:"
+	@echo "   $(PLATFORMS)"
 
 colortable:
 	@echo "Compiling Colortable Mex Files...\n"
