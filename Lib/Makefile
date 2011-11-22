@@ -38,9 +38,7 @@ ifeq ($(OSTYPE),darwin)
   REGEX=\( -regex '.*.$(LUAEXT)' -or -regex '.*.$(SHLIBEXT)' \)
 endif
 
-#all: nao webots_nao webots_op op lc2 hp image util
-
-none:
+all none:
 	@echo "Please do:"
 	@echo "   make SETUP_PLATFORM"
 	@echo "where SETUP_PLATFORM is one of following:"
