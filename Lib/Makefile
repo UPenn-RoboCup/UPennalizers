@@ -6,8 +6,8 @@ MODE ?= 32
 
 NAODIR= Platform/Nao
 NAOQIDIR= NaoQi
-WEBOTSDIR= Platform/Webots
-WEBOTSOPDIR= Platform/Webots_OP
+WEBOTSNAODIR= Platform/WebotsNAO
+WEBOTSOPDIR= Platform/WebotsOP
 LC2DIR= Platform/LC2
 HPDIR= Platform/HP2
 OPDIR= Platform/OP
@@ -38,7 +38,7 @@ ifeq ($(OSTYPE),darwin)
   REGEX=\( -regex '.*.$(LUAEXT)' -or -regex '.*.$(SHLIBEXT)' \)
 endif
 
-all: nao webots webots_op op lc2 hp image util
+all: nao webots_nao webots_op op lc2 hp image util
 
 colortable:
 	@echo "Compiling Colortable Mex Files...\n"
@@ -75,9 +75,9 @@ op:
 	@cd $(OPDIR) && make && cd $(CWD)
 	@echo "\n"
 
-webots:
+webots_nao:
 	@echo "Compiling Webots Lua/C++ Libraries...\n"
-	@cd $(WEBOTSDIR) && MODE=$(MODE) make && cd $(CWD)
+	@cd $(WEBOTSNAODIR) && MODE=$(MODE) make && cd $(CWD)
 	@echo "\n"
 
 webots_op:
@@ -108,10 +108,10 @@ setup_nao: nao setup_util setup_image
 	cd $(PLAYERDIR)/Config && rm Config.lua && ln -s Config_Nao.lua Config.lua && cd $(CWD)
 	@echo "\n"
 
-setup_webots: webots setup_util setup_image
+setup_webots_nao: webots_nao setup_util setup_image
 	@echo "Setting up Webots Lua/C++ Libraries...\n"
 	mkdir -p $(INSTDIR)
-	find $(WEBOTSDIR) $(REGEX) -exec cp -v {} $(INSTDIR) \;
+	find $(WEBOTSNAODIR) $(REGEX) -exec cp -v {} $(INSTDIR) \;
 	cd $(PLAYERDIR)/Config && rm Config.lua && ln -s Config_Webots.lua Config.lua && cd $(CWD)
 	cd $(WEBOTSCONTDIR) && MODE=$(MODE) make && cd $(CWD)
 	@echo "\n"
@@ -192,7 +192,7 @@ clean:
 	cd $(NAODIR) && make clean && cd $(CWD)
 	cd $(NAOQIDIR) && make clean && cd $(CWD)
 #	cd $(LC2DIR) && make clean && cd $(CWD)
-	cd $(WEBOTSDIR) && make clean && cd $(CWD)
+	cd $(WEBOTSNAODIR) && make clean && cd $(CWD)
 	cd $(WEBOTSOPDIR) && make clean && cd $(CWD)
 	cd $(WEBOTSCONTDIR) && make clean && cd $(CWD)
 #	cd $(HPDIR) && make clean && cd $(CWD)
