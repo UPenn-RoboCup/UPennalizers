@@ -16,7 +16,7 @@ UTILDIR= Util
 MATLABDIR= Matlab
 COLORTABLEDIR= Colortable
 VELODIR= Velocity
-PLATFORMS = nao op webots_nao webots_op
+PLATFORMS = setup_nao setup_op setup_webots_nao setup_webots_op
 INSTDIR= ../Player/Lib
 WEBOTSCONTDIR= ../WebotsController
 PLAYERDIR= ../Player
@@ -42,8 +42,8 @@ endif
 
 none:
 	@echo "Please do:"
-	@echo "   make PLATFORM"
-	@echo "where PLATFORM is one of following:"
+	@echo "   make SETUP_PLATFORM"
+	@echo "where SETUP_PLATFORM is one of following:"
 	@echo "   $(PLATFORMS)"
 
 colortable:
