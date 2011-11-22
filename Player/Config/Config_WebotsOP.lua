@@ -10,7 +10,7 @@ end
 
 -- Load configuration
 loadconfig('Config_OP')
-loadconfig('Config_OP_Webots_Camera')
+loadconfig('Config_WebotsOP_Camera')
 
 -- Change the platform
 platform.name = 'webots_op'
