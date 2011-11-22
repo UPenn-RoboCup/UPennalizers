@@ -205,7 +205,6 @@ function get_sensor_imuGyr0()
 end
 
 function set_indicator_state(color)
-  Body.set_actuator_eyeled({color[1],color[2],color[3]});
 end
 
 function set_indicator_team(teamColor)
@@ -223,11 +222,21 @@ end
 function set_indicator_ball(color)
   -- color is a 3 element vector
   -- convention is all zero indicates no detection
+  --Body.set_actuator_headled({0,0,0});
+color[1] = 31*color[1];
+color[2] = 31*color[2];
+color[3] = 31*color[3];
+  Body.set_actuator_eyeled( color );
 end
 
 function set_indicator_goal(color)
   -- color is a 3 element vector
   -- convention is all zero indicates no detection
+color[1] = 31*color[1];
+color[2] = 31*color[2];
+color[3] = 31*color[3];
+  Body.set_actuator_headled(color);
+  --Body.set_actuator_eyeled({0,0,0});
 end
 
 function get_battery_level()
