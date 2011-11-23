@@ -299,62 +299,65 @@ function nonsync_read()
 	    	end
 	    end
 	end
---IMU reading
 
-	local data=Dynamixel.read_data(200,38,12);
-	local offset=1;
---	if data then
-	if data and #data>11 then
-		for i=1,3 do
-	       		sensor.imuGyr[Config.gyro.rpy[i]]=
-				Config.gyro.sensitivity[i]*
-				(DynamixelPacket.byte_to_word(data[offset],data[offset+1])-
-				gyrZero[i]);
-			sensor.imuAcc[Config.acc.xyz[i]] = 
-				Config.acc.sensitivity[i]*
-				(DynamixelPacket.byte_to_word(data[offset+6],data[offset+7])-
-				Config.acc.zero[i]);
-			sensor.imuGyrRaw[Config.gyro.rpy[i]]=DynamixelPacket.byte_to_word(data[offset],data[offset+1]);
-			sensor.imuAccRaw[Config.acc.xyz[i]]=DynamixelPacket.byte_to_word(data[offset+6],data[offset+7]);
- 	   	        offset=offset+2;
-		end
-	end
+  --IMU reading
 
---Button reading
-	data=Dynamixel.read_data(200,30,1);
-	if data then
-	sensor.button[1]=math.floor(data[1]/2);
-	sensor.button[2]=data[1]%2;
+  local data=Dynamixel.read_data(200,38,12);
+  local offset=1;
+
+  if data and #data>11 then
+    for i=1,3 do
+      sensor.imuGyr[Config.gyro.rpy[i]] =
+        Config.gyro.sensitivity[i]*
+        (DynamixelPacket.byte_to_word(data[offset],data[offset+1])-gyrZero[i]);
+
+      sensor.imuAcc[Config.acc.xyz[i]] = 
+        Config.acc.sensitivity[i]*
+        (DynamixelPacket.byte_to_word(data[offset+6],data[offset+7])-Config.acc.zero[i]);
+
+      sensor.imuGyrRaw[Config.gyro.rpy[i]]=DynamixelPacket.byte_to_word(data[offset],data[offset+1]);
+      sensor.imuAccRaw[Config.acc.xyz[i]]=DynamixelPacket.byte_to_word(data[offset+6],data[offset+7]);
+      offset = offset + 2;
+    end
+  end
+
+  --Button reading
+  data=Dynamixel.read_data(200,30,1);
+  if data then
+    sensor.button[1]=math.floor(data[1]/2);
+    sensor.button[2]=data[1]%2;
 	end
 end
 
 function sync_read(timeout)
-   local idCM = 128; -- CM-7xx board
-   local addr = 64;
-   local len = 120;
-   timeout = timeout or 0.010;
-   local data = Dynamixel.read_data(idCM, addr, len);
-   if ((not data) or (#data ~= len)) then
-      print("No data")
-      return 
-   end
-   sensor.button[1] = data[1];
-   local offset = 17;
-   for i = 1,3 do
-	sensor.imuAccRaw[Config.acc.xyz[i]]=
-		DynamixelPacket.byte_to_word(data[offset],data[offset+1]);
-	sensor.imuGyrRaw[Config.gyro.rpy[i]]=
-		DynamixelPacket.byte_to_word(data[offset+6],data[offset+7]);
+  local idCM = 128; -- CM-7xx board
+  local addr = 64;
+  local len = 120;
+  timeout = timeout or 0.010;
+  local data = Dynamixel.read_data(idCM, addr, len);
+  if ((not data) or (#data ~= len)) then
+    print("No data")
+    return 
+  end
+  sensor.button[1] = data[1];
+  local offset = 17;
+  for i = 1,3 do
+    sensor.imuAccRaw[Config.acc.xyz[i]] =
+      DynamixelPacket.byte_to_word(data[offset],data[offset+1]);
+    sensor.imuGyrRaw[Config.gyro.rpy[i]]=
+      DynamixelPacket.byte_to_word(data[offset+6],data[offset+7]);
 
-  	sensor.imuGyr[Config.gyro.rpy[i]]=Config.gyro.sensitivity[i]*
-		(sensor.imuGyrRaw[Config.gyro.rpy[i]]-gyrZero[i]);
-	sensor.imuAcc[Config.acc.xyz[i]] = Config.acc.sensitivity[i]*
-		(sensor.imuAccRaw[Config.acc.xyz[i]]-Config.acc.zero[i]);
+    sensor.imuGyr[Config.gyro.rpy[i]] = 
+      Config.gyro.sensitivity[i]*
+      (sensor.imuGyrRaw[Config.gyro.rpy[i]]-gyrZero[i]);
+    sensor.imuAcc[Config.acc.xyz[i]] = 
+      Config.acc.sensitivity[i]*
+      (sensor.imuAccRaw[Config.acc.xyz[i]]-Config.acc.zero[i]);
+    sensor.imuAngle[i] = (1/1024)*
+	    (DynamixelPacket.byte_to_word(data[offset+12],data[offset+13]) - 32768);
 
-        sensor.imuAngle[i] = (1/1024)*
-	      (DynamixelPacket.byte_to_word(data[offset+12],
-					    data[offset+13]) - 32768);
-        offset = offset + 2;
+    offset = offset + 2;
+
    end
 
    offset = 35;
@@ -472,8 +475,8 @@ function update_imu()
 	tPassed=t-tLast;
 	tLast=t;
 	iAngle=vector.new({sensor.imuAngle[1],sensor.imuAngle[2],sensor.imuAngle[3]});
-	gyrAngleDelta=vector.new({sensor.imuGyr[1],sensor.imuGyr[2],sensor.imuGyr[3]})
-		*math.pi/180 * tPassed; --dps to rps conversion
+	gyrAngleDelta = vector.new({sensor.imuGyr[1],sensor.imuGyr[2],sensor.imuGyr[3]})
+                *math.pi/180 * tPassed; --dps to rps conversion
 
 	--Angle transformation: yaw -> pitch -> roll
 	local tTrans=Transform.rotZ(iAngle[3]);
@@ -487,20 +490,16 @@ function update_imu()
 	tTrans=tTrans*tTransDelta;
 	iAngle=Transform.getRPY(tTrans);
 
-        local accMag=sensor.imuAcc[1]^2+sensor.imuAcc[2]^2+sensor.imuAcc[3]^2;
+  local accMag=sensor.imuAcc[1]^2+sensor.imuAcc[2]^2+sensor.imuAcc[3]^2;
 	if accMag>Config.angle.gMin and accMag<Config.angle.gMax then
-
-	    local angY=math.atan2(-sensor.imuAcc[1],
-		math.sqrt(sensor.imuAcc[2]^2+sensor.imuAcc[3]^2) );
-	    local angX=math.atan2(sensor.imuAcc[2],
-		math.sqrt(sensor.imuAcc[1]^2+sensor.imuAcc[3]^2) );
-
-	    iAngle[1],iAngle[2]=
+    local angY=math.atan2(-sensor.imuAcc[1], math.sqrt(sensor.imuAcc[2]^2+sensor.imuAcc[3]^2) );
+    local angX=math.atan2(sensor.imuAcc[2], math.sqrt(sensor.imuAcc[1]^2+sensor.imuAcc[3]^2) );
+    iAngle[1], iAngle[2] =
  	        (1-Config.angle.accFactor)*iAngle[1]+Config.angle.accFactor*angX,
-	        (1-Config.angle.accFactor)*iAngle[2]+Config.angle.accFactor*angY;
+          (1-Config.angle.accFactor)*iAngle[2]+Config.angle.accFactor*angY;
 	end
-	sensor.imuAngle[1],sensor.imuAngle[2],sensor.imuAngle[3]  = 
-		iAngle[1],iAngle[2],iAngle[3];
+
+	sensor.imuAngle[1],sensor.imuAngle[2],sensor.imuAngle[3] = iAngle[1],iAngle[2],iAngle[3];
 
 end
 
