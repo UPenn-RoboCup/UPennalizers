@@ -60,17 +60,6 @@ function entry()
 end
 
 function update(sel, headAngles)
-  if (string.find(Config.platform.name,'OP')) then
-    update_op(sel, headAngles);
-	--print("Update OP HeadTransform");
-  else
-    update_nao(sel, headAngles);
-	--print("Update Nao HeadTransform");
-  end 
-end
-
-
-function update_nao(sel, headAngles)
   -- cameras are 0 indexed so add one for use here
   sel = sel + 1;
 
@@ -98,7 +87,7 @@ function update_op(sel,headAngles)
   tNeck = tNeck*Transform.trans(neckX,0,neckZ);
   tNeck = tNeck*Transform.rotZ(headAngles[1])*Transform.rotY(headAngles[2]);
   tHead = tNeck*Transform.trans(cameraPos[sel][1], cameraPos[sel][2], cameraPos[sel][3]);
-  tHead = tHead*Transform.rotY( pitch0 ); --tHead = tHead*Transform.rotY( cameraPos[sel][2] );
+  tHead = tHead*Transform.rotY( pitch0 );
 end
 
 function exit()
@@ -137,14 +126,6 @@ function coordinatesB(c, scale)
 end
 
 function ikineCam(x, y, z, select)
-  if (string.find(Config.platform.name,'OP')) then
-    return ikineCam_op(x, y, z, select);
-  else
-    return ikineCam_nao(x, y, z, select);
-  end
-end
-
-function ikineCam_nao(x, y, z, select)
   --Bottom camera by default (cameras are 0 indexed so add 1)
   select = (select or 0) + 1;
   --Look at ground by default
@@ -185,7 +166,7 @@ function ikineCam_op(x, y, z, select)
   local yaw = math.atan2(y, x);
   local pitch = math.asin(-z/(norm + 1E-10));
 
-  pitch = pitch - pitch0; --pitch = pitch - cameraAngle[select][2];
+  pitch = pitch - pitch0;
   yaw = math.min(math.max(yaw, yawMin), yawMax);
   pitch = math.min(math.max(pitch, pitchMin), pitchMax);
   return yaw, pitch;
