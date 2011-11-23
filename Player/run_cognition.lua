@@ -10,7 +10,7 @@ cognition.entry();
 while (true) do
   tstart = unix.time();
 
-  congition.update();
+  cognition.update();
 
   tloop = unix.time() - tstart;
   if (tloop < 0.025) then

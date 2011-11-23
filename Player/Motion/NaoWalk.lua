@@ -19,6 +19,7 @@ stepHeight = Config.walk.stepHeight;
 footY = Config.walk.footY;
 supportX = Config.walk.supportX;
 supportY = Config.walk.supportY;
+bodyTilt=Config.walk.bodyTilt;
 hipRollCompensation = Config.walk.hipRollCompensation;
 tSensorDelay = Config.walk.tSensorDelay or 0.035;
 maxX = Config.walk.maxX or {-.06, .08};
@@ -124,6 +125,7 @@ function zmp_solve(zs, z1, z2, x1, x2)
   return aP, aN;
 end
 
+--Finds the necessary COM for stability and returns it
 function zmp_com(ph)
   local com = vector.new({0, 0, 0});
   expT = math.exp(tStep*ph/tZmp);
@@ -181,7 +183,8 @@ function entry()
   qLegs = Kinematics.inverse_legs(pLLeg, pRLeg, pTorso, 0);
   -- This assumes RLeg follows LLeg in servo order:
   Body.set_lleg_command(qLegs);
-  -- Arms
+
+  --Place arms in appropriate position at sides
   Body.set_larm_command(qLArm);
   Body.set_larm_hardness(.2);
   Body.set_rarm_command(qRArm);
@@ -475,6 +478,9 @@ function update()
 
   pTorso[1], pTorso[2], pTorso[6] = 
 	uTorso[1]+uTorsoShift[1], uTorso[2]+uTorsoShift[2], uTorso[3];
+
+  -- Include bodyTilt
+  pTorso[5] = bodyTilt;
 
   qLegs = Kinematics.inverse_legs(pLLeg, pRLeg, pTorso, supportLeg);
   

@@ -4,22 +4,20 @@ require 'unix'
 
 walk = {};
 
-walk.qLArm=math.pi/180*vector.new({90,8,-40});
-walk.qRArm=math.pi/180*vector.new({90,-8,-40});
+walk.qLArm=math.pi/180*vector.new({90,16,-40});
+walk.qRArm=math.pi/180*vector.new({90,-16,-40});
 
-walk.hardnessArm=vector.new({.3,.3,.3});
+walk.hardnessArm=vector.new({.4,.2,.2});
 walk.hardnessLeg=vector.new({1,1,1,1,1,1});
 
 -- Stance and velocity limit values
 walk.stanceLimitX={-0.10,0.10};
 walk.stanceLimitY={0.07,0.20};
-walk.stanceLimitA={0*math.pi/180,30*math.pi/180};
---SJ: this makes turn faster, but we should double check stabiity
---walk.stanceLimitA={-30*math.pi/180,30*math.pi/180};
-
-walk.velLimitX={-.04,.08};
-walk.velLimitY={-.04,.04};
+walk.stanceLimitA={-10*math.pi/180,30*math.pi/180};
+walk.velLimitX={-.06,.08};
+walk.velLimitY={-.03,.03};
 walk.velLimitA={-.4,.4};
+
 walk.rotlimit1=1.5;
 walk.rotlimit2=1;
 walk.velocityModX=0;
@@ -33,16 +31,12 @@ walk.velDelta={0.02,0.02,0.15}
 
 walk.bodyHeight = 0.295; --Using new corrected IK
 walk.footX= -0.020; 
-walk.footY = 0.035;
+walk.footY = 0.0375;
 walk.bodyTilt=20*math.pi/180; --Commanded tilt angle
 walk.bodyTiltActual=20*math.pi/180;--Actual body tilt angle considering flex
---walk.bodyTilt=0*math.pi/180; --Commanded tilt angle
---walk.bodyTiltActual=0*math.pi/180;--Actual body tilt angle considering flex
-
 
 --Support movement parameters
-
-walk.supportX=0;
+walk.supportX=0.015;
 walk.supportXfactor0 = -0.02; --support X shift for fast walking forward
 walk.supportXfactor1 = 1.0; --support shift factor during walking backwards
 walk.supportXfactor2 = -0.02; --base support X shift during walking backwards
@@ -51,7 +45,7 @@ walk.supportYfactor1 = 1.3; --support Y shift during sidestepping
 walk.headPitchFactor=0; --support X shift according to head angle
 
 --Flex compensation Parameters
-walk.hipRollCompensation = 4*math.pi/180;
+walk.hipRollCompensation = 5*math.pi/180;
 walk.hipPitchCompensation = 0*math.pi/180;
 walk.kneePitchCompensation = 0*math.pi/180;
 walk.anklePitchCompensation = 0*math.pi/180;
@@ -60,24 +54,21 @@ walk.anklePitchComp= {0,0};
 walk.ankleFactor=0.5;
 
 --walk.hipPitchCompensation2 = -4*math.pi/180; --Hip pitch modulation for walk backwards
---walk.ankleMod=vector.new({-1,0.5})/0.12 * 10*math.pi/180; --Ankle pitch modulation for walking
---walk.ankleMod2= -1/0.12 * 15*math.pi/180; --Ankle pitch 
 walk.ankleMod=vector.new({-1,0})/0.12 * 10*math.pi/180; --Ankle pitch modulation for walking backwards
-walk.ankleMod2= 0;
+walk.ankleMod2 = 0;
 walk.hipPitchCompensation2 = 0;
 
 --Torso vertical movement (like robotis walk)
 walk.phBodyZ={0.3,0.7}
---walk.bodyModZ={-0.005,0.002,0.005}
 walk.bodyModZ={0,0,0}-- zero movement
 
 --------------------------------------------
 --Default Gait parameters
 ---------------------------------------------
 walk.tZmp = 0.165;
-walk.tStep = 0.25;
-walk.phSingle={0.1,0.9};
-walk.supportY = 0.010;
+walk.tStep = 0.32;
+walk.phSingle={0.15,0.85};
+walk.supportY = 0.020;
 walk.stepHeight = 0.035;
 
 --------------------------------------------------------------

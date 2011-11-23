@@ -18,7 +18,6 @@ for fileIter = 1:length(nameList);
 
 	% load the log
 	logmat = load(pathList(fileIter).name);
-  yuyvMontage = uint32([]);
   
   % get the field the images are stored in
   %   will usually be 'camera'
