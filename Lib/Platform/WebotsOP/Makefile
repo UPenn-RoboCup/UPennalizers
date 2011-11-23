@@ -20,5 +20,6 @@ kinematics::
 clean::
 	cd Body && make clean && cd $(CWD)
 	cd Camera && make clean && cd $(CWD)
+	cd GameControl && make clean && cd $(CWD)
+	cd Comm && make clean && cd $(CWD)
 	cd Kinematics && make clean && cd $(CWD)
-

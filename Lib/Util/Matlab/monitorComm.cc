@@ -1,5 +1,5 @@
 /*
-   x = naoComm;
+   x = monitorComm;
 
    MEX file to send and receive UDP messages.
    Daniel D. Lee, 6/09 <ddlee@seas.upenn.edu>

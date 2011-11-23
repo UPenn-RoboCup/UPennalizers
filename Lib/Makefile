@@ -2,7 +2,6 @@
 
 CWD= $(shell pwd)
 
-MODE ?= 32
 
 NAODIR= Platform/Nao
 NAOQIDIR= NaoQi
@@ -28,12 +27,13 @@ REGEX=-regex '.*\($(SHLIBEXT)\|$(LUAEXT)\)'
 
 ifndef OSTYPE
   OSTYPE = $(shell uname -s|awk '{print tolower($$0)}')
-  #export OSTYPE
 endif
 ifeq ($(OSTYPE),linux)
+	MODE ?= 32
   SHLIBEXT= so
 endif
 ifeq ($(OSTYPE),darwin)
+	MODE ?= 64
   SHLIBEXT= dylib
   REGEX=\( -regex '.*.$(LUAEXT)' -or -regex '.*.$(SHLIBEXT)' \)
 endif
