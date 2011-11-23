@@ -68,6 +68,8 @@ servo.dirReverse={
 	18,19,20,--RArm
 	}
 
+--[[
+-- For old firmware
 servo.steps=vector.new({
 	1024,1024,
 	1024,1024,1024,
@@ -94,6 +96,34 @@ servo.moveRange=vector.new({
 	300,300,300,
 	300,		--For aux
 	})*math.pi/180;
+--]]
+
+-- For new, PID, firmware
+servo.steps=vector.new({
+	4096,4096,
+	4096,4096,4096,
+	4096,4096,4096,4096,4096,4096,
+	4096,4096,4096,4096,4096,4096,
+	4096,4096,4096,
+	4096,		--For aux
+	});
+
+servo.posZero={
+	2048,2048, --Head
+	1024,2560,3072, --LArm
+	2048,2048,2048,2048,2048,2048, --LLeg
+	2048,2048,2048,2048,2048,2048, --RLeg
+	3072,1536,1024, --RArm
+};
+servo.moveRange=vector.new({
+	360,360,
+	360,360,360,
+	360,360,360,360,360,360,
+	360,360,360,360,360,360,
+	360,360,360,
+	360,		--For aux
+	})*math.pi/180;
+-- End motor definitions
 
 --Measured IMU bias parameters
 
