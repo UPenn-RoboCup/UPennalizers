@@ -32,7 +32,7 @@ endif
 INCLUDE_DIRS = -I/usr/local/include -I/usr/include -I/usr/include/lua -I/usr/include/lua5.1
 LIB_DIR = /usr/local/lib -L/usr/lib
 
-LIBNAME= NSLGameControlReceiver
+LIBNAME= OPGameControlReceiver
 
 
 all: game_control_receiver
@@ -44,7 +44,7 @@ all: game_control_receiver
 %.o: %.c
 	$(CC) $(CXXFLAGS) $(INCLUDE_DIRS) -o $@ -c $<
 
-game_control_receiver: luaNSLGameControlReceiver.o timeScalar.o
+game_control_receiver: luaOPGameControlReceiver.o timeScalar.o
 	$(LD) $(LDFLAGS) -o $(LIBNAME).$(SHLIBEXT) $(LIBOPTS) $^ -L$(LIB_DIR) -lm
 
 clean:

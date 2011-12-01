@@ -1,5 +1,5 @@
-#ifndef luaDarwinOPKinematics_h_DEFINED
-#define luaDarwinOPKinematics_H_DEFINED
+#ifndef luaOPKinematics_h_DEFINED
+#define luaOPKinematics_H_DEFINED
 
 extern "C"
 {
@@ -9,6 +9,6 @@ extern "C"
 }
 
 extern "C"
-int luaopen_DarwinOPKinematics(lua_State *L);
+int luaopen_OPKinematics(lua_State *L);
 
 #endif

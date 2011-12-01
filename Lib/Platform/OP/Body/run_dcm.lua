@@ -5,8 +5,7 @@ local cwd = unix.getcwd();
 package.path = cwd.."/../Util/?.lua;"..package.path; --For Transform
 package.path = cwd.."/../Vision/?.lua;"..package.path; --For vcm
 
---dcm = require('DarwinOPCommManager');
-dcm = require('NSLCommManager');
+dcm = require('OPCommManager');
 print('Starting device comm manager...');
 dcm.entry()
 

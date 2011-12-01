@@ -5,7 +5,7 @@ CWD= $(shell pwd)
 
 NAODIR= Platform/Nao
 NAOQIDIR= NaoQi
-WEBOTSNAODIR= Platform/WebotsNAO
+WEBOTSNAODIR= Platform/WebotsNao
 WEBOTSOPDIR= Platform/WebotsOP
 LC2DIR= Platform/LC2
 HPDIR= Platform/HP2

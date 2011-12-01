@@ -8,7 +8,7 @@
 #include "timeScalar.h"
 #include <string.h>
 #include "v4l2.h"
-#include "darwinCam.h"
+#include "OPCam.h"
 
 typedef struct {
   int count;

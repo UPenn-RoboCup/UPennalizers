@@ -35,7 +35,7 @@ endif
 INCLUDE_DIR = -I/usr/local/include -I/usr/include -I/usr/include/lua -I/usr/include/lua5.1
 LIB_DIR = /usr/local/lib -L/usr/lib
 
-LIBNAME= darwinCam
+LIBNAME= OPCam
 
 ifeq ($(OSTYPE),darwin)
 all:
@@ -53,7 +53,7 @@ endif
 %.o: %.c
 	$(CC) $(CXXFLAGS) $(INCLUDE_DIR) -o $@ -c $<
 
-camera: timeScalar.o darwinCam.o v4l2.o
+camera: timeScalar.o OPCam.o v4l2.o
 	$(LD) $(LDFLAGS) -o $(LIBNAME).$(SHLIBEXT) $(LIBOPTS) $^ -L$(LIB_DIR) -lm $(BOOST)
 
 clean:

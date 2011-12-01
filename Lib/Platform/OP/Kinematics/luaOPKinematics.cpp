@@ -1,11 +1,11 @@
 /* 
-  Lua interface to DarwinLC Kinematics
+  Lua interface to OP Kinematics
 
   To compile on Mac OS X:
-  g++ -arch i386 -o DarwinLCKinematics.dylib -bundle -undefined dynamic_lookup luaDarwinLCKinematics.pp DarwinLCKinematics.cc Transform.cc -lm
+  g++ -arch i386 -o OPKinematics.dylib -bundle -undefined dynamic_lookup luaOPKinematics.pp OPKinematics.cc Transform.cc -lm
 */
 
-#include "DarwinOPKinematics.h"
+#include "OPKinematics.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -159,8 +159,8 @@ static const struct luaL_reg kinematics_lib [] = {
 };
 
 extern "C"
-int luaopen_DarwinOPKinematics (lua_State *L) {
-  luaL_register(L, "DarwinOPKinematics", kinematics_lib);
+int luaopen_OPKinematics (lua_State *L) {
+  luaL_register(L, "OPKinematics", kinematics_lib);
   
   return 1;
 }
