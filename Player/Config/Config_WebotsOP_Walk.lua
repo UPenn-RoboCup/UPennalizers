@@ -39,6 +39,8 @@ walk.bodyTiltActual=20*math.pi/180;--Actual body tilt angle considering flex
 
 --Support movement parameters
 walk.supportX=0;
+walk.supportY = 0.025;
+
 walk.supportXfactor0 = -0.02; --support X shift for fast walking forward
 walk.supportXfactor1 = 1.0; --support shift factor during walking backwards
 walk.supportXfactor2 = -0.02; --base support X shift during walking backwards
@@ -70,11 +72,10 @@ walk.bodyModZ={0,0,0}-- zero movement
 --------------------------------------------
 --Default Gait parameters
 ---------------------------------------------
+walk.tStep = 0.40;
 walk.tZmp = 0.165;
-walk.tStep = 0.25;
-walk.phSingle={0.1,0.9};
-walk.supportY = 0.010;
-walk.stepHeight = 0.035;
+walk.stepHeight = 0.045;
+walk.phSingle={0.2,0.8};
 
 --------------------------------------------------------------
 --Imu feedback parameters, alpha / gain / deadband / max
