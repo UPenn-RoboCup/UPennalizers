@@ -17,8 +17,8 @@ loadconfig('Config_WebotsOP_Walk')
 platform.name = 'WebotsOP'
 
 -- Device Interface Libraries
-dev.body = 'DarwinOPWebotsBody';
-dev.camera = 'DarwinOPWebotsCam';
+dev.body = 'WebotsOPBody';
+dev.camera = 'WebotsOPCam';
 
 -- Webots Custom Head Parameters
 head.cameraPos = {{0.05, 0.0, 0.05}}; 

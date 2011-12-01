@@ -45,17 +45,17 @@ all: comm commwired monitorcomm monitorcommwired
 %.o: %.c
 	$(CC) $(CXXFLAGS) $(INCLUDE_DIRS) -o $@ -c $<
 
-comm: luaNSLComm.o 
-	$(LD) $(LDFLAGS) -o NSLComm.$(SHLIBEXT) $(LIBOPTS) $^ -L$(LIB_DIR) -lm
+comm: luaOPComm.o 
+	$(LD) $(LDFLAGS) -o OPComm.$(SHLIBEXT) $(LIBOPTS) $^ -L$(LIB_DIR) -lm
 
-commwired: luaNSLCommWired.o 
-	$(LD) $(LDFLAGS) -o NSLCommWired.$(SHLIBEXT) $(LIBOPTS) $^ -L$(LIB_DIR) -lm
+commwired: luaOPCommWired.o 
+	$(LD) $(LDFLAGS) -o OPCommWired.$(SHLIBEXT) $(LIBOPTS) $^ -L$(LIB_DIR) -lm
 
-monitorcommwired: luaNSLMonitorCommWired.o
-	$(LD) $(LDFLAGS) -o NSLMonitorCommWired.$(SHLIBEXT) $(LIBOPTS) $^ -L$(LIB_DIR) -lm
+monitorcommwired: luaOPMonitorCommWired.o
+	$(LD) $(LDFLAGS) -o OPMonitorCommWired.$(SHLIBEXT) $(LIBOPTS) $^ -L$(LIB_DIR) -lm
 
-monitorcomm: luaNSLMonitorComm.o
-	$(LD) $(LDFLAGS) -o NSLMonitorComm.$(SHLIBEXT) $(LIBOPTS) $^ -L$(LIB_DIR) -lm
+monitorcomm: luaOPMonitorComm.o
+	$(LD) $(LDFLAGS) -o OPMonitorComm.$(SHLIBEXT) $(LIBOPTS) $^ -L$(LIB_DIR) -lm
 
 clean:
 	rm -f *.$(SHLIBEXT) *.o

@@ -378,7 +378,7 @@ static int lua_darwinopcomm_send_particle(lua_State *L) {
 }
 
 
-static const struct luaL_reg NSLComm_lib [] = {
+static const struct luaL_reg OPComm_lib [] = {
   {"size", lua_darwinopcomm_size},
   {"receive", lua_darwinopcomm_receive},
   {"send", lua_darwinopcomm_send},
@@ -392,8 +392,8 @@ static const struct luaL_reg NSLComm_lib [] = {
 #ifdef __cplusplus
 extern "C"
 #endif
-int luaopen_NSLComm (lua_State *L) {
-  luaL_register(L, "NSLComm", NSLComm_lib);
+int luaopen_OPComm (lua_State *L) {
+  luaL_register(L, "OPComm", OPComm_lib);
 
   return 1;
 }

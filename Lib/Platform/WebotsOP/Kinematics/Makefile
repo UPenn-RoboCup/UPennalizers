@@ -37,7 +37,7 @@ endif
 INCLUDE_DIRS = -I/usr/local/include -I/usr/include/lua5.1
 LIB_DIR = /usr/local/lib
 
-LIBNAME= DarwinOPKinematics
+LIBNAME= OPKinematics
 
 all:: kinematics
 
@@ -48,7 +48,7 @@ all:: kinematics
 %.o: %.c
 	$(CC) $(CXXFLAGS) $(INCLUDE_DIRS) -o $@ -c $<
 
-kinematics:: luaDarwinOPKinematics.o DarwinOPKinematics.o Transform.o
+kinematics:: luaOPKinematics.o OPKinematics.o Transform.o
 	$(LD) $(LDFLAGS) -o $(LIBNAME).$(SHLIBEXT) $(LIBOPTS) $^ -L$(LIB_DIR) -lm
 
 clean:

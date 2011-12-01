@@ -108,7 +108,7 @@ static int lua_gamecontrolpacket_parse(lua_State *L, RoboCupGameControlData *dat
     lua_pushnumber(L, data->teams[iteam].teamColour);
     lua_settable(L, -3);
 
-    // NSL has a different goal color than its team color sometimes...
+    // OP has a different goal color than its team color sometimes...
     lua_pushstring(L, "goalColour");
     lua_pushnumber(L, data->teams[iteam].goalColour);
     lua_settable(L, -3);
@@ -208,7 +208,7 @@ static int lua_gamecontrolpacket_receive(lua_State *L) {
   return 1;
 }
 
-static const struct luaL_reg NSLGameControlReceiver_lib [] = {
+static const struct luaL_reg OPGameControlReceiver_lib [] = {
   {"receive", lua_gamecontrolpacket_receive},
   //{"parse", lua_gamecontrolpacket_parse},
   {NULL, NULL}
@@ -217,8 +217,8 @@ static const struct luaL_reg NSLGameControlReceiver_lib [] = {
 #ifdef __cplusplus
 extern "C"
 #endif
-int luaopen_NSLGameControlReceiver (lua_State *L) {
-  luaL_register(L, "NSLGameControlReceiver", NSLGameControlReceiver_lib);
+int luaopen_OPGameControlReceiver (lua_State *L) {
+  luaL_register(L, "OPGameControlReceiver", OPGameControlReceiver_lib);
 
   return 1;
 }

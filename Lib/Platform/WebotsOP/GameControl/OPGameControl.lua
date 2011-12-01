@@ -1,7 +1,7 @@
 module(... or "", package.seeall)
 
 require('Config')
-receiver = require('NSLGameControlReceiver')
+receiver = require('OPGameControlReceiver')
 
 teamNumber = Config.game.teamNumber;
 playerID = Config.game.playerID;

@@ -35,7 +35,7 @@ extern "C"
 //#define IP "10.66.68.255"
 //#define IP "192.168.118.255" // OP, Istanbul
 
-#define PORT 111111
+#define PORT 54321
 #define MDELAY 2
 #define TTL 16
 #define MAX_LENGTH 160000 //Size for sending 640*480 yuyv data without resampling
@@ -378,7 +378,7 @@ static int lua_darwinopcomm_send_particle(lua_State *L) {
 }
 
 
-static const struct luaL_reg NSLCommWired_lib [] = {
+static const struct luaL_reg OPCommWired_lib [] = {
   {"size", lua_darwinopcomm_size},
   {"receive", lua_darwinopcomm_receive},
   {"send", lua_darwinopcomm_send},
@@ -392,8 +392,8 @@ static const struct luaL_reg NSLCommWired_lib [] = {
 #ifdef __cplusplus
 extern "C"
 #endif
-int luaopen_NSLCommWired (lua_State *L) {
-  luaL_register(L, "NSLCommWired", NSLCommWired_lib);
+int luaopen_OPCommWired (lua_State *L) {
+  luaL_register(L, "OPCommWired", OPCommWired_lib);
 
   return 1;
 }

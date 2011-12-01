@@ -27,8 +27,8 @@ extern "C"
 // Set the IP address for where to listen
 //#define IP "255.255.255.255"
 //#define IP "172.18.255.255"
-//#define IP "192.168.123.255" // OP wired
-#define IP "192.168.1.255" // OP, wireless
+#define IP "192.168.123.255" // OP wired
+//#define IP "192.168.1.255" // OP, wireless
 //#define IP "192.168.255.255"
 //#define IP "158.130.103.255" // AirPennNet-Guest specific
 //#define IP "158.130.104.255" //AIRPENNET
@@ -378,7 +378,7 @@ static int lua_darwinopcomm_send_particle(lua_State *L) {
 }
 
 
-static const struct luaL_reg NSLCommWired_lib [] = {
+static const struct luaL_reg OPCommWired_lib [] = {
   {"size", lua_darwinopcomm_size},
   {"receive", lua_darwinopcomm_receive},
   {"send", lua_darwinopcomm_send},
@@ -392,8 +392,8 @@ static const struct luaL_reg NSLCommWired_lib [] = {
 #ifdef __cplusplus
 extern "C"
 #endif
-int luaopen_NSLCommWired (lua_State *L) {
-  luaL_register(L, "NSLCommWired", NSLCommWired_lib);
+int luaopen_OPCommWired (lua_State *L) {
+  luaL_register(L, "OPCommWired", OPCommWired_lib);
 
   return 1;
 }
