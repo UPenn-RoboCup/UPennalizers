@@ -159,8 +159,6 @@ setup_op: op setup_util setup_image
 	find $(OPDIR) -regex '.*\($(SHLIBEXT)\|$(LUAEXT)\)' -exec cp -v {} $(INSTDIR) \;
 #	touch $(PLAYERDIR)/Config/Config.lua
 	cd $(PLAYERDIR)/Config && ln -s Config_OP.lua Config.lua && cd $(CWD)
-	cp $(INSTDIR)/unix.$(SHLIBEXT) $(PLAYERDIR)/
-	cp $(INSTDIR)/unix.$(SHLIBEXT) $(PLAYERDIR)/Vision/
 	@echo "\n"
 
 setup_image: image
@@ -205,3 +203,4 @@ clean:
 #	cd $(HPDIR) && make clean && cd $(CWD)
 	cd $(OPDIR) && make clean && cd $(CWD)
 	cd $(PLAYERDIR)/Config && rm -f Config.lua && cd $(CWD)
+	cd $(PLAYERDIR) && rm -rf Lib && cd $(CWD)

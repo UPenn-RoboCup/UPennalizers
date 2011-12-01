@@ -1,5 +1,5 @@
 /*
-  x = darwinCam(args);
+  x = OPCam(args);
 
   Author: Daniel D. Lee <ddlee@seas.upenn.edu>, 05/10
   	: Stephen McGill 10/10
@@ -202,7 +202,7 @@ static const struct luaL_reg camera_lib [] = {
 };
 
 extern "C"
-int luaopen_darwinCam (lua_State *L) {
+int luaopen_OPCam (lua_State *L) {
   luaL_register(L, "camera", camera_lib);
 
   // Resolution = 1 means VGA (640x480)
