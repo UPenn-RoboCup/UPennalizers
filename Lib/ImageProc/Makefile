@@ -34,7 +34,7 @@ endif
 
 endif
 
-INCLUDE_DIRS = -I/usr/local/include -I/usr/include/lua5.1
+INCLUDE_DIRS = -I/usr/local/include -I/usr/include/lua -I/usr/include/lua5.1
 LIB_DIR = /usr/local/lib
 
 all: ImageProc

@@ -58,7 +58,6 @@ controller: controller_wrap.o
 	$(LD) -o $@.$(SHLIBEXT) $(LIBOPTS) $^ -L$(LIB_DIR) -lController /usr/lib/crt1.o
 ifeq ($(OSTYPE),darwin)
 	ln -s -f controller.dylib controller.so
-	ln -s -f unix.dylib unix.so
 endif
 
 # Old handwritten controller code:
