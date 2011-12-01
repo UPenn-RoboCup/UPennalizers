@@ -40,8 +40,8 @@ endif
 
 all none:
 	@echo "Please do:"
-	@echo "   make [ARCH] SETUP_PLATFORM"
-	@echo "where SETUP_PLATFORM is one of following:"
+	@echo "   make [ARCH] PLATFORM"
+	@echo "where PLATFORM is one of following:"
 	@echo "   $(PLATFORMS)"
 	@echo "and ARCH is one of following:"
 	@echo "   MODE=32(Default) MODE=64"
