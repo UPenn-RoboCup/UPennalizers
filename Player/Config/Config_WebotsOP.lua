@@ -11,6 +11,7 @@ end
 -- Load configuration
 loadconfig('Config_OP')
 loadconfig('Config_WebotsOP_Camera')
+loadconfig('Config_WebotsOP_Walk')
 
 -- Change the platform
 platform.name = 'WebotsOP'

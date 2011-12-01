@@ -316,7 +316,7 @@ end
 function set_actuator_headled(color)
   --input color is 0 to 31, so multiply by 8 to make 0-255
   code= color[1] * 0x80000 + color[2] * 0x800 + color[3]*8;
-  controller.wb_led_set(tags.eyeled,code)
+  controller.wb_led_set(tags.headled,code)
 end
 
 -- Set API compliance functions
