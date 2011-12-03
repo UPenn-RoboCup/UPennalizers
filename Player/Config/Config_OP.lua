@@ -3,6 +3,9 @@ module(..., package.seeall);
 require('vector')
 require('parse_hostname')
 
+platform = {}; 
+platform.name = 'OP'
+
 function loadconfig(configName)
   local localConfig=require(configName);
   for k,v in pairs(localConfig) do

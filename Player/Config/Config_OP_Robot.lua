@@ -1,9 +1,6 @@
 module(..., package.seeall);
 require('vector')
 
-platform = {};
-platform.name = 'OP'
-
 -- Device Interface Libraries
 dev = {};
 dev.body = 'OPBody'; 
