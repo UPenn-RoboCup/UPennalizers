@@ -37,15 +37,41 @@ walk.footY = 0.0375;
 walk.bodyTilt=20*math.pi/180; --Commanded tilt angle
 walk.bodyTiltActual=20*math.pi/180;--Actual body tilt angle considering flex
 
+--------------------------------------------
+--Default Gait parameters
+---------------------------------------------
+walk.tStep = 0.40;
+walk.tZmp = 0.165;
+walk.stepHeight = 0.045;
+walk.phSingle={0.2,0.8};
+
 --Support movement parameters
 walk.supportX=0;
 walk.supportY = 0.025;
 
+--SJ: Parameters used in HMC challenge (slow but alot more stable)
+-----------------------------------------------
+walk.tStep = 0.50;
+walk.supportY = 0.030;
+walk.qLArm=math.pi/180*vector.new({90,5,-40});
+walk.qRArm=math.pi/180*vector.new({90,-5,-40});
+walk.velLimitX={-.06,.10};
+walk.velLimitY={-.04,.04};
+------------------------------------------------
+
+--[[
 walk.supportXfactor0 = -0.02; --support X shift for fast walking forward
 walk.supportXfactor1 = 1.0; --support shift factor during walking backwards
 walk.supportXfactor2 = -0.02; --base support X shift during walking backwards
 walk.supportXfactor3 = 0.3; --support X shift during sidestepping
 walk.supportYfactor1 = 1.3; --support Y shift during sidestepping
+--]]
+
+walk.supportXfactor0 = 0;
+walk.supportXfactor1 = 0; --support shift factor during walking backwards
+walk.supportXfactor2 = 0; --base support X shift during walking backwards
+walk.supportXfactor3 = 0; --support X shift during sidestepping
+walk.supportYfactor1 = 0; --support Y shift during sidestepping
 walk.headPitchFactor=0; --support X shift according to head angle
 
 --Flex compensation Parameters
@@ -54,7 +80,6 @@ walk.hipPitchCompensation = -0*math.pi/180;
 walk.kneePitchCompensation = 0*math.pi/180;
 walk.anklePitchCompensation = 0*math.pi/180;
 walk.anklePitchComp= {0,0};
-
 walk.ankleFactor=0.5;
 
 --walk.hipPitchCompensation2 = -4*math.pi/180; --Hip pitch modulation for walk backwards
@@ -68,14 +93,6 @@ walk.hipPitchCompensation2 = 0;
 walk.phBodyZ={0.3,0.7}
 --walk.bodyModZ={-0.005,0.002,0.005}
 walk.bodyModZ={0,0,0}-- zero movement
-
---------------------------------------------
---Default Gait parameters
----------------------------------------------
-walk.tStep = 0.40;
-walk.tZmp = 0.165;
-walk.stepHeight = 0.045;
-walk.phSingle={0.2,0.8};
 
 --------------------------------------------------------------
 --Imu feedback parameters, alpha / gain / deadband / max

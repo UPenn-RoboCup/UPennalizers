@@ -413,7 +413,10 @@ function stop()
 end
 
 function stopAlign()
-  stop()
+  stop();
+end
+
+function zero_velocity()
 end
 
 function get_odometry(u0)

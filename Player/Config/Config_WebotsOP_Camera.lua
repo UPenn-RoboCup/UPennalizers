@@ -4,8 +4,9 @@ module(..., package.seeall);
 camera = {};
 camera.ncamera = 1;
 camera.switchFreq = 0; --unused for OP
-camera.width = 320; -- Why do we need this here?
-camera.height = 240;
+camera.width = 160; 
+camera.height = 120;
+
 camera.x_center = 160;
 camera.y_center = 120;
 
@@ -24,7 +25,10 @@ camera.param[6] = {key='red_balance',   val={100}};
 camera.param[7] = {key='blue_balance',  val={120}};
 camera.param[8] = {key='hue',           val={0}};
 
-camera.focal_length = 383; -- in pixels
-camera.focal_base = 320; -- image width used in focal length calculation
+
+camera.focal_length = 160; -- in pixels
+camera.focal_base = 120; -- image width used in focal length calculatio
+--camera.focal_length = 383; -- in pixels
+--camera.focal_base = 320; -- image width used in focal length calculatio
 camera.lut_file = 'lutWebots.raw';
 

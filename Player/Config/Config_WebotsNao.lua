@@ -85,10 +85,10 @@ head.bodyTilt = 0;
 -- keyframe files
 
 km = {};
-km.kick_right = 'km_Webots_KickForwardRight.lua';
-km.kick_left = 'km_Webots_KickForwardLeft.lua';
-km.standup_front = 'km_Webots_StandupFromFront.lua';
-km.standup_back = 'km_Webots_StandupFromBack.lua';
+km.kick_right = 'km_WebotsNao_KickForwardRight.lua';
+km.kick_left = 'km_WebotsNao_KickForwardLeft.lua';
+km.standup_front = 'km_WebotsNao_StandupFromFront.lua';
+km.standup_back = 'km_WebotsNao_StandupFromBack.lua';
 
 
 -- sitting parameters
