@@ -74,10 +74,10 @@ team.nonDefenderPenalty = 0.5; -- dist from goal
 -- keyframe files
 
 km = {};
-km.kick_right = 'km_Webots_OP_KickForwardRight.lua';
-km.kick_left = 'km_Webots_OP_KickForwardLeft.lua';
-km.standup_front = 'km_Webots_OP_StandupFromFront.lua';
-km.standup_back = 'km_Webots_OP_StandupFromBack.lua';
+km.kick_right = 'km_WebotsOP_KickForwardRight.lua';
+km.kick_left = 'km_WebotsOP_KickForwardLeft.lua';
+km.standup_front = 'km_WebotsOP_StandupFromFront.lua';
+km.standup_back = 'km_WebotsOP_StandupFromBack.lua';
 
 -- Load the Sitting and standing paramters from the RObot config file
 -- See up top

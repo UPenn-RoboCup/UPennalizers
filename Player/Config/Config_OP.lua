@@ -79,8 +79,8 @@ team.nonDefenderPenalty = 0.5; -- dist from goal
 -- keyframe files
 
 km = {};
-km.kick_right = 'km_KickForwardRight.lua';
-km.kick_left = 'km_KickForwardLeft.lua';
+km.kick_right = 'km_OP_KickForwardRight.lua';
+km.kick_left = 'km_OP_KickForwardLeft.lua';
 km.standup_front = 'km_OP_StandupFromFront.lua';
 km.standup_back = 'km_OP_StandupFromBack.lua';
 
