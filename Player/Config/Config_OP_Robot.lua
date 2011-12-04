@@ -3,34 +3,25 @@ require('vector')
 
 -- Device Interface Libraries
 dev = {};
-dev.body = 'WebotsOPBody'; 
-dev.camera = 'WebotsOPCam';
+dev.body = 'OPBody'; 
+dev.camera = 'OPCam';
 dev.kinematics = 'OPKinematics';
---dev.comm='WebotsOPComm';
+--dev.comm='OPComm';
 dev.comm='NullComm';
 dev.monitor_comm = 'OPCommWired';
 dev.game_control='OPGameControl';
---dev.walk='NaoWalk';
-dev.walk='OPWalk';
-
+dev.walk='NaoWalk';
 --dev.kick='NaoKick';
 dev.kick = 'ik_kick'
-
 --[[
 dev.walk='NSLWalk';
 dev.kick='NSLKick';
 --]]
 
-dev.kick='NSLKick';
-
 --Sitting parameters
 sit={};
 sit.bodyHeight=0.18+0.05; --Fixed with new kinematics
 sit.bodyHeight=0.17+0.05; --Fixed with new kinematics
-
-sit.bodyHeight=0.20; --Fixed 
-
-
 sit.supportX=-0.020;
 sit.supportX=-0.010;
 
@@ -69,6 +60,7 @@ servo.dirReverse={
 	18,19,20,--RArm
 	}
 
+--[[
 -- For old firmware
 servo.steps=vector.new({
 	1024,1024,
@@ -96,7 +88,8 @@ servo.moveRange=vector.new({
 	300,300,300,
 	300,		--For aux
 	})*math.pi/180;
---[[
+--]]
+
 -- For new, PID, firmware
 servo.steps=vector.new({
 	4096,4096,
@@ -123,7 +116,7 @@ servo.moveRange=vector.new({
 	360,		--For aux
 	})*math.pi/180;
 -- End motor definitions
---]]
+
 --Measured IMU bias parameters
 
 gyro={};
@@ -150,14 +143,15 @@ acc.zero=vector.new({512,512,512}); --Measured value
 
 head = {};
 head.camOffsetZ = 0.37;
-head.pitchMin = -35*math.pi/180;
-head.pitchMax = 88*math.pi/180;
+--head.pitchMin = -35*math.pi/180;
+head.pitchMin = -55*math.pi/180;
+head.pitchMax = 68*math.pi/180;
 head.yawMin = -90*math.pi/180;
 head.yawMax = 90*math.pi/180;
 
-head.cameraPos = {{0.05, 0.0, 0.05}} --OP, spec value, may need to be recalibrated
-head.cameraAngle = {{0.0, 0.0, 0.0}}; --Default value for production OP
+head.cameraPos = {{0.034, 0.0, 0.0332}} --OP, spec value, may need to be recalibrated
+head.cameraAngle = {{0.0, 40*math.pi/180, 0.0}}; --Default value for production OP
 head.neckZ=0.0765; --From CoM to neck joint 
 head.neckX=0.013; --From CoM to neck joint
+head.bodyTilt = 0;
 
-head.cameraAngle = {{0.0, 5*math.pi/180, 0.0}}; --Default value for production OP

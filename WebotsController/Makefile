@@ -55,7 +55,7 @@ controller_wrap.c: controller.i
 	swig -lua $(WEBOTS_C_INC) controller.i
 
 controller: controller_wrap.o
-	$(LD) -o $@.$(SHLIBEXT) $(LIBOPTS) $^ -L$(LIB_DIR) -lController /usr/lib/crt1.o
+	$(LD) -o $@.$(SHLIBEXT) $(LIBOPTS) $^ -L$(LIB_DIR) -lController
 ifeq ($(OSTYPE),darwin)
 	ln -s -f controller.dylib controller.so
 endif
