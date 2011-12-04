@@ -29,7 +29,7 @@ indexRArm = 18; 		--RArm: 18 19 20
 nJointRArm = 3;
 
 jointReverse={
-	1,--Head: 1,2
+--	1,--Head: 1,2
 	--LArm: 3,4,5
 	7,8,9,--LLeg: 6,7,8,9,10,11,
 	16,--RLeg: 12,13,14,15,16,17

@@ -15,11 +15,14 @@ maxStep = 0.025;
 tLost = 3.0;
 
 -- kick threshold
-xKick = 0.16;
-xTarget = 0.14;
+xKick = 0.14;
+xTarget = 0.13;
 yKickMin = 0.01;
 yKickMax = 0.05;
 yTarget0 = 0.04;
+
+
+
 
 -- maximum ball distance threshold
 rFar = 0.45;

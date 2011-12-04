@@ -10,20 +10,18 @@ dev.kinematics = 'OPKinematics';
 dev.comm='NullComm';
 dev.monitor_comm = 'OPCommWired';
 dev.game_control='OPGameControl';
-dev.walk='NaoWalk';
+--dev.walk='NaoWalk';
+dev.walk='OPWalk';
 
 --dev.kick='NaoKick';
---dev.kick = 'ik_kick'
-dev.kick='NSLKick';
+dev.kick = 'ik_kick'
 
 --[[
 dev.walk='NSLWalk';
 dev.kick='NSLKick';
 --]]
 
-dev.walk='OPWalk';
---dev.walk='NSLWalk';
-
+dev.kick='NSLKick';
 
 --Sitting parameters
 sit={};
@@ -152,9 +150,8 @@ acc.zero=vector.new({512,512,512}); --Measured value
 
 head = {};
 head.camOffsetZ = 0.37;
---head.pitchMin = -35*math.pi/180;
-head.pitchMin = -55*math.pi/180;
-head.pitchMax = 68*math.pi/180;
+head.pitchMin = -35*math.pi/180;
+head.pitchMax = 88*math.pi/180;
 head.yawMin = -90*math.pi/180;
 head.yawMax = 90*math.pi/180;
 
@@ -162,5 +159,5 @@ head.cameraPos = {{0.05, 0.0, 0.05}} --OP, spec value, may need to be recalibrat
 head.cameraAngle = {{0.0, 0.0, 0.0}}; --Default value for production OP
 head.neckZ=0.0765; --From CoM to neck joint 
 head.neckX=0.013; --From CoM to neck joint
-head.bodyTilt = 0;
 
+head.cameraAngle = {{0.0, 5*math.pi/180, 0.0}}; --Default value for production OP

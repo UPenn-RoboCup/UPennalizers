@@ -8,9 +8,9 @@ require('vector')
 t0 = 0;
 timeout = 20.0;
 -- maximum walk velocity
-maxStep = 0.04;
+maxStep = 0.08;
 -- ball distance threshold
-rClose = 0.35;
+rClose = 0.25;
 
 -- ball detection timeout
 tLost = 3.0;

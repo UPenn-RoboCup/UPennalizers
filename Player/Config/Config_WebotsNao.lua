@@ -79,7 +79,6 @@ head.cameraAngle = {{0.0, 0.0, 0.0},
                     {0.0, 40*math.pi/180, 0.0}};
 head.neckZ=0.14; --From CoM to neck joint
 head.neckX=0;  
-head.bodyTilt = 0;
 
 
 -- keyframe files

@@ -18,10 +18,9 @@ maxStep = 0.04;
 tLost = 3.0;
 
 -- kick target threshold
---xKick = 0.22;
---xTarget = 0.16;
-xKick = 0.13;
-xTarget = 0.09;
+xKick = 0.18;
+xTarget = 0.15;
+	
 print('xKick')
 print(xKick)
 

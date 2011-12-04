@@ -10,6 +10,9 @@ camera.height = 120;
 camera.x_center = 160;
 camera.y_center = 120;
 
+camera.x_center = 80;
+camera.y_center = 60;
+
 camera.auto_param = {};
 camera.auto_param[1] = {key='auto_exposure',      val={0}};
 camera.auto_param[2] = {key='auto_white_balance', val={0}};

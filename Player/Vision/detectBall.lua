@@ -79,9 +79,14 @@ function detect(color)
 
 
     --Ball height check
+
+--TODO: check this after coordinate change (now origin is on the ground)
+    if 1 then
+--[[
     if v[3] > Config.vision.ball_height_max then
       Debug.vprint(2,1,'Height check fail');
       return ball;
+--]]
     else   
       if Config.vision.check_for_ground == 1 then
         -- ground check
@@ -111,7 +116,7 @@ function detect(color)
     end
   end
   
-
+--[[
   -- Project to ground plane
   if (v[3] < -headZ) then
     v = (-headZ/v[3])*v;
@@ -121,6 +126,9 @@ function detect(color)
   uBodyOffset = mcm.get_walk_bodyOffset();
   v[1] = v[1] - uBodyOffset[1];
   v[2] = v[2] - uBodyOffset[2];
+--]]
+
+  v=HeadTransform.projectGround(v,diameter/2);
 
   ball.v = v;
   ball.detect = 1;
