@@ -21,6 +21,9 @@ dev.walk='NSLWalk';
 dev.kick='NSLKick';
 --]]
 
+--This is the open-source walk code for OP
+dev.walk='OPWalk';
+
 -- keyframe files
 km = {};
 km.standup_front = 'km_OP_StandupFromFront.lua';

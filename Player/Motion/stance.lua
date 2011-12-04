@@ -1,135 +1,118 @@
 module(..., package.seeall);
 
+require('Config')
 require('Body')
 require('Kinematics')
 require('walk')
 require('vector')
+require('Transform')
 
 active = true;
 t0 = 0;
 
 bodyHeight = Config.walk.bodyHeight;
-footY = walk.footY;
-supportX = walk.supportX;
+footY = Config.walk.footY;
+supportX = Config.walk.supportX;
 qLArm = walk.qLArm;
 qRArm = walk.qRArm;
-bodyTilt=walk.bodyTilt;
---qLArm = math.pi/180*vector.new({105, 12, -85, -30});
---qRArm = math.pi/180*vector.new({105, -12, 85, 30});
-
---time to wait before beginning to move--
-delay = Config.stance.delay or 70;
-
---[[
--- pTorso fixed for stance:
-pTorso = vector.new({supportX, 0, bodyHeight, 0,0,0});
--- Final stance foot position6D
-pLLegStance = vector.new({0, footY, 0, 0,0,0});
-pRLegStance = vector.new({0, -footY, 0, 0,0,0});
---]]
+bodyTilt=Config.walk.bodyTilt;
 
 -- Final stance foot position6D
---pTorso = vector.new({0, 0, bodyHeight, 0,bodyTilt,0});--TODO: fix bug with inital stance jump
-pTorso = vector.new({0, 0, bodyHeight, 0,0,0});
-pLLegStance = vector.new({-supportX, footY, 0, 0,0,0});
-pRLegStance = vector.new({-supportX, -footY, 0, 0,0,0});
+pTorsoStance = vector.new({0, 0, bodyHeight, 0,bodyTilt,0});
+pLLeg = vector.new({-supportX, footY, 0, 0,0,0});
+pRLeg = vector.new({-supportX, -footY, 0, 0,0,0});
 
 -- Max change in position6D to reach stance:
-dpLimit = vector.new({.03, .03, .04, .05, .4, .1}); --OP specific
+dpLimit = vector.new({.04, .03, .07, .4, .4, .4});
+
+tFinish=0;
+tWait=0.1;
 
 function entry()
-  print(_NAME.." entry");
-  -- Added by SJ
-  -- enable joint encoder reading during getup
-  Body.set_syncread_enable(1);
+  print("Motion SM:".._NAME.." entry");
+  Body.set_syncread_enable(1); 
   started=false; 
-  local qSensor = Body.get_sensor_position();
-  Body.set_actuator_command(qSensor);
+  tFinish=0;
 
-  Body.set_head_hardness(.8);
+  Body.set_head_command({0,0});
+  Body.set_head_hardness(.5);
+
+  Body.set_larm_command(qLArm);
+  Body.set_rarm_command(qRArm);
+
   Body.set_larm_hardness(.1);
   Body.set_rarm_hardness(.1);
-  Body.set_lleg_hardness(1);
-  Body.set_rleg_hardness(1);
-  -- Fix the waist, for now
-  -- THIS IS NOT IN THE OP FROM SJ, but I think it will be ok
---  Body.set_waist_hardness(1);
---  Body.set_waist_command(.7);
+
+  Body.set_waist_hardness(1);
+  Body.set_waist_command(0);
+
   t0 = Body.get_time();
+
+  walk.active=false;
 end
 
 function update()
   local t = Body.get_time();
   local dt = t - t0;
+
   if not started then --these init codes are moved here for OP
  	if dt>0.2 then
   	  started=true;
+
 	  local qSensor = Body.get_sensor_position();
-	  local dpLLeg = Kinematics.lleg_torso(Body.get_lleg_position());
-	  local dpRLeg = Kinematics.rleg_torso(Body.get_rleg_position());
-	  pLLeg = pTorso + dpLLeg;
-	  pRLeg = pTorso + dpRLeg;
-	  Body.set_actuator_command(qSensor);
-          Body.set_syncread_enable(0);
-	else return; end
+	  local dpLLeg = Kinematics.torso_lleg(Body.get_lleg_position());
+	  local dpRLeg = Kinematics.torso_rleg(Body.get_rleg_position());
+
+	  pTorsoL=pLLeg+dpLLeg;
+	  pTorsoR=pRLeg+dpRLeg;
+          pTorso=(pTorsoL+pTorsoR)*0.5;
+
+	  Body.set_lleg_command(vector.slice(qSensor,6,17));
+	  Body.set_lleg_hardness(1);
+	  Body.set_rleg_hardness(1);
+	  t0 = Body.get_time();
+	  count=1;
+	else 
+	  return; 
+	end
   end
 
-  t0 = t;
 
+  Body.set_syncread_enable(0); 
+
+  t0 = t;
   local tol = true;
   local tolLimit = 1e-6;
   dpDeltaMax = dt*dpLimit;
-  dpLeft = pLLegStance - pLLeg;
-  for i = 1,6 do
-    if (math.abs(dpLeft[i]) > tolLimit) then
-      tol = false;
-      if (dpLeft[i] > dpDeltaMax[i]) then
-        dpLeft[i] = dpDeltaMax[i];
-      elseif (dpLeft[i] < -dpDeltaMax[i]) then
-        dpLeft[i] = -dpDeltaMax[i];
-      end
-    end
-  end
-  pLLeg = pLLeg + dpLeft;
-	 
-  dpRight = pRLegStance - pRLeg;
-  for i = 1,6 do
-    if (math.abs(dpRight[i]) > tolLimit) then
-      tol = false;
-      if (dpRight[i] > dpDeltaMax[i]) then
-        dpRight[i] = dpDeltaMax[i];
-      elseif (dpRight[i] < -dpDeltaMax[i]) then
-        dpRight[i] = -dpDeltaMax[i];
-      end
-    end
-  end
-  pRLeg = pRLeg + dpRight;
 
+  dpTorso = pTorsoStance - pTorso;
+  for i = 1,6 do
+    if (math.abs(dpTorso[i]) > tolLimit) then
+      tol = false;
+      if (dpTorso[i] > dpDeltaMax[i]) then
+        dpTorso[i] = dpDeltaMax[i];
+      elseif (dpTorso[i] < -dpDeltaMax[i]) then
+        dpTorso[i] = -dpDeltaMax[i];
+      end
+    end
+  end
+
+  pTorso=pTorso+dpTorso;
   q = Kinematics.inverse_legs(pLLeg, pRLeg, pTorso, 0);
   Body.set_lleg_command(q);
 
   if (tol) then
-    if delay <= 0 then
-    	delay=Config.stance.delay or 0;
-    	walk.still=true;
-	    return "done";
-	  else
-	  	delay=delay-1;
-	  	Body.set_larm_command(qLArm);
-			Body.set_larm_hardness(.2);
-			Body.set_rarm_command(qRArm);
-			Body.set_rarm_hardness(.2);
---      Body.set_head_command(vector.new({0,0}));
-	  end
+	if tFinish==0 then
+	   tFinish=t;
+	else
+	   if t-tFinish>tWait then
+		    return "done"
+	   end
+	end
   end
+
 end
 
 function exit()
-  -- Arms last
-  Body.set_larm_command(qLArm);
-  Body.set_rarm_command(qRArm);
-  Body.set_syncread_enable(0);--OP specific
---  walk.stopAlign();
---  walk.active=false; --to call walk.start
---  walk.start();
+  walk.start();
 end
