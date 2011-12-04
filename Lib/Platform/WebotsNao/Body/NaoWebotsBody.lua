@@ -180,6 +180,9 @@ function set_rleg_hardness(val)
   end
   set_actuator_hardness(val, indexRLeg);
 end
+function set_waist_hardness(val)
+end
+
 function set_head_command(val)
   set_actuator_command(val, indexHead);
 end
@@ -194,6 +197,8 @@ function set_larm_command(val)
 end
 function set_rarm_command(val)
   set_actuator_command(val, indexRArm);
+end
+function set_waist_command(val)
 end
 
 function set_syncread_enable(val)
