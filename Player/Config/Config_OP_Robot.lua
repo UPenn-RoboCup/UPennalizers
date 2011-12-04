@@ -18,11 +18,6 @@ dev.walk='NSLWalk';
 dev.kick='NSLKick';
 --]]
 
--- keyframe files
-km = {};
-km.standup_front = 'km_OP_StandupFromFront.lua';
-km.standup_back = 'km_OP_StandupFromBack.lua';
-
 --Sitting parameters
 sit={};
 sit.bodyHeight=0.18+0.05; --Fixed with new kinematics
