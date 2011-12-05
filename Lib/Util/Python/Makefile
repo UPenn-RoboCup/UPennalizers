@@ -21,6 +21,7 @@ ifeq ($(OSTYPE),linux)
   SHLIBEXT= so
   LIBOPTS= -shared -fpic
   LIBRT= -lrt
+  LIBLNK = -lboost_python
 endif
 ifeq ($(OSTYPE),darwin)
   SHLIBEXT= dylib
@@ -29,16 +30,17 @@ ifeq ($(MODE),32)
   CC=gcc -arch i386
   CXX=g++ -arch i386
   LD=g++ -arch i386
+  LIBLNK=-lboost_python-mt
 endif
   CXXFLAGS= -O2
   LIBRT=
 endif
 
-BOOST_INCLUDE_DIRS = -I/usr/local/include/boost
+BOOST_INCLUDE_DIRS = -I/usr/local/include/boost -I/usr/local/include/boost/python
 
 INCLUDE_DIRS = -I/usr/local/include -I/usr/include/python2.6 $(BOOST_INCLUDE_DIRS)
 LIB_DIRS = -L/usr/local/lib
-LIBLNK = -lboost_python
+LIBLNK = -lboost_python -lboost_python-mt
 
 all: pyshm 
 
@@ -51,6 +53,5 @@ all: pyshm
 
 pyshm: pyshm.o
 	$(CXX) -Wl,-soname,"lib$@.$(SHLIBEXT)" $(LIBOPTS) $^ $(LIBRT) $(LIBLNK) -o $@.$(SHLIBEXT)
-
 clean:
 	rm -f *.o *.$(SHLIBEXT) 
