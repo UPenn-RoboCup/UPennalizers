@@ -1,4 +1,4 @@
-function h = plot_robot(robot, scale)
+function h = plot_robot_struct(robot, scale)
   
   if nargin < 2
     scale = 3;
