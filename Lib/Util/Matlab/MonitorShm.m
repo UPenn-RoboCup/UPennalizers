@@ -8,6 +8,7 @@ teamNumbers = [18];
 
 %% Enter loop
 figure(1);
+clf;
 tDisplay = .1; % Display every .1 seconds
 tStart = tic;
 nUpdate = 0;
@@ -22,6 +23,9 @@ for t = 1:length(teamNumbers)
         sw.wcmRobot = shm(sprintf('wcmRobot%d%d%s', teamNumbers(t), p, user));
         sw.wcmBall  = shm(sprintf('wcmBall%d%d%s',  teamNumbers(t), p, user));
         sw.vcmImage = shm(sprintf('vcmImage%d%d%s', teamNumbers(t), p, user));
+        sw.vcmBall = shm(sprintf('vcmBall%d%d%s', teamNumbers(t), p, user));
+        %sw.vcmCamera = shm(sprintf('vcmCamera%d%d%s', teamNumbers(t), p, user));
+        %sw.vcmDebug = shm(sprintf('vcmDebug%d%d%s', teamNumbers(t), p, user));
         shmWrappers{p,t} = sw;
     end
 end
@@ -38,16 +42,6 @@ while (1)
         end
     end
     
-    %{
-    if(ball.detect==1)
-        scale = 4; % For labelB
-        centroidB = msg.ball.centroid;
-        centroidB.x = centroidB.x/scale;
-        centroidB.y = centroidB.y/scale;
-        radiusB = (msg.ball.axisMajor/scale)/2;
-        ballB = [centroidB.x-radiusB centroidB.y-radiusB 2*radiusB 2*radiusB];
-    end
-    %}
     
     %% Draw our information
     tElapsed=toc(tStart);
@@ -70,6 +64,8 @@ while (1)
         labelA = permute(  labelA, [2 1]   );
         imagesc(labelA);
         colormap(cmap);
+        hold on;
+        plot_ball( sw.vcmBall )
         %disp('Received Label A.')
         
         subplot(2,2,3);

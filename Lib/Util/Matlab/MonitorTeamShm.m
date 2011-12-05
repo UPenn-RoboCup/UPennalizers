@@ -1,4 +1,4 @@
-function MonitorShm(teamNumbers, nPlayers, dispDir)
+function MonitorTeamShm(teamNumbers, nPlayers, dispDir)
 
   if (nargin < 2)
     nPlayers = 4;
