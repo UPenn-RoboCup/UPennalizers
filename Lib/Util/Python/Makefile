@@ -22,16 +22,18 @@ ifeq ($(OSTYPE),linux)
   LIBOPTS= -shared -fpic
   LIBRT= -lrt
   LIBLNK = -lboost_python
+  LIBNAME= -Wl,-soname,"lib$@.$(SHLIBEXT)"
 endif
 ifeq ($(OSTYPE),darwin)
   SHLIBEXT= dylib
   LIBOPTS= -bundle -undefined dynamic_lookup
-ifeq ($(MODE),32)
-  CC=gcc -arch i386
-  CXX=g++ -arch i386
-  LD=g++ -arch i386
+  LIBNAME= -Wl,-install_name,"lib$@.$(SHLIBEXT)"
   LIBLNK=-lboost_python-mt
-endif
+  ifeq ($(MODE),32)
+    CC=gcc -arch i386
+    CXX=g++ -arch i386
+    LD=g++ -arch i386
+  endif
   CXXFLAGS= -O2
   LIBRT=
 endif
@@ -40,7 +42,6 @@ BOOST_INCLUDE_DIRS = -I/usr/local/include/boost -I/usr/local/include/boost/pytho
 
 INCLUDE_DIRS = -I/usr/local/include -I/usr/include/python2.6 $(BOOST_INCLUDE_DIRS)
 LIB_DIRS = -L/usr/local/lib
-LIBLNK = -lboost_python -lboost_python-mt
 
 all: pyshm 
 
@@ -52,6 +53,7 @@ all: pyshm
 	$(CC) $(CXXFLAGS) $(INCLUDE_DIRS) -o $@ -c $<
 
 pyshm: pyshm.o
-	$(CXX) -Wl,-soname,"lib$@.$(SHLIBEXT)" $(LIBOPTS) $^ $(LIBRT) $(LIBLNK) -o $@.$(SHLIBEXT)
+#	$(CXX) -Wl,-soname,"lib$@.$(SHLIBEXT)" $(LIBOPTS) $^ $(LIBRT) $(LIBLNK) -o $@.$(SHLIBEXT)
+	$(CXX) $(LIBNAME) $(LIBOPTS) $^ $(LIBRT) $(LIBLNK) -o $@.$(SHLIBEXT)
 clean:
 	rm -f *.o *.$(SHLIBEXT) 
