@@ -62,7 +62,7 @@ sm:set_state_debug_handle(gcm.set_fsm_motion_state);
 --sm:set_transition(kick, 'fall', falling);
 
 --added for OP... bodyTilt consideration for detecting falldown
-bodyTilt = walk.bodyTilt or 0;
+bodyTilt = Config.walk.bodyTilt or 0;
 
 -- For still time measurement (dodgeball)
 stillTime = 0;
