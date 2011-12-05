@@ -96,7 +96,7 @@ static int lua_shm_create_empty_variable(lua_State *L) {
   } else if (n != nval) {
     // if it exists but is not the correct size
     // create a new key with the correct size
-    printf("WARNING: Input size %d != current block size %d. Resizing %s block.\n", nval, n, key);
+//    printf("WARNING: Input size %d != current block size %d. Resizing %s block.\n", nval, n, key);
     shm->destroy_ptr(pr);
     pr = shm->construct<value_t>(key)[nval]();
   }
@@ -152,7 +152,7 @@ static int lua_shm_set(lua_State *L) {
   } else if (n != nval) {
     // if it exists but is not the correct size
     // create a new key with the correct size
-    printf("WARNING: Input size %d != current block size %d. Resizing %s block.\n", nval, n, key);
+//    printf("WARNING: Input size %d != current block size %d. Resizing %s block.\n", nval, n, key);
     shm->destroy_ptr(pr);
     pr = shm->construct<value_t>(key)[nval]();
   }

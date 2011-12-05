@@ -702,6 +702,10 @@ function stopAlign()
   stop()
 end
 
+--dummy function for NSL kick
+function zero_velocity()
+end
+
 function get_odometry(u0)
   if (not u0) then
     u0 = vector.new({0, 0, 0});

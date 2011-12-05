@@ -10,10 +10,8 @@ dev.kinematics = 'OPKinematics';
 dev.comm='NullComm';
 dev.monitor_comm = 'OPCommWired';
 dev.game_control='OPGameControl';
-dev.walk='OPWalk';
 dev.kick = 'ik_kick'
-dev.walk='OPWalk';
-
+dev.walk='NaoWalk';
 
 --Sitting parameters
 sit={};
