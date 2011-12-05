@@ -23,7 +23,8 @@ for t = 1:length(teamNumbers)
         sw.wcmRobot = shm(sprintf('wcmRobot%d%d%s', teamNumbers(t), p, user));
         sw.wcmBall  = shm(sprintf('wcmBall%d%d%s',  teamNumbers(t), p, user));
         sw.vcmImage = shm(sprintf('vcmImage%d%d%s', teamNumbers(t), p, user));
-        sw.vcmBall = shm(sprintf('vcmBall%d%d%s', teamNumbers(t), p, user));
+        sw.vcmBall  = shm(sprintf('vcmBall%d%d%s',  teamNumbers(t), p, user));
+        sw.vcmGoal  = shm(sprintf('vcmGoal%d%d%s',  teamNumbers(t), p, user));
         %sw.vcmCamera = shm(sprintf('vcmCamera%d%d%s', teamNumbers(t), p, user));
         %sw.vcmDebug = shm(sprintf('vcmDebug%d%d%s', teamNumbers(t), p, user));
         shmWrappers{p,t} = sw;
@@ -65,7 +66,8 @@ while (1)
         imagesc(labelA);
         colormap(cmap);
         hold on;
-        plot_ball( sw.vcmBall )
+        plot_ball( sw.vcmBall );
+        plot_goalposts( sw.vcmGoal );
         %disp('Received Label A.')
         
         subplot(2,2,3);
@@ -81,8 +83,11 @@ while (1)
             end
         end
         
-        subplot(2,2,3);
+        subplot(2,2,4);
         % What to draw here?
+        plot(10,10);
+        hold on;
+        plot_goalposts( sw.vcmGoal );
         
         drawnow;
     end
