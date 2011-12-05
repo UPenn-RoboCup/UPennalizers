@@ -8,20 +8,20 @@ dev.camera = 'WebotsOPCam';
 dev.kinematics = 'OPKinematics';
 --dev.comm='WebotsOPComm';
 dev.comm='NullComm';
-dev.monitor_comm = 'OPCommWired';
+--dev.monitor_comm = 'OPCommWired';
+dev.monitor_comm = 'NullComm';
 dev.game_control='OPGameControl';
 dev.kick = 'ik_kick'
 dev.walk='NaoWalk';
 
+--[[
+dev.walk='NSLWalk';
+dev.kick='NSLKick';
+--]]
+
 --Sitting parameters
 sit={};
-sit.bodyHeight=0.18+0.05; --Fixed with new kinematics
-sit.bodyHeight=0.17+0.05; --Fixed with new kinematics
-
-sit.bodyHeight=0.20; --Fixed 
-
-
-sit.supportX=-0.020;
+sit.bodyHeight=0.20; --Fixed for webots
 sit.supportX=-0.010;
 
 sit.bodyTilt=5*math.pi/180;

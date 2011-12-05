@@ -9,7 +9,7 @@ t0 = 0;
 timeout = 10.0;
 
 -- maximum walk velocity
-maxStep = 0.025;
+maxStep = 0.03;
 
 -- ball detection timeout
 tLost = 3.0;

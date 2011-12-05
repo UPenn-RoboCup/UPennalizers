@@ -36,6 +36,7 @@ sm:set_transition(bodyPosition, 'timeout', bodyPosition);
 sm:set_transition(bodyPosition, 'ballLost', bodySearch);
 sm:set_transition(bodyPosition, 'ballClose', bodyOrbit);
 sm:set_transition(bodyPosition, 'obstacle', bodyObstacle);
+sm:set_transition(bodyPosition, 'done', bodyApproach);
 
 sm:set_transition(bodyObstacle, 'clear', bodyPosition);
 sm:set_transition(bodyObstacle, 'timeout', bodyObstacleAvoid);

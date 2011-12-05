@@ -51,6 +51,8 @@ if( fsm.game == 'RoboCup' ) then
 
   fsm.body = {'OpPlayer'};
   fsm.head = {'OpPlayer'};
+--fsm.body = {'OpPlayerRobocup'};
+
 
 elseif( fsm.game == 'Dodgeball' ) then
   fsm.body = {'Dodgeball'};

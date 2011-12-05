@@ -7,6 +7,9 @@ walk = {};
 walk.qLArm=math.pi/180*vector.new({90,16,-40});
 walk.qRArm=math.pi/180*vector.new({90,-16,-40});
 
+walk.qLArm=math.pi/180*vector.new({90,8,-40});
+walk.qRArm=math.pi/180*vector.new({90,-8,-40});
+
 walk.hardnessArm=vector.new({.4,.2,.2});
 walk.hardnessLeg=vector.new({1,1,1,1,1,1});
 
@@ -20,9 +23,6 @@ walk.velLimitA={-.3,.3};
 walk.rotlimit1=1.5;
 walk.rotlimit2=1;
 walk.velocityModX=0;
-
---SJ: this makes turn faster, but we should double check stabiity
---walk.stanceLimitA={-30*math.pi/180,30*math.pi/180};
 
 --Max acceleration per step
 walk.velDelta={0.02,0.02,0.15} 
@@ -59,14 +59,6 @@ walk.velLimitX={-.06,.10};
 walk.velLimitY={-.04,.04};
 ------------------------------------------------
 
---[[
-walk.supportXfactor0 = -0.02; --support X shift for fast walking forward
-walk.supportXfactor1 = 1.0; --support shift factor during walking backwards
-walk.supportXfactor2 = -0.02; --base support X shift during walking backwards
-walk.supportXfactor3 = 0.3; --support X shift during sidestepping
-walk.supportYfactor1 = 1.3; --support Y shift during sidestepping
---]]
-
 walk.supportXfactor0 = 0;
 walk.supportXfactor1 = 0; --support shift factor during walking backwards
 walk.supportXfactor2 = 0; --base support X shift during walking backwards
@@ -74,24 +66,30 @@ walk.supportXfactor3 = 0; --support X shift during sidestepping
 walk.supportYfactor1 = 0; --support Y shift during sidestepping
 walk.headPitchFactor=0; --support X shift according to head angle
 
+-----------------------
+--SJ: For NSLWalk in webots
+walk.footX= -0.017; 
+walk.supportXfactor0 = -0.02; --support X shift for fast walking forward
+-----------------------
+
 --Flex compensation Parameters
 walk.hipRollCompensation = 3*math.pi/180;
 walk.hipPitchCompensation = -0*math.pi/180;
 walk.kneePitchCompensation = 0*math.pi/180;
 walk.anklePitchCompensation = 0*math.pi/180;
 walk.anklePitchComp= {0,0};
-walk.ankleFactor=0.5;
+walk.ankleFactor=0;
 
 --walk.hipPitchCompensation2 = -4*math.pi/180; --Hip pitch modulation for walk backwards
 --walk.ankleMod=vector.new({-1,0.5})/0.12 * 10*math.pi/180; --Ankle pitch modulation for walking
 --walk.ankleMod2= -1/0.12 * 15*math.pi/180; --Ankle pitch 
-walk.ankleMod=vector.new({-1,0})/0.12 * 10*math.pi/180; --Ankle pitch modulation for walking backwards
+
+walk.ankleMod=vector.new({0,0})/0.12 * 10*math.pi/180; --Ankle pitch modulation for walking backwards
 walk.ankleMod2= 0;
 walk.hipPitchCompensation2 = 0;
 
 --Torso vertical movement (like robotis walk)
 walk.phBodyZ={0.3,0.7}
---walk.bodyModZ={-0.005,0.002,0.005}
 walk.bodyModZ={0,0,0}-- zero movement
 
 --------------------------------------------------------------

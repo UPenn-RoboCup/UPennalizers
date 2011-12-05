@@ -33,6 +33,7 @@ dev.game_control = 'WebotsNaoGameControl';
 dev.walk = 'NaoWalk';
 dev.kick = 'NaoKick';
 
+
 -- Game Parameters
 
 game = {};
@@ -56,6 +57,12 @@ else
   fsm.head = {'NaoPlayer'};
 end
 
+--For testing some new stuff
+--[[
+dev.walk = 'NSLWalk';
+dev.kick = 'NaoKick';
+fsm.body = {'OpPlayerRobocup'};
+--]]
 
 -- Team Parameters
 
