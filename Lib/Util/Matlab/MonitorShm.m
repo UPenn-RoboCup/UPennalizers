@@ -1,10 +1,9 @@
-% Colormap
-cbk=[0 0 0];cr=[1 0 0];cg=[0 1 0];cb=[0 0 1];cy=[1 1 0];cw=[1 1 1];
-cmap=[cbk;cr;cy;cy;cb;cb;cb;cb;cg;cg;cg;cg;cg;cg;cg;cg;cw];
-
 % Players and team to track
 nPlayers = 1;
 teamNumbers = [18];
+
+% Should monitor run continuously?
+continuous = 1;
 
 %% Enter loop
 figure(1);
@@ -25,14 +24,12 @@ for t = 1:length(teamNumbers)
         sw.vcmImage = shm(sprintf('vcmImage%d%d%s', teamNumbers(t), p, user));
         sw.vcmBall  = shm(sprintf('vcmBall%d%d%s',  teamNumbers(t), p, user));
         sw.vcmGoal  = shm(sprintf('vcmGoal%d%d%s',  teamNumbers(t), p, user));
-        %sw.vcmCamera = shm(sprintf('vcmCamera%d%d%s', teamNumbers(t), p, user));
-        %sw.vcmDebug = shm(sprintf('vcmDebug%d%d%s', teamNumbers(t), p, user));
         shmWrappers{p,t} = sw;
     end
 end
 robots = cell(nPlayers, length(teamNumbers));
 
-while (1)
+while continuous
     nUpdate = nUpdate + 1;
     
     %% Record our information
@@ -50,56 +47,24 @@ while (1)
         %disp(tElapsed)
         tStart = tic;
         
-        subplot(2,2,1);
+        %% Gather data for show_monitor
+        % Gather Image data
         yuyv = sw.vcmImage.get_yuyv();
-        rgb = yuyv2rgb( typecast(yuyv(:), 'uint32') );
-        rgb = reshape(rgb,[80,120,3]);
-        rgb = permute(rgb,[2 1 3]);
-        imagesc( rgb );
-        %disp('Received image.')
-        
-        subplot(2,2,2);
-        % Process LabelA
         labelA = sw.vcmImage.get_labelA();
-        labelA = typecast( labelA, 'uint8' );
-        labelA = reshape(  labelA, [80,60] );
-        imagesc(labelA');
-        colormap(cmap);
-        hold on;
-        if(sw.vcmBall.get_detect()==1)
-            ballStats = {};
-            ballStats.centroid = sw.vcmBall.get_centroid();
-            ballStats.axisMajor = sw.vcmBall.get_axisMajor();
-            plot_ball( ballStats, 1 );
-        end
-        if (sw.vcmGoal.get_detect() == 1 )
-            %disp('Goal detected!');
-            postStats = bboxStats( labelA, 2, sw.vcmGoal.get_postBoundingBox1() );
-            plot_goalposts( postStats );
-            if(sw.vcmGoal.get_type()==3)
-                postStats = bboxStats( labelA, 2, sw.vcmGoal.get_postBoundingBox2() );
-                plot_goalposts( postStats );
-            end
-        end
+        % Gather Object Data
+        ball = {};
+        ball.detect = sw.vcmBall.get_detect();
+        ball.centroid = sw.vcmBall.get_centroid();
+        ball.axisMajor = sw.vcmBall.get_axisMajor();
+        posts = {};
+        posts.detect = sw.vcmGoal.get_detect();
+        posts.type = sw.vcmGoal.get_type();
+        posts.color = sw.vcmGoal.get_type();
+        posts.postBoundingBox1 = sw.vcmGoal.get_postBoundingBox1();
+        posts.postBoundingBox2 = sw.vcmGoal.get_postBoundingBox2();
         
-        subplot(2,2,3);
-        % Draw the field for localization reasons
-        plot_field();
-        hold on;
-        % plot robots
-        for t = 1:length(teamNumbers)
-            for p = 1:nPlayers
-                if (~isempty(robots{p, t}))
-                    plot_robot_struct(robots{p, t});
-                end
-            end
-        end
-        
-        subplot(2,2,4);
-        % What to draw here?
-        plot(10,10);
-        %hold on;
-        
+        %% Show the monitor
+        show_monitor(yuyv, labelA, robots, ball, posts, teamNumbers, nPlayers);
         drawnow;
     end
     

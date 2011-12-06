@@ -1,12 +1,5 @@
-function MonitorGeneral(yuyv, labelA, robots, ball, posts, teamNumbers, nPlayers)
+function show_monitor(yuyv, labelA, robots, ball, posts, teamNumbers, nPlayers)
 
-%% Enter loop
-figure(1);
-
-%{
-Only for initial call
-%clf;
-%}
 % Colormap
 cbk=[0 0 0];cr=[1 0 0];cg=[0 1 0];cb=[0 0 1];cy=[1 1 0];cw=[1 1 1];
 cmap=[cbk;cr;cy;cy;cb;cb;cb;cb;cg;cg;cg;cg;cg;cg;cg;cg;cw];
@@ -30,8 +23,8 @@ end
 if( posts.detect == 1 )
     postStats = bboxStats( labelA, 2, posts.postBoundingBox1 );
     plot_goalposts( postStats );
-    if(sw.vcmGoal.get_type()==3)
-        postStats = bboxStats( labelA, 2, posts.postBoundingBox1 );
+    if(posts.type==3)
+        postStats = bboxStats( labelA, 2, posts.postBoundingBox2 );
         plot_goalposts( postStats );
     end
 end
@@ -53,7 +46,5 @@ subplot(2,2,4);
 % What to draw here?
 plot(10,10);
 %hold on;
-
-drawnow;
 
 end
