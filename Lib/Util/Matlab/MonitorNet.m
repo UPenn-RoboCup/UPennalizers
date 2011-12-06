@@ -56,7 +56,8 @@ while continuous
     if( tElapsed>tDisplay )
         tStart = tic;
         % Show the monitor
-        show_monitor(yuyv, labelA, robots, ball, posts, teamNumbers, 0);
+        rgb = yuyv2rgb(y');
+        show_monitor(rgb, labelA, robots, ball, posts, teamNumbers, 0);
         drawnow;
     end
     

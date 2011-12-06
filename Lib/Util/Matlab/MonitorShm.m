@@ -50,7 +50,13 @@ while continuous
         %% Gather data for show_monitor
         % Gather Image data
         yuyv = sw.vcmImage.get_yuyv();
+        rgb = yuyv2rgb( typecast(yuyv(:), 'uint32') );
+        rgb = reshape(rgb,[sw.vcmImage.get_width()/2,sw.vcmImage.get_height(),3]);
+        rgb = permute(rgb,[2 1 3]);
         labelA = sw.vcmImage.get_labelA();
+        labelA = typecast( labelA, 'uint8' );
+        % Assume subsampling for labelA
+        labelA = reshape(  labelA, [sw.vcmImage.get_width(),sw.vcmImage.get_height()]/2 );
         % Gather Object Data
         ball = {};
         ball.detect = sw.vcmBall.get_detect();
@@ -64,7 +70,7 @@ while continuous
         posts.postBoundingBox2 = sw.vcmGoal.get_postBoundingBox2();
         
         %% Show the monitor
-        show_monitor(yuyv, labelA, robots, ball, posts, teamNumbers, nPlayers);
+        show_monitor(rgb, labelA, robots, ball, posts, teamNumbers, nPlayers);
         drawnow;
     end
     

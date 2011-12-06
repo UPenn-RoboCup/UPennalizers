@@ -1,4 +1,4 @@
-function show_monitor(yuyv, labelA, robots, ball, posts, teamNumbers, nPlayers)
+function show_monitor(rgb, labelA, robots, ball, posts, teamNumbers, nPlayers)
 
 % Colormap
 cbk=[0 0 0];cr=[1 0 0];cg=[0 1 0];cb=[0 0 1];cy=[1 1 0];cw=[1 1 1];
@@ -6,18 +6,13 @@ cmap=[cbk;cr;cy;cy;cb;cb;cb;cb;cg;cg;cg;cg;cg;cg;cg;cg;cw];
 
 subplot(2,2,1);
 % Process YUYV
-if( size(yuyv) ~= 0 )
-    rgb = yuyv2rgb( typecast(yuyv(:), 'uint32') );
-    rgb = reshape(rgb,[80,120,3]);
-    rgb = permute(rgb,[2 1 3]);
+if( ~isempty(rgb) )
     imagesc( rgb );
 end
 
 subplot(2,2,2);
 % Process LabelA
-if( size(yuyv) ~= 0 )
-    labelA = typecast( labelA, 'uint8' );
-    labelA = reshape(  labelA, [80,60] );
+if( ~isempty(labelA) )
     imagesc(labelA');
     colormap(cmap);
 end
