@@ -14,10 +14,8 @@ dev.game_control='OPGameControl';
 dev.kick = 'ik_kick'
 dev.walk='NaoWalk';
 
---[[
-dev.walk='NSLWalk';
+--dev.walk='NSLWalk';
 dev.kick='NSLKick';
---]]
 
 --Sitting parameters
 sit={};
@@ -152,6 +150,4 @@ head.neckZ=0.0765; --From CoM to neck joint
 head.neckX=0.013; --From CoM to neck joint
 head.bodyTilt = 0;
 
---SJ: for webots
-head.cameraAngle = {{0.0, 5*math.pi/180, 0.0}}; 
 

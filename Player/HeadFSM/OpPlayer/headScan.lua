@@ -29,7 +29,7 @@ function update()
   -- continuously scanning left-right and up-down
   local ph = 2*math.pi*(t-t0)/tscan;
   local yaw = 60*math.pi/180*direction*math.asin(math.sin(ph));
-  local pitch = 30*math.pi/180 + 20*math.pi/180*math.cos(ph);  
+  local pitch = 20*math.pi/180 + 30*math.pi/180*math.cos(ph);  
   local pitch_actual = pitch - Config.head.cameraAngle[1][2];
   Body.set_head_command({yaw, pitch_actual});
 
