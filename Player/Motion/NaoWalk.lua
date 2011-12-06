@@ -11,6 +11,9 @@ active = true;
 --stopRequest = false;
 stopRequest = 2;
 
+--Can we do walkkick with this walk code?
+canWalkKick = 0;
+
 -- Walk Parameters
 tStep = Config.walk.tStep;
 tZmp = Config.walk.tZmp;
