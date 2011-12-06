@@ -24,5 +24,6 @@ Player/Lib/*
 # auto-generated webots controller wrapper
 WebotsController/controller_wrap.c
 
-# Tmp files
+# Temp and Swap files
 *~
+*.swp

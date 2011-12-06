@@ -23,7 +23,10 @@ end
 function serialize_array(ud, width, height, dtype, arrName, arrID)
   -- function to serialize an userdata array
   -- returns an array of lua arr tables
+  -- Max size of a UDP packet
   local maxSize = 2^16 - 2^12;
+  --local maxSize = 2^15; -- As tested on Mac OSX snow leopard and DARwIn-OP
+
   local dsize = cutil.sizeof(dtype);
   local arrSize = width*height*dsize;
 

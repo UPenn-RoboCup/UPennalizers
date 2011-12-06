@@ -15,6 +15,71 @@ require('Body')
 require('Config')
 require('serialization');
 
+pktDelay = 5000; -- time in us
+is_img_send = 0;
+
+function sendB()
+  -- labelB --
+  labelB = vcm.get_image_labelB();
+  width = vcm.get_image_width()/8; 
+  height = vcm.get_image_height()/8;
+  count = vcm.get_image_count();
+  
+  array = serialization.serialize_array(labelB, width, height, 'uint8', 'labelB', count);
+  sendlabelB = {};
+  sendlabelB.team = {};
+  sendlabelB.team.number = gcm.get_team_number();
+  sendlabelB.team.player_id = gcm.get_team_player_id();
+  
+  for i=1,#array do
+    sendlabelB.arr = array[i];
+    MonitorComm.send(serialization.serialize(sendlabelB));
+  end 
+end
+
+function sendA()
+  -- labelA --
+  labelA = vcm.get_image_labelA();
+  width = vcm.get_image_width()/2; 
+  height = vcm.get_image_height()/2;
+  count = vcm.get_image_count();
+  
+  array = serialization.serialize_array(labelA, width, height, 'uint8', 'labelA', count);
+  sendlabelA = {};
+  sendlabelA.team = {};
+  sendlabelA.team.number = gcm.get_team_number();
+  sendlabelA.team.player_id = gcm.get_team_player_id();
+  
+  for i=1,#array do
+    sendlabelA.arr = array[i];
+  	MonitorComm.send(serialization.serialize(sendlabelA));
+    -- Need to sleep in order to stop drinking out of firehose
+    unix.usleep(pktDelay);
+  end
+end
+
+function sendImg()
+  -- yuyv --
+  yuyv = vcm.get_image_yuyv();
+  width = vcm.get_image_width()/2; -- number of yuyv packages
+  height = vcm.get_image_height();
+  count = vcm.get_image_count();
+  
+  array = serialization.serialize_array(yuyv, width, height, 'int32', 'yuyv', count);
+  sendyuyv = {};
+  sendyuyv.team = {};
+  sendyuyv.team.number = gcm.get_team_number();
+  sendyuyv.team.player_id = gcm.get_team_player_id();
+  
+  for i=1,#array do
+    sendyuyv.arr = array[i];
+  	MonitorComm.send(serialization.serialize(sendyuyv));
+    -- Need to sleep in order to stop drinking out of firehose
+    unix.usleep(pktDelay);
+  end
+
+end
+
 function update(enable)
   if enable==0 then return; end
   
@@ -52,67 +117,21 @@ function update(enable)
   send.team.color = gcm.get_team_color();
   send.team.role = gcm.get_team_role();
   
-  MonitorComm.send(serialization.serialize(send));
+--  MonitorComm.send(serialization.serialize(send));
 
   -- If level 1, then just send the data, no vision
-  if enable==1 then return; end
-
-  -- labelB --
-  labelB = vcm.get_image_labelB();
-  width = vcm.get_image_width()/8; 
-  height = vcm.get_image_height()/8;
-  count = vcm.get_image_count();
-  
-  array = serialization.serialize_array(labelB, width, height, 'uint8', 'labelB', count);
-  sendlabelB = {};
-  sendlabelB.team = {};
-  sendlabelB.team.number = gcm.get_team_number();
-  sendlabelB.team.player_id = gcm.get_team_player_id();
-  
-  for i=1,#array do
-    sendlabelB.arr = array[i];
-        MonitorComm.send(serialization.serialize(sendlabelB));
-  end  
-
-  -- If level 2, then just send labelB
-  if enable==2 then return; end
-  
-  
-
-  --Send image packets--
-
-  -- yuyv --
-  yuyv = vcm.get_image_yuyv();
-  width = vcm.get_image_width()/2; -- number of yuyv packages
-  height = vcm.get_image_height();
-  count = vcm.get_image_count();
-  
-  array = serialization.serialize_array(yuyv, width, height, 'int32', 'yuyv', count);
-  sendyuyv = {};
-  sendyuyv.team = {};
-  sendyuyv.team.number = gcm.get_team_number();
-  sendyuyv.team.player_id = gcm.get_team_player_id();
-  
-  for i=1,#array do
-    sendyuyv.arr = array[i];
-  	MonitorComm.send(serialization.serialize(sendyuyv));
-  end
-
-  -- labelA --
-  labelA = vcm.get_image_labelA();
-  width = vcm.get_image_width()/2; 
-  height = vcm.get_image_height()/2;
-  count = vcm.get_image_count();
-  
-  array = serialization.serialize_array(labelA, width, height, 'uint8', 'labelA', count);
-  sendlabelA = {};
-  sendlabelA.team = {};
-  sendlabelA.team.number = gcm.get_team_number();
-  sendlabelA.team.player_id = gcm.get_team_player_id();
-  
-  for i=1,#array do
-    sendlabelA.arr = array[i];
-  	MonitorComm.send(serialization.serialize(sendlabelA));
+  if enable==1 then
+    return;
+  elseif enable==2 then -- If level 2, then just send labelB 
+    sendB();
+  elseif enable==3 then
+    if(is_img_send==0) then
+      sendA();
+    else
+      --Send image packets--
+      sendImg();
+    end
+    is_img_send = 1 - is_img_send;
   end
 
 end

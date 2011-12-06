@@ -14,7 +14,6 @@ subplot(2,2,2);
 % Process LabelA
 if( ~isempty(labelA) )
     imagesc(labelA');
-    colormap(cmap);
     hold on;
     if(ball.detect==1)
         plot_ball( ball, scale );
@@ -28,11 +27,12 @@ if( ~isempty(labelA) )
         end
     end
     
-else
-    % Plot a random image indicating nothing received
-    imagesc( magic(64) );
-    colormap(cmap);
+% else
+%     % Plot a random image indicating nothing received
+%     imagesc( magic(64) );
+%     colormap(cmap);
 end
+colormap(cmap);
 
 subplot(2,2,3);
 % Draw the field for localization reasons
