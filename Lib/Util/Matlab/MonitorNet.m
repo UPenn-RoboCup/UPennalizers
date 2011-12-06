@@ -3,12 +3,12 @@ nPlayers = 1;
 teamNumbers = [18];
 
 % Should monitor run continuously?
-continuous = .5;
+continuous = 1;
 
 %% Enter loop
 figure(1);
 clf;
-tDisplay = 1; % Display every x seconds
+tDisplay = .2; % Display every x seconds
 tStart = tic;
 nUpdate = 0;
 
@@ -20,6 +20,7 @@ labelB_arr = construct_array('labelB');
 yuyv = [];
 labelA = [];
 labelB = [];
+scale = 1;
 % Object Data
 ball = {};
 ball.detect = 0;
@@ -37,10 +38,14 @@ while continuous
         if ~isempty(msg)
             msg = lua2mat(char(msg));
             if (isfield(msg, 'arr'))
-                %msg.arr
-                yuyv = yuyv_arr.update_always(msg.arr);
+                yuyv  = yuyv_arr.update_always(msg.arr);
                 labelA = labelA_arr.update_always(msg.arr);
                 labelB = labelB_arr.update(msg.arr);
+                if(~isempty(labelB))
+                    scale = 4;
+                else
+                    scale = 1;
+                end
             else
                 if( isfield(msg, 'ball') ) % Circle the ball in the images
                     %scale = 4; % For labelB
@@ -59,9 +64,13 @@ while continuous
     if( tElapsed>tDisplay )
         tStart = tic;
         % Show the monitor
-        rgb = yuyv2rgb(yuyv');
-        scale = 1;
-        show_monitor(rgb, labelA, robots, ball, posts, teamNumbers, 0, scale);
+        if( scale == 1 )
+            rgb = yuyv2rgb(yuyv');
+            lA = labelA;
+            show_monitor(rgb, lA, robots, ball, posts, teamNumbers, 0, scale);
+        else
+            show_monitor(rgb, labelB, robots, ball, posts, teamNumbers, 0, scale);
+        end
         drawnow;
     end
     

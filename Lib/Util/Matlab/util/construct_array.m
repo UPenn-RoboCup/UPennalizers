@@ -78,7 +78,6 @@ function h = construct_array(name)
       % make full array out of cell array
       arr = cat(1,h.arrparts{:});
     end
-    
   end
 
 end

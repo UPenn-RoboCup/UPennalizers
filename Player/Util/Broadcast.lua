@@ -117,7 +117,7 @@ function update(enable)
   send.team.color = gcm.get_team_color();
   send.team.role = gcm.get_team_role();
   
---  MonitorComm.send(serialization.serialize(send));
+  MonitorComm.send(serialization.serialize(send));
 
   -- If level 1, then just send the data, no vision
   if enable==1 then
