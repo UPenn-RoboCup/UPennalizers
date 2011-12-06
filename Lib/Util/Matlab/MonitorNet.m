@@ -40,12 +40,15 @@ while continuous
                 yuyv = yuyv_arr.update(msg.arr);
                 labelA = labelA_arr.update(msg.arr);
                 labelB = labelB_arr.update(msg.arr);
-            elseif( isfield(msg, 'ball') ) % Circle the ball in the images
-                %scale = 4; % For labelB
-                ball = msg.ball;
-            elseif( isfield(msg, 'goal') ) % Circle the ball in the images
-                %scale = 4; % For labelB
-                posts = msg.goal;
+            else
+                if( isfield(msg, 'ball') ) % Circle the ball in the images
+                    %scale = 4; % For labelB
+                    ball = msg.ball;
+                end
+                if( isfield(msg, 'goal') ) % Circle the ball in the images
+                    %scale = 4; % For labelB
+                    posts = msg.goal;
+                end
             end
         end
     end
