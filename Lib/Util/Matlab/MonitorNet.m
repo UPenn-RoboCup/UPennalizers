@@ -17,6 +17,9 @@ nUpdate = 0;
 yuyv_arr = construct_array('yuyv');
 labelA_arr = construct_array('labelA');
 labelB_arr = construct_array('labelB');
+yuyv = [];
+labelA = [];
+labelB = [];
 % Object Data
 ball = {};
 ball.detect = 0;
@@ -25,7 +28,7 @@ posts.detect = 0;
 % Robots Data
 robots = cell(nPlayers, length(teamNumbers));
 
-while (1)
+while continuous
     nUpdate = nUpdate + 1;
     
     %% Record our information
