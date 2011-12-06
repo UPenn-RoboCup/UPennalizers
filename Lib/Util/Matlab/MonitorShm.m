@@ -66,8 +66,13 @@ while (1)
         imagesc(labelA');
         colormap(cmap);
         hold on;
-        plot_ball( sw.vcmBall );
-        if (sw.vcmGoal.get_detect() ~= 0 )
+        if(sw.vcmBall.get_detect()==1)
+            ballStats = {};
+            ballStats.centroid = sw.vcmBall.get_centroid();
+            ballStats.axisMajor = sw.vcmBall.get_axisMajor();
+            plot_ball( ballStats, 1 );
+        end
+        if (sw.vcmGoal.get_detect() == 1 )
             %disp('Goal detected!');
             postStats = bboxStats( labelA, 2, sw.vcmGoal.get_postBoundingBox1() );
             plot_goalposts( postStats );

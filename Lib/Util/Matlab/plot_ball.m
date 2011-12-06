@@ -1,16 +1,9 @@
-function [ ] = plot_ball( vcmBall )
-%UNTITLED Summary of this function goes here
-%   Detailed explanation goes here
-
-if(vcmBall.get_detect()==1)
-    centroid = vcmBall.get_centroid();
-    %centroid.x = centroid.x/scale;
-    %centroid.y = centroid.y/scale;
-    radius = vcmBall.get_axisMajor() / 2;
-    ballB = [centroid(1)-radius centroid(2)-radius 2*radius 2*radius];
-    plot(centroid(1), centroid(2),'k+')
-    rectangle('Position', ballB, 'Curvature',[1,1])
-end
+function [ ] = plot_ball( ballStats, scale )
+% TODO: use the scale when displaying labelB data
+radius = ballStats.axisMajor / 2;
+ballBox = [ballStats.centroid(1)-radius ballStats.centroid(2)-radius 2*radius 2*radius];
+plot(ballStats.centroid(1), ballStats.centroid(2),'k+')
+rectangle('Position', ballBox, 'Curvature',[1,1])
 
 end
 
