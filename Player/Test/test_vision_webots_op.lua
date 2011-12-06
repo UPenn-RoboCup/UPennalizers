@@ -161,6 +161,9 @@ local str=getch.get();
 		headangle[2]=headangle[2]+1*math.pi/180;
 		headsm_running=0;
   elseif byte==string.byte("v") then
+
+
+
     HeadFSM.sm:set_state('headFigure8');
 
 --[[
@@ -233,6 +236,7 @@ local str=getch.get();
 			walk.stopAlign();
 		end
 		Motion.event("standup");
+	        bodysm_running=0;
 		
 	elseif byte==string.byte("9") then	
 		Motion.event("walk");
@@ -245,6 +249,7 @@ local str=getch.get();
 	if headsm_running == 0 then
 		Body.set_head_command(headangle);
 	end
+	print("Headangle:", headangle[2]*180/math.pi)
   end
 
 end

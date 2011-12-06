@@ -51,8 +51,11 @@ if( fsm.game == 'RoboCup' ) then
 
   fsm.body = {'OpPlayer'};
   fsm.head = {'OpPlayer'};
---fsm.body = {'OpPlayerRobocup'};
 
+--[[
+fsm.head = {'OpPlayerNSL'};
+fsm.body = {'OpPlayerNSL'};
+--]]
 
 elseif( fsm.game == 'Dodgeball' ) then
   fsm.body = {'Dodgeball'};
@@ -87,6 +90,11 @@ km.kick_right = 'km_WebotsOP_KickForwardRight.lua';
 km.kick_left = 'km_WebotsOP_KickForwardLeft.lua';
 km.standup_front = 'km_WebotsOP_StandupFromFront.lua';
 km.standup_back = 'km_WebotsOP_StandupFromBack.lua';
+
+--[[
+km.standup_front = 'km_NSLOP_StandupFromFront.lua';
+km.standup_back = 'km_NSLOP_StandupFromBack.lua';
+--]]
 
 -- Load the Sitting and standing paramters from the RObot config file
 -- See up top
