@@ -1,4 +1,4 @@
-function show_monitor(rgb, labelA, robots, ball, posts, teamNumbers, nPlayers)
+function show_monitor(rgb, labelA, robots, ball, posts, teamNumbers, nPlayers, scale)
 
 % Colormap
 cbk=[0 0 0];cr=[1 0 0];cg=[0 1 0];cb=[0 0 1];cy=[1 1 0];cw=[1 1 1];
@@ -14,18 +14,18 @@ subplot(2,2,2);
 % Process LabelA
 if( ~isempty(labelA) )
     imagesc(labelA');
-    colormap(cmap);
 end
+colormap(cmap);
 hold on;
 if(ball.detect==1)
-    plot_ball( ball, 1 );
+    plot_ball( ball, scale );
 end
 if( posts.detect == 1 )
     postStats = bboxStats( labelA, 2, posts.postBoundingBox1 );
-    plot_goalposts( postStats );
+    plot_goalposts( postStats, scale );
     if(posts.type==3)
         postStats = bboxStats( labelA, 2, posts.postBoundingBox2 );
-        plot_goalposts( postStats );
+        plot_goalposts( postStats, scale );
     end
 end
 

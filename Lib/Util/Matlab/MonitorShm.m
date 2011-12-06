@@ -60,7 +60,10 @@ while continuous
         % Gather Object Data
         ball = {};
         ball.detect = sw.vcmBall.get_detect();
-        ball.centroid = sw.vcmBall.get_centroid();
+        ball.centroid = {};
+        centroid = sw.vcmBall.get_centroid();
+        ball.centroid.x = centroid[1];
+        ball.centroid.y = centroid[2];
         ball.axisMajor = sw.vcmBall.get_axisMajor();
         posts = {};
         posts.detect = sw.vcmGoal.get_detect();

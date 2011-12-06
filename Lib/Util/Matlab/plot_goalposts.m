@@ -1,4 +1,4 @@
-function [ ] = plot_goalposts( postStats )
+function [ ] = plot_goalposts( postStats, scale )
 %UNTITLED Summary of this function goes here
 %   Detailed explanation goes here
 
