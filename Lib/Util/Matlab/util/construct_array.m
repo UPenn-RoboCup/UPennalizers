@@ -13,9 +13,9 @@ function h = construct_array(name)
   function [name, imgnum, partnum, parts] = parse_name(name)
     parse = regexp(name,'\.','split');
     name = parse{1};
-    imgnum = str2double(parse{2});
-    partnum = str2double(parse{3});
-    parts = str2double(parse{4});
+    imgnum = str2num(parse{2});
+    partnum = str2num(parse{3});
+    parts = str2num(parse{4});
   end
 
   function arr = update(packet)
@@ -74,10 +74,12 @@ function h = construct_array(name)
     h.arrparts{partnum} = luaarrstruct2mat(packet);
 
     % if entire array has been received
-    if all(h.part)
+    %if all(h.part)
       % make full array out of cell array
       arr = cat(1,h.arrparts{:});
-    end
+    %end
+    %h.part
+    %arr
   end
 
 end

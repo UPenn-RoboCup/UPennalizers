@@ -17,6 +17,7 @@ nUpdate = 0;
 yuyv_arr = construct_array('yuyv');
 labelA_arr = construct_array('labelA');
 labelB_arr = construct_array('labelB');
+rgb = [];
 yuyv = [];
 labelA = [];
 labelB = [];
