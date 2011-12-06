@@ -14,19 +14,24 @@ subplot(2,2,2);
 % Process LabelA
 if( ~isempty(labelA) )
     imagesc(labelA');
-end
-colormap(cmap);
-hold on;
-if(ball.detect==1)
-    plot_ball( ball, scale );
-end
-if( posts.detect == 1 )
-    postStats = bboxStats( labelA, 2, posts.postBoundingBox1 );
-    plot_goalposts( postStats, scale );
-    if(posts.type==3)
-        postStats = bboxStats( labelA, 2, posts.postBoundingBox2 );
-        plot_goalposts( postStats, scale );
+    colormap(cmap);
+    hold on;
+    if(ball.detect==1)
+        plot_ball( ball, scale );
     end
+    if( posts.detect == 1 )
+        postStats = bboxStats( labelA, 2, posts.postBoundingBox1 );
+        plot_goalposts( postStats, scale );
+        if(posts.type==3)
+            postStats = bboxStats( labelA, 2, posts.postBoundingBox2 );
+            plot_goalposts( postStats, scale );
+        end
+    end
+    
+else
+    % Plot a random image indicating nothing received
+    imagesc( magic(64) );
+    colormap(cmap);
 end
 
 subplot(2,2,3);
