@@ -59,16 +59,23 @@ while (1)
         %disp('Received image.')
         
         subplot(2,2,2);
+        % Process LabelA
         labelA = sw.vcmImage.get_labelA();
         labelA = typecast( labelA, 'uint8' );
         labelA = reshape(  labelA, [80,60] );
-        labelA = permute(  labelA, [2 1]   );
-        imagesc(labelA);
+        imagesc(labelA');
         colormap(cmap);
         hold on;
         plot_ball( sw.vcmBall );
-        plot_goalposts( sw.vcmGoal );
-        %disp('Received Label A.')
+        if (sw.vcmGoal.get_detect() ~= 0 )
+            %disp('Goal detected!');
+            postStats = bboxStats( labelA, 2, sw.vcmGoal.get_postBoundingBox1() );
+            plot_goalposts( postStats );
+            if(sw.vcmGoal.get_type()==3)
+                postStats = bboxStats( labelA, 2, sw.vcmGoal.get_postBoundingBox2() );
+                plot_goalposts( postStats );
+            end
+        end
         
         subplot(2,2,3);
         % Draw the field for localization reasons
@@ -86,8 +93,7 @@ while (1)
         subplot(2,2,4);
         % What to draw here?
         plot(10,10);
-        hold on;
-        plot_goalposts( sw.vcmGoal );
+        %hold on;
         
         drawnow;
     end
