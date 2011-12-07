@@ -1,9 +1,9 @@
 clear all;
 % Players and team to track
-nPlayers = 2;
-teamNumbers = [1];
+nPlayers = 1;
+teamNumbers = [18];
 team2track = 1;
-player2track = 2;
+player2track = 1;
 
 % Should monitor run continuously?
 continuous = 1;
@@ -33,7 +33,7 @@ while continuous
     if( tElapsed>tDisplay )
         tStart = tic;
         % Show the monitor
-        show_monitor2( robots, scale, team2track, player2track );
+        show_monitor( robots, scale, team2track, player2track );
         drawnow;
     end
     
