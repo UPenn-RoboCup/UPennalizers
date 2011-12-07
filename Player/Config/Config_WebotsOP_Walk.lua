@@ -4,9 +4,6 @@ require 'unix'
 
 walk = {};
 
-walk.qLArm=math.pi/180*vector.new({90,16,-40});
-walk.qRArm=math.pi/180*vector.new({90,-16,-40});
-
 walk.qLArm=math.pi/180*vector.new({90,8,-40});
 walk.qRArm=math.pi/180*vector.new({90,-8,-40});
 

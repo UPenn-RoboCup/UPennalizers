@@ -1,22 +1,6 @@
 module(..., package.seeall);
 require('vector')
 
--- Device Interface Libraries
-dev = {};
-dev.body = 'WebotsOPBody'; 
-dev.camera = 'WebotsOPCam';
-dev.kinematics = 'OPKinematics';
---dev.comm='WebotsOPComm';
-dev.comm='NullComm';
---dev.monitor_comm = 'OPCommWired';
-dev.monitor_comm = 'NullComm';
-dev.game_control='OPGameControl';
-dev.kick = 'SimpleKick'
-dev.walk='NaoWalk';
-
---dev.walk='NSLWalk';
---dev.kick='NSLKick';
-
 --Sitting parameters
 sit={};
 sit.bodyHeight=0.20; --Fixed for webots

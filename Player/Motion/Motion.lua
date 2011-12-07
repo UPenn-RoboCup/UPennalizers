@@ -82,6 +82,7 @@ function update()
 
   -- check if the robot is falling
   local imuAngle = Body.get_sensor_imuAngle();
+
   local maxImuAngle = math.max(math.abs(imuAngle[1]), math.abs(imuAngle[2]-bodyTilt));
   if (maxImuAngle > 40*math.pi/180) then
     sm:add_event("fall");
