@@ -1,7 +1,7 @@
 function [ ] = plot_goalposts( postStats, scale )
 %UNTITLED Summary of this function goes here
 %   Detailed explanation goes here
-
+if( postStats.area == 0 ) return; end
 r0=postStats.axisMajor/2;
 w0=postStats.axisMinor/2;
 a0 = -1*postStats.orientation;

@@ -1,5 +1,9 @@
-function h = plot_robot_struct(robot, scale)
-  
+function h = plot_robot_struct(robot_struct, scale)
+
+  if( isempty(robot_struct) )
+      return;
+  end
+
   if nargin < 2
     scale = 3;
   end
@@ -15,21 +19,21 @@ function h = plot_robot_struct(robot, scale)
   xm = mean(x0);
   ym = mean(y0);
 
-  ca = cos(robot.pose.a);
-  sa = sin(robot.pose.a);
+  ca = cos(robot_struct.robot.pose.a);
+  sa = sin(robot_struct.robot.pose.a);
   
-  xr = x0*ca - y0*sa + robot.pose.x;
-  yr = x0*sa + y0*ca + robot.pose.y;
-  if robot.id > 1
-    hr = fill(xr, yr, teamColors(robot.teamColor+1), 'EdgeColor', roleColors(robot.role), 'LineWidth', 2);
+  xr = x0*ca - y0*sa + robot_struct.robot.pose.x;
+  yr = x0*sa + y0*ca + robot_struct.robot.pose.y;
+  if robot_struct.team.player_id > 1
+    hr = fill(xr, yr, teamColors(robot_struct.team.color+1), 'EdgeColor', roleColors(robot_struct.team.role), 'LineWidth', 2);
   else
-    hr = fill(xr, yr, teamColors(robot.teamColor+1));
+    hr = fill(xr, yr, teamColors(robot_struct.team.color+1));
   end
 
   % disp id number
-  xt = xm*ca - ym*sa + robot.pose.x;
-  yt = xm*sa + ym*ca + robot.pose.y;
-  text(xt, yt, num2str(robot.id), 'FontSize', 24, 'VerticalAlignment', 'middle', 'HorizontalAlignment', 'center');
+  xt = xm*ca - ym*sa + robot_struct.robot.pose.x;
+  yt = xm*sa + ym*ca + robot_struct.robot.pose.y;
+  text(xt, yt, num2str(robot_struct.team.player_id), 'FontSize', 24, 'VerticalAlignment', 'middle', 'HorizontalAlignment', 'center');
 
   %{
   % disp attack bearing
@@ -38,11 +42,11 @@ function h = plot_robot_struct(robot, scale)
   quiver(pose(1), pose(2), xab, yab);
   %}
 
-  if ~isempty(robot.ball),
-    ball = [robot.ball.x robot.ball.y];
+  if ~isempty(robot_struct.ball),
+    ball = [robot_struct.ball.x robot_struct.ball.y];
     xb = xr(1) + ball(1)*ca - ball(2)*sa;
     yb = yr(1) + ball(1)*sa + ball(2)*ca;
-    hb = plot(xb, yb, [idColors(robot.id) 'o']);
+    hb = plot(xb, yb, [idColors(robot_struct.team.player_id) 'o']);
     set(hb, 'MarkerSize', scale*2);
   end
 

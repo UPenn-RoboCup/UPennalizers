@@ -15,8 +15,8 @@ require('Body')
 require('Config')
 require('serialization');
 
-pktDelay = 5000; -- time in us
-is_img_send = 0;
+-- Add a little delay between packet sending
+pktDelay = 500; -- time in us
 
 function sendB()
   -- labelB --
@@ -87,7 +87,7 @@ function update(enable)
 
   send.robot = {};
   local robotpose = wcm.get_robot_pose();
-  send.robot.pose = {x=robotpose[1], y=robotpose[2], theta=robotpose[3]};
+  send.robot.pose = {x=robotpose[1], y=robotpose[2], a=robotpose[3]};
 
   send.ball = {};
   send.ball.detect = vcm.get_ball_detect();
@@ -95,6 +95,10 @@ function update(enable)
   send.ball.centroid = {x=ballcentroid[1], y=ballcentroid[2]};
   send.ball.axisMajor = vcm.get_ball_axisMajor();
   send.ball.axisMinor = vcm.get_ball_axisMinor();
+  local ballxy = wcm.get_ball_xy();
+  send.ball.x = ballxy[1];
+  send.ball.y = ballxy[2];
+  send.ball.t = wcm.get_ball_t();
 
   send.goal = {};
   send.goal.detect = vcm.get_goal_detect();
@@ -125,13 +129,10 @@ function update(enable)
   elseif enable==2 then -- If level 2, then just send labelB 
     sendB();
   elseif enable==3 then
-    if(is_img_send==0) then
-      sendA();
-    else
-      --Send image packets--
-      sendImg();
-    end
-    is_img_send = 1 - is_img_send;
+    -- Send labelA image      
+    sendA();
+    --Send image packets--
+    sendImg();
   end
 
 end
