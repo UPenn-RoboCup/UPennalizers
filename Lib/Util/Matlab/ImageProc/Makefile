@@ -28,6 +28,13 @@ all: yuyv2label.$(MEXSUFFIX) \
 	field_occupancy.$(MEXSUFFIX) \
 	field_spots.$(MEXSUFFIX)
 
+%.o: %.cpp
+	$(CXX) $(CXXFLAGS) $(INCLUDE_DIRS) -fPIC -o $@ -c $<
+%.o: %.cc
+	$(CXX) $(CXXFLAGS) $(INCLUDE_DIRS) -fPIC -o $@ -c $<
+%.o: %.c
+	$(CC) $(CXXFLAGS) $(INCLUDE_DIRS) -fPIC -o $@ -c $<
+
 %.$(MEXSUFFIX): %.cc
 	$(MEX) $(CXXFLAGS) $<
 
