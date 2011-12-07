@@ -53,6 +53,7 @@ while continuous
         tStart = tic;
         
         %% Gather data for show_monitor
+        %{
         % Gather Image data
         yuyv = sw.vcmImage.get_yuyv();
         rgb = yuyv2rgb( typecast(yuyv(:), 'uint32') );
@@ -76,9 +77,10 @@ while continuous
         posts.color = sw.vcmGoal.get_type();
         posts.postBoundingBox1 = sw.vcmGoal.get_postBoundingBox1();
         posts.postBoundingBox2 = sw.vcmGoal.get_postBoundingBox2();
+        %}
         
         %% Show the monitor
-        show_monitor(rgb, labelA, robots, ball, posts, teamNumbers, nPlayers);
+        show_monitor2( robots );
         drawnow;
     end
     
