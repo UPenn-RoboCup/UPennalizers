@@ -81,12 +81,12 @@ function detect(color)
     --Ball height check
 
 --TODO: check this after coordinate change (now origin is on the ground)
-    if 1 then
---[[
+--I set temporary max ball height here (from the ground)
+Config.vision.ball_height_max = 0.20;
+
     if v[3] > Config.vision.ball_height_max then
       Debug.vprint(2,1,'Height check fail');
       return ball;
---]]
     else   
       if Config.vision.check_for_ground == 1 then
         -- ground check

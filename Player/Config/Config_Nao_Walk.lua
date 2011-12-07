@@ -90,9 +90,6 @@ walk.footX = 0;
 walk.footXComp = 0;
 walk.bodyTilt = 0*math.pi/180;
 
-walk.stanceLimitX = {-0.10, 0.10};
-walk.stanceLimitY = {0.07, 0.20};
-walk.stanceLimitA = {-20*math.pi/180,30*math.pi/180};
 walk.velLimitX = {-.06, .08};
 walk.velLimitY = {-.045, .045};
 walk.velLimitA = {-.4, .4};
