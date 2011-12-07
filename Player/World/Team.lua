@@ -114,7 +114,7 @@ function update()
 
     end
   end
-
+--[[
   if count % 100 == 0 then
     print('---------------');
     print('eta:');
@@ -123,7 +123,7 @@ function update()
     util.ptable(ddefend)
     print('---------------');
   end
-
+--]]
   -- goalie never changes role
   if playerID ~= 1 then
     eta[1] = math.huge;

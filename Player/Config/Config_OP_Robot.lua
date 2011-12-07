@@ -1,34 +1,12 @@
 module(..., package.seeall);
 require('vector')
 
--- Device Interface Libraries
-dev = {};
-dev.body = 'OPBody'; 
-dev.camera = 'OPCam';
-dev.kinematics = 'OPKinematics';
-dev.comm='OPComm';
---dev.comm='NullComm';
-dev.monitor_comm = 'OPMonitorCommWired';
-dev.game_control='OPGameControl';
-dev.walk='NaoWalk';
---dev.kick='NaoKick';
-dev.kick = 'ik_kick'
---[[
-dev.walk='NSLWalk';
-dev.kick='NSLKick';
---]]
-
 --Sitting parameters
 sit={};
-sit.bodyHeight=0.18+0.05; --Fixed with new kinematics
 sit.bodyHeight=0.17+0.05; --Fixed with new kinematics
-sit.supportX=-0.020;
 sit.supportX=-0.010;
-
 sit.bodyTilt=5*math.pi/180;
-
-sit.dpLimit=vector.new({.1,.01,.03,.1,.3,.1});
-sit.dpLimit=vector.new({.1,.01,.06,.1,.3,.1});--Faster sit
+sit.dpLimit=vector.new({.1,.01,.06,.1,.3,.1});
 
 --Standing parameters
 stance={};
@@ -60,8 +38,8 @@ servo.dirReverse={
 	18,19,20,--RArm
 	}
 
---[[
 -- For old firmware
+--[[
 servo.steps=vector.new({
 	1024,1024,
 	1024,1024,1024,
@@ -136,14 +114,10 @@ gyro.zero=vector.new({512,512,512});
 acc.sensitivity=vector.new({1,-1,-1})/110; --Measured value
 acc.zero=vector.new({512,512,512}); --Measured value
 
-
-
-
 -- Head Parameters
 
 head = {};
 head.camOffsetZ = 0.37;
---head.pitchMin = -35*math.pi/180;
 head.pitchMin = -55*math.pi/180;
 head.pitchMax = 68*math.pi/180;
 head.yawMin = -90*math.pi/180;
@@ -153,5 +127,4 @@ head.cameraPos = {{0.034, 0.0, 0.0332}} --OP, spec value, may need to be recalib
 head.cameraAngle = {{0.0, 40*math.pi/180, 0.0}}; --Default value for production OP
 head.neckZ=0.0765; --From CoM to neck joint 
 head.neckX=0.013; --From CoM to neck joint
-head.bodyTilt = 0;
 

@@ -29,7 +29,7 @@ indexRArm = 18; 		--RArm: 18 19 20
 nJointRArm = 3;
 
 jointReverse={
-	1,--Head: 1,2
+--	1,--Head: 1,2
 	--LArm: 3,4,5
 	7,8,9,--LLeg: 6,7,8,9,10,11,
 	16,--RLeg: 12,13,14,15,16,17
@@ -62,7 +62,7 @@ controller.wb_gyro_enable(tags.gyro, timeStep);
 tags.eyeled = controller.wb_robot_get_device("EyeLed");
 controller.wb_led_set(tags.eyeled,0xffffff)
 tags.headled = controller.wb_robot_get_device("HeadLed");
-controller.wb_led_set(tags.headled,0);
+controller.wb_led_set(tags.headled,0x00ff00);
 
 --[[
 -- Add Bumper Touch sensors
@@ -133,7 +133,7 @@ function get_sensor_position(index)
   end
 end
 
-imuAngle = {0, 0};
+imuAngle = {0, 0, 0};
 aImuFilter = 1 - math.exp(-tDelta/0.5);
 function get_sensor_imuAngle(index)
   if (not index) then
@@ -261,6 +261,7 @@ function update()
 
   -- Process sensors
   accel = controller.wb_accelerometer_get_values(tags.accelerometer);
+
   gyro = controller.wb_gyro_get_values(tags.gyro);
   local gAccel = 9.80;
   accY = (accel[1]-512)/128;
@@ -269,6 +270,21 @@ function update()
     imuAngle[1] = imuAngle[1] + aImuFilter*(math.asin(accY) - imuAngle[1]);
     imuAngle[2] = imuAngle[2] + aImuFilter*(math.asin(accX) - imuAngle[2]);
   end
+
+--[[
+print("Accel:",unpack(accel))
+print("Gyro:",unpack(gyro))
+--]]
+
+--[[
+  --Yaw angle generation by gyro integration
+  imuAngle[3] = imuAngle[3] + tDelta * (gyro[3]-512) / 0.273 *
+        math.pi/180 *
+        0.9; --to compensate bodyTilt
+--]]
+  --  print("Yaw:",imuAngle[3]*180/math.pi)
+
+
 
 --[[
   -- Bumper Touch Sensor
@@ -297,6 +313,7 @@ function get_sensor_imuGyr0()
 end
 
 function get_sensor_imuGyr( )
+  --SJ: modified the controller wrapper function
   gyro = controller.wb_gyro_get_values(tags.gyro);
   gyro_proc={0, (gyro[2]-512)/0.273,(gyro[1]-512)/0.273};
   return gyro_proc;
@@ -338,7 +355,7 @@ end
 function set_indicator_ball(color)
   -- color is a 3 element vector
   -- convention is all zero indicates no detection
-  if( color[1]==0 and color[1]==0 and color[1]==0 ) then
+  if( color[1]==0 and color[2]==0 and color[3]==0 ) then
     set_actuator_eyeled({15,15,15});
   else
     set_actuator_eyeled({31*color[1],31*color[2],31*color[3]});
@@ -348,7 +365,7 @@ end
 function set_indicator_goal(color)
   -- color is a 3 element vector
   -- convention is all zero indicates no detection
-  if( color[1]==0 and color[1]==0 and color[1]==0 ) then
+  if( color[1]==0 and color[2]==0 and color[3]==0 ) then
     set_actuator_headled({15,15,15});
   else
     set_actuator_headled({31*color[1],31*color[2],31*color[3]});

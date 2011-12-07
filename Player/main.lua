@@ -134,7 +134,7 @@ function update()
 
   local dcount = 50;
   if (count % 50 == 0) then
-    print('fps: '..(50 / (unix.time() - tUpdate)));
+--    print('fps: '..(50 / (unix.time() - tUpdate)));
     tUpdate = unix.time();
 
     -- update battery indicator

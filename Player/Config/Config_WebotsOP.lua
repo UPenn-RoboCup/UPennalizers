@@ -13,13 +13,28 @@ function loadconfig(configName)
 end
 
 loadconfig('Config_WebotsOP_Walk')
-loadconfig('Config_OP_World')
+loadconfig('Config_WebotsOP_World')
 loadconfig('Config_WebotsOP_Kick')
 loadconfig('Config_WebotsOP_Vision')
 loadconfig('Config_WebotsOP_Robot')
 
 --Location Specific Camera Parameters--
 loadconfig('Config_WebotsOP_Camera')
+
+-- Device Interface Libraries
+dev = {};
+dev.body = 'WebotsOPBody'; 
+dev.camera = 'WebotsOPCam';
+dev.kinematics = 'OPKinematics';
+--dev.comm='WebotsOPComm';
+dev.comm='NullComm';
+--dev.monitor_comm = 'OPCommWired';
+dev.monitor_comm = 'NullComm';
+dev.game_control='OPGameControl';
+dev.kick = 'SimpleKick'
+dev.walk='NaoWalk';
+--dev.walk='NSLWalk';
+--dev.kick='NSLKick';
 
 -- Game Parameters
 
@@ -36,8 +51,10 @@ game.nPlayers = 3;
 fsm = {};
 --fsm.game = 'Dodgeball';
 fsm.game = 'OpDemo'
---fsm.game = 'RoboCup';
+fsm.game = 'RoboCup';
+
 if( fsm.game == 'RoboCup' ) then
+--[[
   if (game.playerID == 1) then
     fsm.body = {'OpGoalie'};
     fsm.head = {'OpGoalie'};
@@ -45,6 +62,16 @@ if( fsm.game == 'RoboCup' ) then
     fsm.body = {'OpPlayer'};
     fsm.head = {'OpPlayer'};
   end
+--]]
+
+  fsm.body = {'OpPlayer'};
+  fsm.head = {'OpPlayer'};
+
+--[[
+fsm.head = {'OpPlayerNSL'};
+fsm.body = {'OpPlayerNSL'};
+--]]
+
 elseif( fsm.game == 'Dodgeball' ) then
   fsm.body = {'Dodgeball'};
   fsm.head = {'Dodgeball'};
@@ -63,7 +90,6 @@ end
 BodyFSM = {}
 BodyFSM.enable_obstacle_detection = 1;
 
-
 -- Team Parameters
 
 team = {};
@@ -74,26 +100,9 @@ team.nonDefenderPenalty = 0.5; -- dist from goal
 -- keyframe files
 
 km = {};
-km.kick_right = 'km_WebotsOP_KickForwardRight.lua';
-km.kick_left = 'km_WebotsOP_KickForwardLeft.lua';
 km.standup_front = 'km_WebotsOP_StandupFromFront.lua';
 km.standup_back = 'km_WebotsOP_StandupFromBack.lua';
+--km.standup_front = 'km_NSLOP_StandupFromFront.lua';
+--km.standup_back = 'km_NSLOP_StandupFromBack.lua';
+--km.standup_front = 'km_NSLOP_StandupFromFront2.lua';
 
--- Load the Sitting and standing paramters from the RObot config file
--- See up top
---[[
--- sitting parameters
-
-sit = {};
-sit.bodyHeight = 0.22;
-sit.supportX = 0;
-sit.dpLimit = vector.new({.1,.01,.03,.1,.3,.1});
-
-
--- standing parameters
-
-stance = {};
-stance.dpLimit = vector.new({.04, .03, .04, .05, .4, .1});
-stance.delay = 80; --amount of time to stand still after standing to regain balance.
-
---]]

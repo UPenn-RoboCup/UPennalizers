@@ -62,7 +62,7 @@ sm:set_state_debug_handle(gcm.set_fsm_motion_state);
 --sm:set_transition(kick, 'fall', falling);
 
 --added for OP... bodyTilt consideration for detecting falldown
-bodyTilt = walk.bodyTilt or 0;
+bodyTilt = Config.walk.bodyTilt or 0;
 
 -- For still time measurement (dodgeball)
 stillTime = 0;
@@ -82,6 +82,7 @@ function update()
 
   -- check if the robot is falling
   local imuAngle = Body.get_sensor_imuAngle();
+
   local maxImuAngle = math.max(math.abs(imuAngle[1]), math.abs(imuAngle[2]-bodyTilt));
   if (maxImuAngle > 40*math.pi/180) then
     sm:add_event("fall");

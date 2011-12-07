@@ -201,10 +201,16 @@ end
 function set_waist_command(val)
 end
 
+-- dummy functions used by nsl
 function set_syncread_enable(val)
-  -- dummy function
-  -- this is used by nsl
 end
+
+function set_waist_command(val)
+end
+
+function set_waist_hardness(val)
+end
+
 
 function update()
   -- Set actuators

@@ -7,5 +7,6 @@ teamID = os.getenv('TEAM_ID') + 0;
 
 dofile("Player/player.lua");
 -- Run test_vision
---dofile("Player/test/test_vision_webots_op.lua");
+--dofile("Player/Test/test_vision_webots_op.lua");
+--dofile("Player/Test/test_walk_webots_op.lua");
 

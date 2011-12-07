@@ -55,8 +55,8 @@ kick.kneeImuParamX={0.6,-0.7*gyroFactor, 0, 25*math.pi/180};
 kick.qLArm=math.pi/180*vector.new({95,30,-135});
 kick.qRArm=math.pi/180*vector.new({95,-30,-135});
 --]]
-kick.qLArm=math.pi/180*vector.new({95,22,-135});
-kick.qRArm=math.pi/180*vector.new({95,-22,-135});
+kick.qLArm2=math.pi/180*vector.new({95,22,-135});
+kick.qRArm2=math.pi/180*vector.new({95,-22,-135});
 
 kick.hardnessArm={1, 0.3 ,0.3};
 kick.hardnessLeg=1;

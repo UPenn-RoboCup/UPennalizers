@@ -33,6 +33,7 @@ dev.game_control = 'WebotsNaoGameControl';
 dev.walk = 'NaoWalk';
 dev.kick = 'NaoKick';
 
+
 -- Game Parameters
 
 game = {};
@@ -56,6 +57,12 @@ else
   fsm.head = {'NaoPlayer'};
 end
 
+--For testing some new stuff
+--[[
+dev.walk = 'NSLWalk';
+dev.kick = 'NaoKick';
+fsm.body = {'OpPlayerRobocup'};
+--]]
 
 -- Team Parameters
 
@@ -79,7 +86,6 @@ head.cameraAngle = {{0.0, 0.0, 0.0},
                     {0.0, 40*math.pi/180, 0.0}};
 head.neckZ=0.14; --From CoM to neck joint
 head.neckX=0;  
-head.bodyTilt = 0;
 
 
 -- keyframe files
