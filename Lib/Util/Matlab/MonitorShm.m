@@ -57,7 +57,7 @@ while (1)
         rgb = permute(rgb,[2 1 3]);
         imagesc( rgb );
         %disp('Received image.')
-        
+
         subplot(2,2,2);
         labelA = sw.vcmImage.get_labelA();
         labelA = typecast( labelA, 'uint8' );
@@ -65,11 +65,13 @@ while (1)
         labelA = permute(  labelA, [2 1]   );
         imagesc(labelA);
         colormap(cmap);
+
+%{
         hold on;
         plot_ball( sw.vcmBall );
         plot_goalposts( sw.vcmGoal );
         %disp('Received Label A.')
-        
+  %}      
         subplot(2,2,3);
         % Draw the field for localization reasons
         plot_field();
@@ -82,14 +84,17 @@ while (1)
                 end
             end
         end
+drawnow;
+
+%tElapsedDiv=1/toc(tStart)
         
-        subplot(2,2,4);
+%        subplot(2,2,4);
         % What to draw here?
+%{
         plot(10,10);
         hold on;
         plot_goalposts( sw.vcmGoal );
-        
-        drawnow;
+%}        
     end
     
 end
