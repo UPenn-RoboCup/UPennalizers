@@ -57,14 +57,14 @@ function update( supportLeg )
 
 end
 
-function record_joint_angles()
+function record_joint_angles( supportLeg )
 
   -- Open the file
   local f = io.open(logfile_name, "a");
   assert(f, "Could not open save image file");
   if( saveCount == 0 ) then
     -- Write the Header
-    f:write( "time,Left,Right,IMU_Roll,IMU_Pitch,IMU_Yaw" );
+    f:write( "time,LeftOnGnd,RightOnGnd,IMU_Roll,IMU_Pitch,IMU_Yaw" );
     for i=1,12 do
       f:write( string.format(",%s",jointNames[i]) );
     end
@@ -74,6 +74,7 @@ function record_joint_angles()
   -- Write the data
   local t = Body.get_time();
   f:write( string.format("%f",t-t0) );
+  f:write( string.format(",%d,%d",1-supportLeg,supportLeg) );
   local imuAngle = Body.get_sensor_imuAngle();
   f:write( string.format(",%f,%f,%f",unpack(imuAngle)) );
   local lleg = Body.get_lleg_position();
