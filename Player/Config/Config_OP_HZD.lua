@@ -1,3 +1,5 @@
+module(..., package.seeall);
+
 -- Bezier coefficients when Left leg is stance
 alpha_R = {
   { 0.0227, 0.0339, 0.1459, 0.1236, 0.0437, 0.0262},

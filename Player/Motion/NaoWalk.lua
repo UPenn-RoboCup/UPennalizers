@@ -7,6 +7,9 @@ require('vector')
 require('mcm')
 require('unix')
 
+-- For HZD Walking
+require 'HZDWalk'
+
 active = true;
 --stopRequest = false;
 stopRequest = 2;
@@ -568,6 +571,9 @@ function update()
 
 
   Body.set_lleg_command(qLegs);
+
+  -- Compare the HZD walk
+  HZDWalk.update( supportLeg );
 
 
 end
