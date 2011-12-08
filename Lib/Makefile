@@ -124,6 +124,7 @@ setup_webots_nao: webots_nao setup_util setup_image
 	@echo "Setting up Webots Lua/C++ Libraries...\n"
 	mkdir -p $(INSTDIR)
 	find $(WEBOTSNAODIR) $(REGEX) -exec cp -v {} $(INSTDIR) \;
+	rm -f $(PLAYERDIR)/Config/Config.lua
 	cd $(PLAYERDIR)/Config && ln -s Config_WebotsNao.lua Config.lua && cd $(CWD)
 	cd $(WEBOTSCONTDIR) && MODE=$(MODE) make && cd $(CWD)
 	@echo "\n"
@@ -133,6 +134,7 @@ setup_webots_op: webots_op setup_util setup_image
 	@echo "Setting up Webots Lua/C++ Libraries...\n"
 	mkdir -p $(INSTDIR)
 	find $(WEBOTSOPDIR) $(REGEX) -exec cp -v {} $(INSTDIR) \;
+	rm -f $(PLAYERDIR)/Config/Config.lua
 	cd $(PLAYERDIR)/Config && ln -s Config_WebotsOP.lua Config.lua && cd $(CWD)
 	cd $(WEBOTSCONTDIR) && MODE=$(MODE) make && cd $(CWD)
 	cd $(WEBOTSCONTDIR) && touch Player && cd $(CWD)  
@@ -143,6 +145,7 @@ setup_webots_generic: webots_generic setup_util setup_image
 	@echo "Setting up Webots Lua/C++ Libraries...\n"
 	mkdir -p $(INSTDIR)
 	find $(WEBOTSGENERICDIR) $(REGEX) -exec cp -v {} $(INSTDIR) \;
+	rm -f $(PLAYERDIR)/Config/Config.lua
 	cd $(PLAYERDIR)/Config && ln -s Config_WebotsGeneric.lua Config.lua && cd $(CWD)
 	cd $(WEBOTSCONTDIR) && MODE=$(MODE) make && cd $(CWD)
 	cd $(WEBOTSCONTDIR) && touch Player && cd $(CWD)  
@@ -174,6 +177,7 @@ setup_op: op setup_util setup_image
 	mkdir -p $(INSTDIR)
 	find $(OPDIR) -regex '.*\($(SHLIBEXT)\|$(LUAEXT)\)' -exec cp -v {} $(INSTDIR) \;
 #	touch $(PLAYERDIR)/Config/Config.lua
+	rm -f $(PLAYERDIR)/Config/Config.lua
 	cd $(PLAYERDIR)/Config && ln -s Config_OP.lua Config.lua && cd $(CWD)
 	@echo "\n"
 

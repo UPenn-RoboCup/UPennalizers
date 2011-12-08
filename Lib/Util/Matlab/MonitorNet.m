@@ -20,7 +20,7 @@ scale = 1; % 1: labelA, 4: labelB
 robots = cell(nPlayers, length(teamNumbers));
 for t = 1:length(teamNumbers)
     for p = 1:nPlayers
-        robots{p,t} = shm_robot(teamNumbers(t), p);
+        robots{p,t} = net_robot(teamNumbers(t), p);
     end
 end
 
@@ -35,6 +35,16 @@ while continuous
         % Show the monitor
         show_monitor( robots, scale, team2track, player2track );
         drawnow;
+    end
+    
+    %% Update our information
+    if(monitorComm('getQueueSize') > 0)
+        msg = monitorComm('receive');
+        if ~isempty(msg)
+            msg = lua2mat(char(msg));
+            % Only track one robot...
+            scale = robots{1,1}.update( msg );
+        end
     end
     
 end

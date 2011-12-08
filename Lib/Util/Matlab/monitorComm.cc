@@ -16,7 +16,7 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
 {
   static bool init = false;
   if (!init) {
-    printf("Initializing naoComm...\n");
+    printf("Initializing monitorComm...\n");
     int ret = init_comm();
     switch( ret ){
       case 0:

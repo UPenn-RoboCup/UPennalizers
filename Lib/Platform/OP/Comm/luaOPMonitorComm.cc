@@ -25,15 +25,7 @@ extern "C"
 #include <stdint.h>
 
 // Set the IP address for where to listen
-//#define IP "255.255.255.255"
-//#define IP "172.18.255.255"
-//#define IP "192.168.123.255" // OP wired
 #define IP "192.168.1.255" // OP, wireless
-//#define IP "192.168.255.255"
-//#define IP "158.130.103.255" // AirPennNet-Guest specific
-//#define IP "158.130.104.255" //AIRPENNET
-//#define IP "10.66.68.255"
-//#define IP "192.168.118.255" // OP, Istanbul
 
 #define PORT 111111
 #define MDELAY 2
@@ -44,16 +36,6 @@ const int maxQueueSize = 6;
 
 static std::deque<std::string> recvQueue;
 static int send_fd, recv_fd;
-
-/*
-void mexExit(void)
-{
-  if (send_fd > 0)
-    close(send_fd);
-  if (recv_fd > 0)
-    close(recv_fd);
-}
-*/
 
 static int lua_darwinopcomm_update(lua_State *L) {
   static sockaddr_in source_addr;
@@ -378,7 +360,7 @@ static int lua_darwinopcomm_send_particle(lua_State *L) {
 }
 
 
-static const struct luaL_reg OPCommWired_lib [] = {
+static const struct luaL_reg OPMonitorComm_lib [] = {
   {"size", lua_darwinopcomm_size},
   {"receive", lua_darwinopcomm_receive},
   {"send", lua_darwinopcomm_send},
@@ -392,8 +374,8 @@ static const struct luaL_reg OPCommWired_lib [] = {
 #ifdef __cplusplus
 extern "C"
 #endif
-int luaopen_OPCommWired (lua_State *L) {
-  luaL_register(L, "OPCommWired", OPCommWired_lib);
+int luaopen_OPMonitorComm (lua_State *L) {
+  luaL_register(L, "OPMonitorComm", OPMonitorComm_lib);
 
   return 1;
 }

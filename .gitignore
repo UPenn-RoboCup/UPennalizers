@@ -21,6 +21,12 @@
 # Player copy of the compiled libraries
 Player/Lib/*
 
+# Config link file
+Config.lua
+
 # auto-generated webots controller wrapper
 WebotsController/controller_wrap.c
 
+# Temp and Swap files
+*~
+*.swp

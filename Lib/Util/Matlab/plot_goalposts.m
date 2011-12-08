@@ -1,19 +1,19 @@
-function [ ] = plot_goalposts( vcmGoal )
+function [ ] = plot_goalposts( postStats, scale )
 %UNTITLED Summary of this function goes here
 %   Detailed explanation goes here
-
-vcmGoal.get_postBoundingBox1();
-vcmGoal.get_postBoundingBox2();
-if (vcmGoal.get_detect() ~= 0 )
-    disp('Goal detected!');
-    scale = 4;
-    bbox = scale*vcmGoal.get_postBoundingBox1();
-
-    %Check added by SJ
-    if bbox(2)-bbox(1)>0 && bbox(4)-bbox(3)>0
-      rectangle('Position',[bbox(1), bbox(3), bbox(2)-bbox(1), bbox(4)-bbox(3)],'LineWidth',2);
-    end
-end
+if( postStats.area == 0 ) return; end
+r0=postStats.axisMajor/2;
+w0=postStats.axisMinor/2;
+a0 = -1*postStats.orientation;
+rot=[cos(a0) -sin(a0);sin(a0) cos(a0)];
+x11=postStats.centroid+(rot*[r0 w0]')';
+x12=postStats.centroid+(rot*[-r0 w0]')';
+x21=postStats.centroid+(rot*[r0 -w0]')';
+x22=postStats.centroid+(rot*[-r0 -w0]')';
+plot([x11(1) x12(1)],[x11(2) x12(2)],'r','LineWidth',2);
+plot([x21(1) x22(1)],[x21(2) x22(2)],'r','LineWidth',2);
+plot([x12(1) x22(1)],[x12(2) x22(2)],'r','LineWidth',2);
+plot([x11(1) x21(1)],[x11(2) x21(2)],'r','LineWidth',2);
 
 end
 

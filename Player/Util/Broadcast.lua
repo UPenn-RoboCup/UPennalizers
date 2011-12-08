@@ -15,6 +15,71 @@ require('Body')
 require('Config')
 require('serialization');
 
+-- Add a little delay between packet sending
+pktDelay = 500; -- time in us
+
+function sendB()
+  -- labelB --
+  labelB = vcm.get_image_labelB();
+  width = vcm.get_image_width()/8; 
+  height = vcm.get_image_height()/8;
+  count = vcm.get_image_count();
+  
+  array = serialization.serialize_array(labelB, width, height, 'uint8', 'labelB', count);
+  sendlabelB = {};
+  sendlabelB.team = {};
+  sendlabelB.team.number = gcm.get_team_number();
+  sendlabelB.team.player_id = gcm.get_team_player_id();
+  
+  for i=1,#array do
+    sendlabelB.arr = array[i];
+    MonitorComm.send(serialization.serialize(sendlabelB));
+  end 
+end
+
+function sendA()
+  -- labelA --
+  labelA = vcm.get_image_labelA();
+  width = vcm.get_image_width()/2; 
+  height = vcm.get_image_height()/2;
+  count = vcm.get_image_count();
+  
+  array = serialization.serialize_array(labelA, width, height, 'uint8', 'labelA', count);
+  sendlabelA = {};
+  sendlabelA.team = {};
+  sendlabelA.team.number = gcm.get_team_number();
+  sendlabelA.team.player_id = gcm.get_team_player_id();
+  
+  for i=1,#array do
+    sendlabelA.arr = array[i];
+  	MonitorComm.send(serialization.serialize(sendlabelA));
+    -- Need to sleep in order to stop drinking out of firehose
+    unix.usleep(pktDelay);
+  end
+end
+
+function sendImg()
+  -- yuyv --
+  yuyv = vcm.get_image_yuyv();
+  width = vcm.get_image_width()/2; -- number of yuyv packages
+  height = vcm.get_image_height();
+  count = vcm.get_image_count();
+  
+  array = serialization.serialize_array(yuyv, width, height, 'int32', 'yuyv', count);
+  sendyuyv = {};
+  sendyuyv.team = {};
+  sendyuyv.team.number = gcm.get_team_number();
+  sendyuyv.team.player_id = gcm.get_team_player_id();
+  
+  for i=1,#array do
+    sendyuyv.arr = array[i];
+  	MonitorComm.send(serialization.serialize(sendyuyv));
+    -- Need to sleep in order to stop drinking out of firehose
+    unix.usleep(pktDelay);
+  end
+
+end
+
 function update(enable)
   if enable==0 then return; end
   
@@ -22,7 +87,7 @@ function update(enable)
 
   send.robot = {};
   local robotpose = wcm.get_robot_pose();
-  send.robot.pose = {x=robotpose[1], y=robotpose[2], theta=robotpose[3]};
+  send.robot.pose = {x=robotpose[1], y=robotpose[2], a=robotpose[3]};
 
   send.ball = {};
   send.ball.detect = vcm.get_ball_detect();
@@ -30,6 +95,10 @@ function update(enable)
   send.ball.centroid = {x=ballcentroid[1], y=ballcentroid[2]};
   send.ball.axisMajor = vcm.get_ball_axisMajor();
   send.ball.axisMinor = vcm.get_ball_axisMinor();
+  local ballxy = wcm.get_ball_xy();
+  send.ball.x = ballxy[1];
+  send.ball.y = ballxy[2];
+  send.ball.t = wcm.get_ball_t();
 
   send.goal = {};
   send.goal.detect = vcm.get_goal_detect();
@@ -55,64 +124,15 @@ function update(enable)
   MonitorComm.send(serialization.serialize(send));
 
   -- If level 1, then just send the data, no vision
-  if enable==1 then return; end
-
-  -- labelB --
-  labelB = vcm.get_image_labelB();
-  width = vcm.get_image_width()/8; 
-  height = vcm.get_image_height()/8;
-  count = vcm.get_image_count();
-  
-  array = serialization.serialize_array(labelB, width, height, 'uint8', 'labelB', count);
-  sendlabelB = {};
-  sendlabelB.team = {};
-  sendlabelB.team.number = gcm.get_team_number();
-  sendlabelB.team.player_id = gcm.get_team_player_id();
-  
-  for i=1,#array do
-    sendlabelB.arr = array[i];
-        MonitorComm.send(serialization.serialize(sendlabelB));
-  end  
-
-  -- If level 2, then just send labelB
-  if enable==2 then return; end
-  
-  
-
-  --Send image packets--
-
-  -- yuyv --
-  yuyv = vcm.get_image_yuyv();
-  width = vcm.get_image_width()/2; -- number of yuyv packages
-  height = vcm.get_image_height();
-  count = vcm.get_image_count();
-  
-  array = serialization.serialize_array(yuyv, width, height, 'int32', 'yuyv', count);
-  sendyuyv = {};
-  sendyuyv.team = {};
-  sendyuyv.team.number = gcm.get_team_number();
-  sendyuyv.team.player_id = gcm.get_team_player_id();
-  
-  for i=1,#array do
-    sendyuyv.arr = array[i];
-  	MonitorComm.send(serialization.serialize(sendyuyv));
-  end
-
-  -- labelA --
-  labelA = vcm.get_image_labelA();
-  width = vcm.get_image_width()/2; 
-  height = vcm.get_image_height()/2;
-  count = vcm.get_image_count();
-  
-  array = serialization.serialize_array(labelA, width, height, 'uint8', 'labelA', count);
-  sendlabelA = {};
-  sendlabelA.team = {};
-  sendlabelA.team.number = gcm.get_team_number();
-  sendlabelA.team.player_id = gcm.get_team_player_id();
-  
-  for i=1,#array do
-    sendlabelA.arr = array[i];
-  	MonitorComm.send(serialization.serialize(sendlabelA));
+  if enable==1 then
+    return;
+  elseif enable==2 then -- If level 2, then just send labelB 
+    sendB();
+  elseif enable==3 then
+    -- Send labelA image      
+    sendA();
+    --Send image packets--
+    sendImg();
   end
 
 end
