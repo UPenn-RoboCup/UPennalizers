@@ -66,6 +66,11 @@ function update_vision()
     PoseFilter.add_noise();
   end
 
+  -- Reset heading if robot is down
+  if mcm.get_walk_isFallDown() ==1 then
+    PoseFilter.reset_heading();
+  end
+
   -- ball
   if (vcm.get_ball_detect() == 1) then
     ball.t = Body.get_time();

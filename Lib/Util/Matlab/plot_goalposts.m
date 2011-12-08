@@ -15,6 +15,5 @@ plot([x21(1) x22(1)],[x21(2) x22(2)],'r','LineWidth',2);
 plot([x12(1) x22(1)],[x12(2) x22(2)],'r','LineWidth',2);
 plot([x11(1) x21(1)],[x11(2) x21(2)],'r','LineWidth',2);
 
-
 end
 
