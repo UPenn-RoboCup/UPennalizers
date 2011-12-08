@@ -1,4 +1,4 @@
-function show_monitor2( robots, scale, teamNumber, playerNumber )
+function show_monitor( robots, scale, teamNumber, playerNumber )
 
 % Robot to display
 r = robots{playerNumber,teamNumber}.get_monitor_struct();

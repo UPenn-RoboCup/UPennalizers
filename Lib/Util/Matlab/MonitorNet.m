@@ -3,7 +3,7 @@ clear all;
 nPlayers = 1;
 teamNumbers = [18];
 team2track = 1;
-player2track = 2;
+player2track = 1;
 
 % Should monitor run continuously?
 continuous = 1;
