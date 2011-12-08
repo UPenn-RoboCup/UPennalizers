@@ -20,35 +20,32 @@ jointNames = {"Left_Hip_Yaw", "Left_Hip_Roll", "Left_Hip_Pitch", "Left_Knee_Pitc
 logfile_name = string.format("/tmp/joint_angles.raw");
 
 
-function update( supportLeg )
-
-  supportLeg = 0;  
+function update( supportLeg, qLegs )
 
   if( supportLeg == 0 ) then -- Left left on ground
     Body.set_lleg_hardness(hardnessLeg_gnd);
     Body.set_rleg_hardness(hardnessLeg_air);    
-    stance_leg = Body.get_lleg_position();
     alpha = Config_OP_HZD.alpha_L;
+    stance_ankle_id = 5;
   else
     Body.set_rleg_hardness(hardnessLeg_gnd);
     Body.set_lleg_hardness(hardnessLeg_air);    
-    stance_leg = Body.get_rleg_position();
     alpha = Config_OP_HZD.alpha_R;
+    stance_ankle_id = 11;
   end
   
   t = Body.get_time();
   
-  theta = stance_leg[5]; -- Just use the ankle
+  theta = qLegs[stance_ankle_id]; -- Just use the ankle
   theta_min = -0.7467;
   theta_max = 0.3966;
   s = (theta - theta_min) / (theta_max - theta_min) ;
   
-  qLegs = vector.zeros(12);
   for i=1,12 do
-    qLegs[i] = -1*Body.moveDir[i]*util.polyval_bz(alpha[i], s);
+    if (i~=stance_ankle_id) then
+      qLegs[i] = -1*Body.moveDir[i]*util.polyval_bz(alpha[i], s);
+    end
   end
-
-  Body.set_lleg_command(qLegs);
 
   -- Debug Printing in degrees
   print('Support Leg: ', supportLeg);
@@ -57,6 +54,9 @@ function update( supportLeg )
     print( jointNames[i] .. ':\t'..qLegs[i]*180/math.pi );
   end
   print();
+  
+  -- return the HZD qLegs
+  return qLegs;
 
 end
 
