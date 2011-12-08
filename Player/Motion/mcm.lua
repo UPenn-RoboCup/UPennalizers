@@ -22,6 +22,9 @@ shared.walk.uRight = vector.zeros(3);
 -- How long have we been still for?
 shared.walk.stillTime = vector.zeros(1);
 
+--To notify world to reset heading
+shared.walk.isFallDown = vector.zeros(1);
+
 shared.us = {};
 shared.us.left = vector.zeros(10);
 shared.us.right = vector.zeros(10);
@@ -29,6 +32,7 @@ shared.us.obstacles = vector.zeros(2);
 shared.us.free = vector.zeros(2);
 shared.us.dSum = vector.zeros(2);
 shared.us.distance = vector.zeros(2);
+
 
 util.init_shm_segment(getfenv(), _NAME, shared, shsize);
 
