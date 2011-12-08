@@ -55,5 +55,9 @@ all: pyshm
 pyshm: pyshm.o
 #	$(CXX) -Wl,-soname,"lib$@.$(SHLIBEXT)" $(LIBOPTS) $^ $(LIBRT) $(LIBLNK) -o $@.$(SHLIBEXT)
 	$(CXX) $(LIBNAME) $(LIBOPTS) $^ $(LIBRT) $(LIBLNK) -o $@.$(SHLIBEXT)
+
+libMonitor_wrap.c: libMonitor.i
+	swig -lua libMonitor.i
+
 clean:
 	rm -f *.o *.$(SHLIBEXT) 
