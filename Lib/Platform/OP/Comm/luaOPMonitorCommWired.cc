@@ -378,7 +378,7 @@ static int lua_darwinopcomm_send_particle(lua_State *L) {
 }
 
 
-static const struct luaL_reg OPCommWired_lib [] = {
+static const struct luaL_reg OPMonitorCommWired_lib [] = {
   {"size", lua_darwinopcomm_size},
   {"receive", lua_darwinopcomm_receive},
   {"send", lua_darwinopcomm_send},
@@ -392,8 +392,8 @@ static const struct luaL_reg OPCommWired_lib [] = {
 #ifdef __cplusplus
 extern "C"
 #endif
-int luaopen_OPCommWired (lua_State *L) {
-  luaL_register(L, "OPCommWired", OPCommWired_lib);
+int luaopen_OPMonitorCommWired (lua_State *L) {
+  luaL_register(L, "OPMonitorCommWired", OPMonitorCommWired_lib);
 
   return 1;
 }

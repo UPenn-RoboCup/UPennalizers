@@ -26,16 +26,10 @@ ifeq ($(OSTYPE),darwin)
   INCLUDES=-I/usr/include
 endif
 
-all: monitorComm naoComm naoCommWired time mexshm
-
-naoComm: naoComm.cc
-	mex -O $^ $(INCLUDES)
-
-naoCommWired: naoCommWired.cc
-	mex -O $^ $(INCLUDES)
+all: monitorComm time mexshm
 
 monitorComm: monitorComm.cc
-	$(CXX) $(CXXFLAGS) $(INCLUDES) -o libMonitor.o -c libMonitor.cc
+	$(CXX) $(CXXFLAGS) $(INCLUDES) -fPIC -o libMonitor.o -c libMonitor.cc
 	mex -O $^ libMonitor.o $(INCLUDES)
 
 time: time.cc timeScalar.cc

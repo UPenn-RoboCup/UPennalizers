@@ -8,7 +8,7 @@ function h = construct_array(name)
   h.nparts = -1;
   h.arrparts = {};
   h.update = @update;
-  
+  h.update_always = @update_always;
 
   function [name, imgnum, partnum, parts] = parse_name(name)
     parse = regexp(name,'\.','split');
@@ -46,5 +46,40 @@ function h = construct_array(name)
       % make full array out of cell array
       arr = cat(1,h.arrparts{:});
     end
+    
   end
+
+
+  function arr = update_always(packet)
+    arr = [];
+
+    [name, imgnum, partnum, parts] = parse_name(packet.name);
+    
+    % check to make sure correct array
+    if (strcmp(name,h.name) == 0)
+      return;
+    end
+%{
+    if imgnum > h.cimg 
+      % new image: clear data and start over
+      h.cimg = imgnum;
+      h.nparts = parts;
+      h.part = zeros(parts,1);
+    end
+%}
+    % indicate which parts of the array have been received
+    h.part(partnum) = 1;
+
+    % add part of array to cell array
+    h.arrparts{partnum} = luaarrstruct2mat(packet);
+
+    % if entire array has been received
+    %if all(h.part)
+      % make full array out of cell array
+      arr = cat(1,h.arrparts{:});
+    %end
+    %h.part
+    %arr
+  end
+
 end
