@@ -573,7 +573,8 @@ function update()
   Body.set_lleg_command(qLegs);
 
   -- Compare the HZD walk
-  HZDWalk.update( supportLeg );
+--  HZDWalk.update( supportLeg );
+  HZDWalk.record_joint_angles();
 
 
 end
