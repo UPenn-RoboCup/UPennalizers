@@ -74,6 +74,7 @@ UltraSound.entry();
 
 function entry()
   sm:entry()
+  mcm.set_walk_isFallDown(0);
 end
 
 function update()
@@ -84,8 +85,11 @@ function update()
   local imuAngle = Body.get_sensor_imuAngle();
 
   local maxImuAngle = math.max(math.abs(imuAngle[1]), math.abs(imuAngle[2]-bodyTilt));
-  if (maxImuAngle > 40*math.pi/180) then
+  if (maxImuAngle > 30*math.pi/180) then
     sm:add_event("fall");
+    mcm.set_walk_isFallDown(1); --Notify world to reset heading 
+  else
+    mcm.set_walk_isFallDown(0); 
   end
 
   -- Keep track of how long we've been still for

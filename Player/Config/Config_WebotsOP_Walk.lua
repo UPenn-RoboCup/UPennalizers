@@ -56,6 +56,11 @@ walk.velLimitX={-.06,.10};
 walk.velLimitY={-.04,.04};
 ------------------------------------------------
 
+
+walk.supportY = 0.020;
+
+
+
 walk.supportXfactor0 = 0;
 walk.supportXfactor1 = 0; --support shift factor during walking backwards
 walk.supportXfactor2 = 0; --base support X shift during walking backwards
