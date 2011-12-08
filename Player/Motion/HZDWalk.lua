@@ -16,12 +16,14 @@ hardnessLeg_air = Config.walk.hardnessLeg;
 
 -- For Debugging
 saveCount = 0;
-jointNames = {"Left_Hip_Yaw", "Left_Hip_Roll", "Left_Hip_Pitch", "Left_Knee_Pitch", "Left_Ankle_Pitch", "Left_Ankle_Roll", "Right_Hip_Yaw", "Right_Hip_Roll", "Right_Hip_Pitch", "Right_Knee_Pitch", "Right_Ankle_Roll", "Right_Ankle_Roll"};
+jointNames = {"Left_Hip_Yaw", "Left_Hip_Roll", "Left_Hip_Pitch", "Left_Knee_Pitch", "Left_Ankle_Pitch", "Left_Ankle_Roll", "Right_Hip_Yaw", "Right_Hip_Roll", "Right_Hip_Pitch", "Right_Knee_Pitch", "Right_Ankle_Pitch", "Right_Ankle_Roll"};
 logfile_name = string.format("/tmp/joint_angles.raw");
 
 
 function update( supportLeg )
-  
+
+  supportLeg = 0;  
+
   if( supportLeg == 0 ) then -- Left left on ground
     Body.set_lleg_hardness(hardnessLeg_gnd);
     Body.set_rleg_hardness(hardnessLeg_air);    
@@ -37,19 +39,20 @@ function update( supportLeg )
   t = Body.get_time();
   
   theta = stance_leg[5]; -- Just use the ankle
-  theta_min = 0.01294;
-  theta_max = -0.3054;
-  s = (theta - theta_min) / (theta_max - theta_min);
+  theta_min = -0.7467;
+  theta_max = 0.3966;
+  s = (theta - theta_min) / (theta_max - theta_min) ;
   
   qLegs = vector.zeros(12);
   for i=1,12 do
-    qLegs[i] = util.polyval_bz(alpha[i], s);
+    qLegs[i] = -1*Body.moveDir[i]*util.polyval_bz(alpha[i], s);
   end
 
   Body.set_lleg_command(qLegs);
 
-
   -- Debug Printing in degrees
+  print('Support Leg: ', supportLeg);
+  print('theta: ', theta, ', s: ', s);
   for i=1,12 do
     print( jointNames[i] .. ':\t'..qLegs[i]*180/math.pi );
   end
