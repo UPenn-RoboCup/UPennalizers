@@ -197,3 +197,70 @@ function shm_key_exists(shmHandle, k, nvals)
   return false; 
 end
 
+
+-- For HZD
+--[[
+% Plot a left knee angle from the above coefficients
+s = linspace(0, 1, 50) ;
+figure ; plot(s*100, polyval_bz(alpha_L(ind_LKneePitch, :), s)*180/pi) ;
+grid on ; xlabel('% gait') ; ylabel('deg') ; title('Left stance Knee') ;
+--]]
+
+  -- wikipedia
+function factorial(n)
+  if n == 0 then
+  return 1
+  else
+return n * factorial(n - 1)
+  end
+  end
+
+  --[[
+  % Function to evaluate bezier polynomials
+% Inputs: Alpha - Bezeir coefficients (alpha_0 ... alpha_M)
+  %         s - s parameter. Range [0 1]
+  % Outputs: b = sum(k=0 to m)[ alpha_k * M!/(k!(M-k)!) s^k (1-s)^(M-k)]
+  --]]
+function polyval_bz(alpha, s)
+  b = 0;
+  M = #alpha-1 ;  -- length(alpha) = M+1
+  for k =0,M do
+  b = b + alpha[k+1] * factorial(M)/(factorial(k)*factorial(M-k)) * s^k * (1-s)^(M-k) ;
+  end
+  return b;
+  end
+
+function bezier( alpha, s )
+--  [n, m] = size(alpha);
+  n = #alpha;
+  m = #alpha[1];
+  value=vector.zeros(n);
+  M = m-1;
+  if M==3 then
+  k={1,3,3,1};
+  elseif M==4 then
+  k={1,4,6,4,1};
+  elseif M==5 then
+  k={1,5,10,10,5,1};
+  elseif M==6 then
+  k={1,6,15,20,15,6,1};
+  else
+  return;
+  end
+
+  x = vector.ones(M+1);
+  y = vector.ones(M+1);
+  for i=1,M do
+  x[i+1]=s*x[i];
+  y[i+1]=(1-s)*y[i];
+  end
+  for i=1,n do
+  value[i] = 0;
+  for j=1,M+1 do
+  value[i] = value[i] + alpha[i][j]*k[j]*x[j]*y[M+2-j];
+  end
+  end
+
+  return value;
+  end
+
