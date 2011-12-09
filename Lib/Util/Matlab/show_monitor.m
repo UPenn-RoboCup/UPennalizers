@@ -13,7 +13,7 @@ else
 end
 rgb = robots{playerNumber,teamNumber}.get_rgb();
 
-teamNumbers = size(robots,2);
+nTeams = size(robots,2);
 nPlayers = size(robots,1);
 
 % Colormap
@@ -66,7 +66,7 @@ subplot(2,2,3);
 plot_field();
 hold on;
 % plot robots
-for t = 1:length(teamNumbers)
+for t = 1:nTeams
     for p = 1:nPlayers
         if (~isempty(robots{p, t}))
             r_struct = robots{p,t}.get_monitor_struct();

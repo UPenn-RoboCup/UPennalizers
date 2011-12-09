@@ -1,7 +1,7 @@
 clear all;
 % Players and team to track
-nPlayers = 2;
-teamNumbers = [18];
+nPlayers = 3;
+teamNumbers = [0 1];
 team2track = 1;
 player2track = 1;
 
