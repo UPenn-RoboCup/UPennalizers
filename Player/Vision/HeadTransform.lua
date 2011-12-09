@@ -149,8 +149,9 @@ function ikineCam(x, y, z, select)
   -- pitch = atan2(x,z) - acos(b/r),  r= sqrt(x^2+z^2)
   -------------------------------------------------------------
   local c=cameraPos[select][3];
-  local r = math.sqrt(x^2+z^2);
-  local p0 = math.atan2(x,z) - math.acos(c/r);
+  local r = math.sqrt(x^2+y^2);
+  local d = math.sqrt(x^2+z^2);
+  local p0 = math.atan2(r,z) - math.acos(c/d);
   pitch=p0;
 
   pitch = pitch - cameraAngle[select][2];
