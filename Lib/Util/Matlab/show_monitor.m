@@ -65,11 +65,11 @@ subplot(2,2,3);
 % Draw the field for localization reasons
 plot_field();
 hold on;
-% plot robots
+% plot robots from the team struct
 for t = 1:nTeams
     for p = 1:nPlayers
         if (~isempty(robots{p, t}))
-            r_struct = robots{p,t}.get_monitor_struct();
+            r_struct = robots{p,t}.get_team_struct();
             plot_robot_struct( r_struct );
         end
     end

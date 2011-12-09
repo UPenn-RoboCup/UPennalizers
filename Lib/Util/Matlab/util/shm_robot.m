@@ -31,6 +31,7 @@ h.get_labelB = @get_labelB;
         % returns the robot struct (in the same form as the team messages)
         r = [];
         try
+            %r.time = h.gcmTeam.get_time();
             r.teamNumber = h.gcmTeam.get_number();
             r.teamColor = h.gcmTeam.get_color();
             r.id = h.gcmTeam.get_player_id();
@@ -41,15 +42,11 @@ h.get_labelB = @get_labelB;
             
             ballxy = h.wcmBall.get_xy();
             ballt = h.wcmBall.get_t();
-            r.ball = struct('x', ballxy(1), 'y', ballxy(2), 't', ballt );
+            ballvel = h.wcmBall.get_ball_velocity();
+            r.ball = struct('x', ballxy(1), 'y', ballxy(2), 't', ballt, ...
+                'vx', ballvel(1), 'vy', ballvel(2) );
             
-            posts = {};
-            posts.detect = h.vcmGoal.get_detect();
-            posts.type = h.vcmGoal.get_type();
-            posts.color = h.vcmGoal.get_color();
-            posts.postBoundingBox1 = h.vcmGoal.get_postBoundingBox1();
-            posts.postBoundingBox2 = h.vcmGoal.get_postBoundingBox2();
-            r.goal = posts;
+            r.attackBearing = h.wcmRobot.get_attack_bearing();
             
         catch
         end
