@@ -10,6 +10,7 @@ h.user = getenv('USER');
 h.gcmTeam  = shm(sprintf('gcmTeam%d%d%s',  h.teamNumber, h.playerID, h.user));
 h.wcmRobot = shm(sprintf('wcmRobot%d%d%s', h.teamNumber, h.playerID, h.user));
 h.wcmBall  = shm(sprintf('wcmBall%d%d%s',  h.teamNumber, h.playerID, h.user));
+h.wcmGoal  = shm(sprintf('wcmGoal%d%d%s',  h.teamNumber, h.playerID, h.user));
 h.vcmImage = shm(sprintf('vcmImage%d%d%s', h.teamNumber, h.playerID, h.user));
 h.vcmBall  = shm(sprintf('vcmBall%d%d%s',  h.teamNumber, h.playerID, h.user));
 h.vcmGoal  = shm(sprintf('vcmGoal%d%d%s',  h.teamNumber, h.playerID, h.user));
@@ -39,14 +40,13 @@ h.get_labelB = @get_labelB;
             
             pose = h.wcmRobot.get_pose();
             r.pose = struct('x', pose(1), 'y', pose(2), 'a', pose(3));
+            r.attackBearing = h.wcmGoal.get_attack_bearing();
             
             ballxy = h.wcmBall.get_xy();
             ballt = h.wcmBall.get_t();
-            ballvel = h.wcmBall.get_ball_velocity();
+            ballvel = h.wcmBall.get_velocity();
             r.ball = struct('x', ballxy(1), 'y', ballxy(2), 't', ballt, ...
                 'vx', ballvel(1), 'vy', ballvel(2) );
-            
-            r.attackBearing = h.wcmRobot.get_attack_bearing();
             
         catch
         end
