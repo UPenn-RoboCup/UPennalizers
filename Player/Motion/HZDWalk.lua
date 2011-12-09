@@ -37,13 +37,17 @@ function update( supportLeg, qLegs )
   t = Body.get_time();
   
   theta = qLegs[stance_ankle_id]; -- Just use the ankle
-  theta_min = -0.7467;
-  theta_max = 0.3966;
+  theta_max = -0.3527;
+  theta_min = 0.2063;
+
   s = (theta - theta_min) / (theta_max - theta_min) ;
+
+  if( s>1 ) then s = 1; end;
+  if(s<0) then s = 0; end;
   
   for i=1,12 do
     if (i~=stance_ankle_id) then
-      qLegs[i] = -1*Body.moveDir[i]*util.polyval_bz(alpha[i], s);
+      qLegs[i] = util.polyval_bz(alpha[i], s);
     end
   end
 

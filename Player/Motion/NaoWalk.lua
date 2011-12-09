@@ -570,9 +570,9 @@ function update()
 	Config.walk.anklePitchComp[2]*math.cos(spread);
 
   -- Compare the HZD walk
-  HZDWalk.update( supportLeg, qLegs );
+  qlegs = HZDWalk.update( supportLeg, qLegs );
 --  HZDWalk.record_joint_angles( supportLeg );
-  qLegs = Body.set_lleg_command(qLegs);  
+  Body.set_lleg_command(qLegs);  
 
 end
 
