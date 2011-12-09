@@ -37,8 +37,12 @@ function update( supportLeg, qLegs )
   t = Body.get_time();
   
   theta = qLegs[stance_ankle_id]; -- Just use the ankle
+--[[--webots
   theta_max = -0.3527;
   theta_min = 0.2063;
+--]]
+  theta_max = -0.6776;
+  theta_min = -0.1290;
 
   s = (theta - theta_min) / (theta_max - theta_min) ;
 
