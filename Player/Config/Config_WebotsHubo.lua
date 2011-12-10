@@ -5,7 +5,7 @@ require('vector')
 require('os')
 
 platform = {};
-platform.name = 'WebotsNao'
+platform.name = 'WebotsHubo'
 
 function loadconfig(configName)
   local localConfig=require(configName);
@@ -14,27 +14,27 @@ function loadconfig(configName)
   end
 end
 
-loadconfig('Config_WebotsGeneric_Walk')
-loadconfig('Config_WebotsGeneric_Kick')
+
+loadconfig('Config_WebotsHubo_Walk')
+loadconfig('Config_WebotsHubo_Kick')
 loadconfig('Config_WebotsOP_World')
-loadconfig('Config_WebotsGeneric_Vision')
+loadconfig('Config_WebotsOP_Vision')
 
 --Location Specific Camera Parameters--
-loadconfig('Config_WebotsGeneric_Camera')
+loadconfig('Config_WebotsOP_Camera')
 
 -- Device Interface Libraries
 dev = {};
-dev.body = 'GenericWebotsBody'; 
-dev.camera = 'NaoWebotsCam';
-dev.kinematics = 'GenericKinematics';
+dev.body = 'WebotsHuboBody'; 
+dev.camera = 'WebotsOPCam';
+dev.kinematics = 'HuboKinematics';
 dev.comm = 'WebotsNaoComm';
-dev.monitor_comm = 'NaoMonitorComm';
-dev.game_control = 'WebotsNaoGameControl';
+dev.monitor_comm = 'NullComm';
+dev.game_control='WebotsOPGameControl';
 dev.walk = 'NaoWalk';
 dev.kick = 'NaoKick';
 
 -- Game Parameters
-
 game = {};
 game.teamNumber = (os.getenv('TEAM_ID') or 0) + 0;
 -- webots player ids begin at 0 but we use 1 as the first id
@@ -45,27 +45,10 @@ game.nPlayers = 4;
 
 
 -- FSM Parameters
-
 fsm = {};
-fsm.game = 'RoboCup';
-if (game.playerID == 1) then
-  fsm.body = {'NaoGoalie'};
-  fsm.head = {'NaoGoalie'};
-else
---[[
-  fsm.body = {'NaoPlayer'};
-  fsm.head = {'NaoPlayer'};
---]]
-  fsm.body = {'OpPlayer'};
-  fsm.head = {'NaoPlayer'};
-end
-
---For testing some new stuff
---[[
-dev.walk = 'NSLWalk';
-dev.kick = 'NaoKick';
-fsm.body = {'OpPlayerRobocup'};
---]]
+fsm.game = 'OpDemo'
+fsm.body = {'OpPlayer'};
+fsm.head = {'OpPlayer'};
 
 -- Team Parameters
 
@@ -80,45 +63,34 @@ team.nonDefenderPenalty = 0.5; -- dist from goal
 head = {};
 head.camOffsetZ = 0.41;
 head.pitchMin = -35*math.pi/180;
-head.pitchMax = 30*math.pi/180;
+head.pitchMax = 68*math.pi/180;
 head.yawMin = -120*math.pi/180;
 head.yawMax = 120*math.pi/180;
-head.cameraPos = {{0.05390, 0.0, 0.06790},
-                  {0.04880, 0.0, 0.02381}}; 
-head.cameraAngle = {{0.0, 0.0, 0.0},
-                    {0.0, 40*math.pi/180, 0.0}};
-head.neckZ=0.14; --From CoM to neck joint
-head.neckX=0;  
-
---For generic
-head.neckZ=0.24; --From CoM to neck joint
-
-
+head.cameraPos = {{0.05, 0.0, 0.05}} --OP, spec value, may need to be recalibrated
+head.cameraAngle = {{0.0, 0.0, 0.0}}; --Default value for production OP
+head.neckZ=0.15; --From CoM to neck joint , Hubo prototype
+head.neckX=0.03; --From CoM to neck joint , Hubo prototype
 
 -- keyframe files
 
 km = {};
-km.kick_right = 'km_WebotsNao_KickForwardRight.lua';
-km.kick_left = 'km_WebotsNao_KickForwardLeft.lua';
-km.standup_front = 'km_WebotsNao_StandupFromFront.lua';
-km.standup_back = 'km_WebotsNao_StandupFromBack.lua';
+km.standup_front = 'km_Hubo_StandupFromFront.lua';
+km.standup_back = 'km_Hubo_StandupFromBack.lua';
 
 
 -- sitting parameters
 
 sit = {};
-sit.bodyHeight = 0.22;
+sit.bodyHeight=0.40; --For Hubo
 sit.supportX = 0;
 sit.dpLimit = vector.new({.1,.01,.03,.1,.3,.1});
-
 
 -- standing parameters
 
 stance = {};
-stance.dpLimit = vector.new({.04, .03, .04, .05, .4, .1});
+--stance.dpLimit = vector.new({.04, .03, .04, .05, .4, .1});
+stance.dpLimit = vector.new({.4, .3, .4, .05, .4, .1});
 stance.delay = 80; --amount of time to stand still after standing to regain balance.
-
-
 
 -- enable obstacle detection
 BodyFSM = {}
