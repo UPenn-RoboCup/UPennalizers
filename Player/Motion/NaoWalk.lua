@@ -186,7 +186,7 @@ function entry()
 
   pLLeg = vector.new{uLeft[1], uLeft[2], 0, 0, 0, uLeft[3]};
   pRLeg = vector.new{uRight[1], uRight[2], 0, 0, 0, uRight[3]};
-  pTorso = vector.new{uTorso[1], uTorso[2], bodyHeight, 0, 0, uTorso[3]};
+  pTorso = vector.new{uTorso[1], uTorso[2], bodyHeight, 0, bodyTilt, uTorso[3]};
    
   qLegs = Kinematics.inverse_legs(pLLeg, pRLeg, pTorso, 0);
   -- This assumes RLeg follows LLeg in servo order:

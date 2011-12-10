@@ -42,7 +42,7 @@ stepHeight = Config.walk.stepHeight;
 footY = Config.walk.footY;
 supportX = Config.walk.supportX;
 supportY = Config.walk.supportY;
-bodyTilt=Config.walk.bodyTilt;
+bodyTilt=Config.walk.bodyTilt or 0;
 hipRollCompensation = Config.walk.hipRollCompensation;
 tSensorDelay = Config.walk.tSensorDelay or 0.035;
 maxX = Config.walk.maxX or {-.06, .08};
@@ -200,7 +200,6 @@ function entry()
   uLeft = pose_global({dpLeft[1], dpLeft[2], dpLeft[6]}, uTorso);
   uRight = pose_global({dpRight[1], dpRight[2], dpRight[6]}, uTorso);
  
-  --SJ: there is some discontinuity after kicking
   uLeft = pose_global(vector.new({-supportX, footY, 0}),uTorso);
   uRight = pose_global(vector.new({-supportX, -footY, 0}),uTorso);
 
@@ -214,7 +213,7 @@ function entry()
 
   pLLeg = vector.new{uLeft[1], uLeft[2], 0, 0, 0, uLeft[3]};
   pRLeg = vector.new{uRight[1], uRight[2], 0, 0, 0, uRight[3]};
-  pTorso = vector.new{uTorso[1], uTorso[2], bodyHeight, 0, 0, uTorso[3]};
+  pTorso = vector.new{uTorso[1], uTorso[2], bodyHeight, 0, bodyTilt, uTorso[3]};
    
   qLegs = Kinematics.inverse_legs(pLLeg, pRLeg, pTorso, 0);
   -- This assumes RLeg follows LLeg in servo order:
