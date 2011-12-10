@@ -98,7 +98,7 @@ kick.kickRight={
 
 
 
-
+--[[
 --for fun, front kick
 
 kick.kickLeft={
@@ -115,6 +115,8 @@ kick.kickLeft={
   {6, 0.6, {0.000, -0.010, 0},kick.bodyHeight},--Stabilize
 }
 
+--]]
+
 --[[
 kick.kickLeft={
   {1, 0.6, {-0.010 ,-0.050,0} , 0.303          }, --COM slide
@@ -130,8 +132,8 @@ kick.kickLeft={
 
 
 
-
---for fun
+--[[
+--for fun, bruce lee kick
 
 kick.kickRight={
   {1, 0.6, {-0.010 ,0.050,0},0.303          }, --COM slide
@@ -156,7 +158,7 @@ kick.kickRight={
   {1, 0.6, {-0.00, 0.020, 0}},--COM slide
   {6, 0.6, {0.000, 0.010, 0},kick.bodyHeight},--Stabilize
 }
-
+--]]
 
 
 

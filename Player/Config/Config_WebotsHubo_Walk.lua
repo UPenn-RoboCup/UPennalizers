@@ -83,6 +83,8 @@ walk.supportX = -0.02;
 walk.bodyTilt = 5*math.pi/180;
 walk.supportX = -0.02;
 
+walk.stanceLimitA={-10*math.pi/180,60*math.pi/180};
+walk.velLimitA={-.7,.7};
 
 
 --Quick walk test

@@ -34,12 +34,9 @@ dev.walk='NaoWalk';
 --dev.walk='NSLWalk';
 dev.kick='NSLKick';
 --dev.kick='Jump';
-
 --dev.kick='kickKeyframe';
-dev.walk='EKWalk';
-
-
-dev.kick='NSLPunch';
+--dev.walk='EKWalk';
+--dev.kick='NSLPunch';
 
 
 -- Game Parameters
@@ -73,8 +70,8 @@ if( fsm.game == 'RoboCup' ) then
   fsm.body = {'OpPlayer'};
   fsm.head = {'OpPlayer'};
 
-fsm.head = {'OpPlayerNSL'};
-fsm.body = {'OpPlayerNSL'};
+--fsm.head = {'OpPlayerNSL'};
+--fsm.body = {'OpPlayerNSL'};
 
 elseif( fsm.game == 'Dodgeball' ) then
   fsm.body = {'Dodgeball'};
