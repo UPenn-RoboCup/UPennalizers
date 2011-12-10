@@ -41,8 +41,8 @@ function update( supportLeg, qLegs )
   theta_max = -0.3527;
   theta_min = 0.2063;
 --]]
-  theta_max = -0.6776;
-  theta_min = -0.1290;
+  theta_max = -0.3458;
+  theta_min = -0.2003;
 
   s = (theta - theta_min) / (theta_max - theta_min) ;
 
