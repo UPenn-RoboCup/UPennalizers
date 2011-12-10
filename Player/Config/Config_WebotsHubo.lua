@@ -16,7 +16,7 @@ end
 
 
 loadconfig('Config_WebotsHubo_Walk')
-loadconfig('Config_WebotsGeneric_Kick')
+loadconfig('Config_WebotsHubo_Kick')
 loadconfig('Config_WebotsOP_World')
 loadconfig('Config_WebotsOP_Vision')
 
@@ -32,7 +32,7 @@ dev.comm = 'WebotsNaoComm';
 dev.monitor_comm = 'NullComm';
 dev.game_control='WebotsOPGameControl';
 dev.walk = 'NaoWalk';
-dev.kick = 'SimpleKick';
+dev.kick = 'NaoKick';
 
 -- Game Parameters
 game = {};
@@ -74,10 +74,8 @@ head.neckX=0.03; --From CoM to neck joint , Hubo prototype
 -- keyframe files
 
 km = {};
-km.kick_right = 'km_WebotsNao_KickForwardRight.lua';
-km.kick_left = 'km_WebotsNao_KickForwardLeft.lua';
-km.standup_front = 'km_WebotsNao_StandupFromFront.lua';
-km.standup_back = 'km_WebotsNao_StandupFromBack.lua';
+km.standup_front = 'km_Hubo_StandupFromFront.lua';
+km.standup_back = 'km_Hubo_StandupFromBack.lua';
 
 
 -- sitting parameters
