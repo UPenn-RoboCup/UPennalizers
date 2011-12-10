@@ -72,10 +72,7 @@ walk.tStep = 1.0;
 walk.supportX = 0;
 walk.supportY = 0.0;
 walk.hipRollCompensation = 0*math.pi/180;
---walk.stepHeight = 0.12;
 walk.stepHeight = 0.14;
-
-
 
 walk.phSingle = {0.1,0.9};
 walk.stepHeight = 0.10;
@@ -85,6 +82,13 @@ walk.supportX = -0.02;
 
 walk.bodyTilt = 5*math.pi/180;
 walk.supportX = -0.02;
+
+
+
+--Quick walk test
+walk.tStep = 0.8;
+walk.stepHeight = 0.14;
+
 
 ---------------------------------------------------
 
@@ -105,16 +109,22 @@ walk.tDelayBalance = .6;
 walk.gyro0={-1944,-1694};
 
 --Gyro calibration constant
-walk.gyroFactor = 0.0;  --For degree per second unit
 
-walk.ankleImuParamX={0.15, -0.40*walk.gyroFactor, 
-	1*math.pi/180, 5*math.pi/180};
-walk.kneeImuParamX={0.1, -0.3*walk.gyroFactor, 
-	.5*math.pi/180, 5*math.pi/180};
-walk.ankleImuParamY={0.2, -2.7*walk.gyroFactor, 
-	.5*math.pi/180, 5*math.pi/180};
-walk.hipImuParamY={0.1, -0.3*walk.gyroFactor, 
-	.5*math.pi/180, 5*math.pi/180};
+gyroFactor = 0.273*math.pi/180 * 300 / 1024; --dps to rad/s conversion
+walk.ankleImuParamX={1,-0.75*gyroFactor, 2*math.pi/180, 10*math.pi/180};
+walk.kneeImuParamX={1,-1.5*gyroFactor, 2*math.pi/180, 10*math.pi/180};
+walk.ankleImuParamY={1,-1*gyroFactor, 2*math.pi/180, 10*math.pi/180};
+walk.hipImuParamY={1,-1*gyroFactor, 2*math.pi/180, 10*math.pi/180};
+walk.armImuParamX={0.3,-10*gyroFactor, 20*math.pi/180, 45*math.pi/180};
+walk.armImuParamY={0.3,-10*gyroFactor, 20*math.pi/180, 45*math.pi/180};
+
+--[[
+walk.gyroFactor = 0.0;  --For degree per second unit
+walk.ankleImuParamX={0.15, -0.40*walk.gyroFactor, 1*math.pi/180, 5*math.pi/180};
+walk.kneeImuParamX={0.1, -0.3*walk.gyroFactor, 	.5*math.pi/180, 5*math.pi/180};
+walk.ankleImuParamY={0.2, -2.7*walk.gyroFactor,	.5*math.pi/180, 5*math.pi/180};
+walk.hipImuParamY={0.1, -0.3*walk.gyroFactor, 	.5*math.pi/180, 5*math.pi/180};
+--]]
 
 --Amount of time to walk in place after standing/kicking--
 walk.delay = 2;
@@ -142,10 +152,6 @@ walk.hardnessLeg = vector.new({1,1,1,1,1,1});
 
 walk.torsoImuParamX = {-0, 0.01, 0.04};
 walk.torsoImuParamY = {-0, 0.01, 0.04};
-
---Arm stabilization gains
-walk.armImuParamX = {0,-2*walk.gyroFactor, 5*math.pi/180, 45*math.pi/180};
-walk.armImuParamY = {0,-2*walk.gyroFactor, 5*math.pi/180, 20*math.pi/180};
 
 --Support point modulation parameters
 walk.supportXfactor0 = 0;

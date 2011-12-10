@@ -296,9 +296,6 @@ function update()
   imuAngle[3] = imuAngle[3] + tDelta * gyro[2];
 --]]
 
-  imuAngle[1]=0;
-  imuAngle[2]=0;
-
 end
 
 
