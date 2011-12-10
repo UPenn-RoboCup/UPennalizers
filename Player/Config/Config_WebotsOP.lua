@@ -32,7 +32,15 @@ dev.game_control='WebotsOPGameControl';
 dev.kick = 'SimpleKick'
 dev.walk='NaoWalk';
 --dev.walk='NSLWalk';
---dev.kick='NSLKick';
+dev.kick='NSLKick';
+--dev.kick='Jump';
+
+--dev.kick='kickKeyframe';
+dev.walk='EKWalk';
+
+
+dev.kick='NSLPunch';
+
 
 -- Game Parameters
 
@@ -65,10 +73,8 @@ if( fsm.game == 'RoboCup' ) then
   fsm.body = {'OpPlayer'};
   fsm.head = {'OpPlayer'};
 
---[[
 fsm.head = {'OpPlayerNSL'};
 fsm.body = {'OpPlayerNSL'};
---]]
 
 elseif( fsm.game == 'Dodgeball' ) then
   fsm.body = {'Dodgeball'};
@@ -103,4 +109,8 @@ km.standup_back = 'km_WebotsOP_StandupFromBack.lua';
 --km.standup_front = 'km_NSLOP_StandupFromFront.lua';
 --km.standup_back = 'km_NSLOP_StandupFromBack.lua';
 --km.standup_front = 'km_NSLOP_StandupFromFront2.lua';
+
+
+km.kick_right = 'km_NSLOP_taunt1.lua';
+km.kick_left = 'km_NSLOP_StandupFromFront2.lua';
 

@@ -33,20 +33,20 @@ nJointWaist = 1;
 
 
 jointReverse={
-	--LArm: 2 3 4 5
-	8,9,11,12,--LLeg: 6 7 8 9 10 11
-	15,17,18,--RLeg: 12 13 14 15 16 17
-	20,--RArm: 18 19 20 21
-	--Waist: 22
+	3,6, --LArm:  3 4 5 6
+	8,9,11,12,--LLeg: 7 8 9 10 11 12
+	15,17,18,--RLeg: 13 14 15 16 17 18
+	19, 20,--RArm: 19 20 21 22
+	--Waist: 23
 }
 
 
 jointBias={
         -math.pi/2,0,
-	-math.pi/2,0,0,0,
+	-90*math.pi/180,0,0,0,
 	0,0,0,0,0,0,
 	0,0,0,0,0,0,
-	-math.pi/2,0,0,0,
+	-90*math.pi/180,0,0,0,
 	0,
 }
 
@@ -267,13 +267,18 @@ function update()
 
   gyro = controller.wb_gyro_get_values(tags.gyro);
   local gAccel = 9.80;
-  accY = (accel[1]-512)/128;
-  accX = -(accel[2]-512)/128;
+--  accY = (accel[1]-512)/128;
+--  accX = -(accel[2]-512)/128;
+
+--SJ: Hubo model has rotated IMU
+
+  accY = (accel[2]-512)/128;
+  accX = (accel[1]-512)/128;
+
   if ((accX > -1) and (accX < 1) and (accY > -1) and (accY < 1)) then
     imuAngle[1] = imuAngle[1] + aImuFilter*(math.asin(accY) - imuAngle[1]);
     imuAngle[2] = imuAngle[2] + aImuFilter*(math.asin(accX) - imuAngle[2]);
   end
-
 
 
 
@@ -311,9 +316,11 @@ function get_sensor_imuGyr0( )
 end
 
 function get_sensor_imuGyr( )
---SJ: modified the controller wrapper function
   gyro = controller.wb_gyro_get_values(tags.gyro);
-  gyro_proc={0, (gyro[2]-512)/0.273,(gyro[1]-512)/0.273};
+--  gyro_proc={0, (gyro[2]-512)/0.273,(gyro[1]-512)/0.273};
+--SJ: Hubo model has rotated IMU
+
+  gyro_proc={0, -(gyro[1]-512)/0.273,(gyro[2]-512)/0.273};
   return gyro_proc;
 end
 

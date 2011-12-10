@@ -86,9 +86,10 @@ walk.supportX = -0.02;
 
 
 --Quick walk test
+--[[
 walk.tStep = 0.8;
 walk.stepHeight = 0.14;
-
+--]]
 
 ---------------------------------------------------
 
@@ -136,6 +137,16 @@ walk.jointFeedbackOn = false;
 -- Added for kinematic support across robots
 walk.qLArm = math.pi/180*vector.new({105, 12, -85, -30});
 walk.qRArm = math.pi/180*vector.new({105, -12, 85, 30});	
+
+--For hubo
+walk.qLArm = math.pi/180*vector.new({110, 12, -0, -40});
+walk.qRArm = math.pi/180*vector.new({110, -12, 0, 40});	
+walk.supportX = -0.02;
+
+
+walk.bodyTilt = 7*math.pi/180;
+
+
 
 -----------------------------------------------------
 --These parameters are only used in new walk engine

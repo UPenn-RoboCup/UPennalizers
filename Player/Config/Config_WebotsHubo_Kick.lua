@@ -32,8 +32,8 @@ kick.armImuParamY={0,-10*gyroFactor, 20*math.pi/180, 45*math.pi/180};
 
 --Kick arm pose
 
-kick.qLArm = math.pi/180*vector.new({105, 20, -85, -30});
-kick.qRArm = math.pi/180*vector.new({105, -20, 85, 30});
+kick.qLArm = math.pi/180*vector.new({110, 12, -0, -40});
+kick.qRArm = math.pi/180*vector.new({110, -12, 0, 40});	
 kick.armGain= 0.20; --How much shoud we swing the arm? (smaller value = larger swing)
 
 --Kick support bias

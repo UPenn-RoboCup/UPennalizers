@@ -88,7 +88,8 @@ sit.dpLimit = vector.new({.1,.01,.03,.1,.3,.1});
 -- standing parameters
 
 stance = {};
-stance.dpLimit = vector.new({.04, .03, .04, .05, .4, .1});
+--stance.dpLimit = vector.new({.04, .03, .04, .05, .4, .1});
+stance.dpLimit = vector.new({.4, .3, .4, .05, .4, .1});
 stance.delay = 80; --amount of time to stand still after standing to regain balance.
 
 -- enable obstacle detection

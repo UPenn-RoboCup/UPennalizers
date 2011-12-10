@@ -427,6 +427,7 @@ function update()
           math.min(1, phSingle/.1, (1-phSingle)/.1);
   end
 
+
   if supportLeg == 0 then
     -- Left support
     uRight = se2_interpolate(xFoot, uRight1, uRight2);
@@ -657,6 +658,12 @@ function set_velocity(vx, vy, vz)
 
   velCommand[1]=vx*magFactor*angleFactor;
   velCommand[2]=vy*magFactor*angleFactor;
+  velCommand[3]=vz;
+
+--Skip velocity limitation
+
+  velCommand[1]=vx;
+  velCommand[2]=vy;
   velCommand[3]=vz;
 
   --print("Velocity :",unpack(velCommand))

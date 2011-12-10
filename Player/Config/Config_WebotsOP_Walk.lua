@@ -74,6 +74,20 @@ walk.footX= -0.017;
 walk.supportXfactor0 = -0.02; --support X shift for fast walking forward
 -----------------------
 
+------------------------------------------
+--SJ: for EKwalk
+walk.supportX=0.00;
+walk.tZmp = 0.160;
+walk.supportY = 0.020;
+walk.footY = 0.04;
+walk.bodyTilt=15*math.pi/180; --Commanded tilt angle
+walk.bodyHeight = 0.31; --For Kick
+walk.velLimitX={-.06,.12};
+walk.stanceLimitX={-0.16,0.16};
+-------------------------------------------
+
+
+
 --Flex compensation Parameters
 walk.hipRollCompensation = 3*math.pi/180;
 walk.hipPitchCompensation = -0*math.pi/180;

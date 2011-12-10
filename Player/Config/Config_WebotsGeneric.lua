@@ -33,7 +33,6 @@ dev.game_control = 'WebotsNaoGameControl';
 dev.walk = 'NaoWalk';
 dev.kick = 'NaoKick';
 
-
 -- Game Parameters
 
 game = {};

@@ -33,7 +33,7 @@ vision.store_goal_detections = 0;
 -- use this to enable storing images where the ball was detected
 vision.store_ball_detections = 0;
 -- use this to enable ground check 
-vision.check_for_ground = 1;
+vision.check_for_ground = 0;
 
 -- use this to substitute goal check with blue/yellow ball check
 vision.use_point_goal = 0;
