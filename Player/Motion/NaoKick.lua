@@ -75,10 +75,6 @@ function entry()
   uLeft1= vector.new({-supportX, footY, 0});
   uRight1=vector.new({-supportX, -footY, 0});
 
-
-print(unpack(uLeft))
-print(unpack(uRight))
-
   uBody=vector.new({0,0,0});
   uBody0=vector.new({0,0,0});
   uBody1=vector.new({0,0,0});
@@ -233,8 +229,6 @@ function motion_legs()
   --Mapping between OP gyro to nao gyro
   gyro_roll=-(imuGyr[1]-gyro0[1]);
   gyro_pitch=-(imuGyr[2]-gyro0[2]);
-
-  --print("Gyro:",gyro_roll,gyro_pitch);
 
   ankleShiftX=procFunc(gyro_pitch*ankleImuParamX[2],ankleImuParamX[3],ankleImuParamX[4]);
   ankleShiftY=procFunc(gyro_roll*ankleImuParamY[2],ankleImuParamY[3],ankleImuParamY[4]);

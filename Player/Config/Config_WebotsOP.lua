@@ -29,15 +29,15 @@ dev.kinematics = 'OPKinematics';
 dev.comm='WebotsOPComm';
 dev.monitor_comm = 'NullComm';
 dev.game_control='WebotsOPGameControl';
+dev.walk='NewWalk';
 dev.kick = 'SimpleKick'
-dev.walk='NaoWalk';
+
 --dev.walk='NSLWalk';
 dev.kick='NSLKick';
 --dev.kick='Jump';
 --dev.kick='kickKeyframe';
 --dev.walk='EKWalk';
 --dev.kick='NSLPunch';
-
 
 -- Game Parameters
 

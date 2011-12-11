@@ -34,6 +34,8 @@ dev.game_control='WebotsOPGameControl';
 dev.walk = 'NaoWalk';
 dev.kick = 'NaoKick';
 
+dev.walk = 'NewWalk';
+
 -- Game Parameters
 game = {};
 game.teamNumber = (os.getenv('TEAM_ID') or 0) + 0;

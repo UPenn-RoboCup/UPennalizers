@@ -30,9 +30,9 @@ dev.kinematics = 'NaoWebotsKinematics';
 dev.comm = 'WebotsNaoComm';
 dev.monitor_comm = 'NaoMonitorComm';
 dev.game_control = 'WebotsNaoGameControl';
-dev.walk = 'NaoWalk';
+--dev.walk = 'NaoWalk';
 dev.kick = 'NaoKick';
-
+dev.walk = 'NewWalk';
 
 -- Game Parameters
 
@@ -57,12 +57,7 @@ else
   fsm.head = {'NaoPlayer'};
 end
 
---For testing some new stuff
---[[
-dev.walk = 'NSLWalk';
-dev.kick = 'NaoKick';
-fsm.body = {'OpPlayerRobocup'};
---]]
+--fsm.body = {'OpPlayerNSL'};
 
 -- Team Parameters
 
@@ -100,18 +95,15 @@ km.standup_back = 'km_WebotsNao_StandupFromBack.lua';
 -- sitting parameters
 
 sit = {};
-sit.bodyHeight = 0.22;
+sit.bodyHeight = 0.225;
 sit.supportX = 0;
 sit.dpLimit = vector.new({.1,.01,.03,.1,.3,.1});
-
 
 -- standing parameters
 
 stance = {};
 stance.dpLimit = vector.new({.04, .03, .04, .05, .4, .1});
 stance.delay = 80; --amount of time to stand still after standing to regain balance.
-
-
 
 -- enable obstacle detection
 BodyFSM = {}
