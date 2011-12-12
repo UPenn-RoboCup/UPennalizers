@@ -27,6 +27,8 @@ supportX = Config.walk.supportX;
 supportY = Config.walk.supportY;
 qLArm=Config.walk.qLArm;
 qRArm=Config.walk.qRArm;
+qLArm0={qLArm[1],qLArm[2]};
+qRArm0={qRArm[1],qRArm[2]};
 hardnessSupport = Config.walk.hardnessSupport or 0.7;
 hardnessSwing = Config.walk.hardnessSwing or 0.5;
 hardnessArm = Config.walk.hardnessArm or 0.2;
@@ -124,7 +126,6 @@ function entry()
 
   walkKickRequest = 0;
 end
-
 
 
 function update()
@@ -259,29 +260,38 @@ function update()
 
   qLegs = Kinematics.inverse_legs(pLLeg, pRLeg, pTorso, supportLeg);
   motion_legs(qLegs);
+  motion_arms();
 end
 
 
 function motion_legs(qLegs)
   phComp = math.min(1, phSingle/.1, (1-phSingle)/.1);
 
---[[
   --Ankle stabilization using gyro feedback
   imuGyr = Body.get_sensor_imuGyr();
 
-  gyro_roll = -(imuGyr[1]-gyro0[1]);
-  gyro_pitch = -(imuGyr[2]-gyro0[2]);
+  gyro_roll=imuGyr[1];
+  gyro_pitch=imuGyr[2];
+
+  --TODO: Nao gyro conversion should go to Body, not here
+  --[[
+    gyro_roll = -(imuGyr[1]-gyro0[1]);
+    gyro_pitch = -(imuGyr[2]-gyro0[2]);
+  --]]
 
   ankleShiftX=util.procFunc(gyro_pitch*ankleImuParamX[2],ankleImuParamX[3],ankleImuParamX[4]);
   ankleShiftY=util.procFunc(gyro_roll*ankleImuParamY[2],ankleImuParamY[3],ankleImuParamY[4]);
   kneeShiftX=util.procFunc(gyro_pitch*kneeImuParamX[2],kneeImuParamX[3],kneeImuParamX[4]);
   hipShiftY=util.procFunc(gyro_roll*hipImuParamY[2],hipImuParamY[3],hipImuParamY[4]);
+  armShiftX=util.procFunc(gyro_pitch*armImuParamY[2],armImuParamY[3],armImuParamY[4]);
+  armShiftY=util.procFunc(gyro_roll*armImuParamY[2],armImuParamY[3],armImuParamY[4]);
 
   ankleShift[1]=ankleShift[1]+ankleImuParamX[1]*(ankleShiftX-ankleShift[1]);
   ankleShift[2]=ankleShift[2]+ankleImuParamY[1]*(ankleShiftY-ankleShift[2]);
   kneeShift=kneeShift+kneeImuParamX[1]*(kneeShiftX-kneeShift);
   hipShift[2]=hipShift[2]+hipImuParamY[1]*(hipShiftY-hipShift[2]);
---]]
+  armShift[1]=armShift[1]+armImuParamX[1]*(armShiftX-armShift[1]);
+  armShift[2]=armShift[2]+armImuParamY[1]*(armShiftY-armShift[2]);
 
 --TODO: Toe/heel lifting
 
@@ -312,12 +322,18 @@ function motion_legs(qLegs)
   qLegs[11] = qLegs[11] + Config.walk.anklePitchComp[2]*math.cos(spread);
 --]]
 
-  --TODO: arm balancing
-
   Body.set_lleg_command(qLegs);
 end
 
+function motion_arms()
+  qLArm[1],qLArm[2]=qLArm0[1]+armShift[1],qLArm0[2]+armShift[2];
+  qRArm[1],qRArm[2]=qRArm0[1]+armShift[1],qRArm0[2]+armShift[2];
+  qLArm[2]=math.max(8*math.pi/180,qLArm[2])
+  qRArm[2]=math.min(-8*math.pi/180,qRArm[2]);
 
+  Body.set_larm_command(qLArm);
+  Body.set_rarm_command(qRArm);
+end
 
 function exit()
 end

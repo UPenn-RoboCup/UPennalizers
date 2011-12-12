@@ -70,18 +70,7 @@ walk.kickXComp = 0;
 walk.supportCompL = {0,0,0};
 walk.supportCompR = {0,0,0};
 
-
-
-
 -- For webots
 walk.stanceLimitX={-0.16,0.16};
 walk.velLimitX={-.04,.10};
 
-
-
---[[
---faster walk test
-walk.tStep = 0.40;
-walk.velLimitX={-.04,.06};
-walk.footX= -0.010; 
---]]

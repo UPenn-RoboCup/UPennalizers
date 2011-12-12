@@ -31,8 +31,9 @@ dev.comm = 'WebotsNaoComm';
 dev.monitor_comm = 'NaoMonitorComm';
 dev.game_control = 'WebotsNaoGameControl';
 --dev.walk = 'NaoWalk';
-dev.kick = 'NaoKick';
+--dev.kick = 'NaoKick';
 dev.walk = 'NewWalk';
+dev.kick = 'NewKick';
 
 -- Game Parameters
 
