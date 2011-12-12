@@ -31,10 +31,11 @@ dev.kinematics = 'HuboKinematics';
 dev.comm = 'WebotsNaoComm';
 dev.monitor_comm = 'NullComm';
 dev.game_control='WebotsOPGameControl';
-dev.walk = 'NaoWalk';
-dev.kick = 'NaoKick';
+--dev.walk = 'NaoWalk';
+--dev.kick = 'NaoKick';
 
 dev.walk = 'NewWalk';
+dev.kick = 'NewKick';
 
 -- Game Parameters
 game = {};
