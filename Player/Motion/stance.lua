@@ -23,7 +23,7 @@ pLLeg = vector.new({-supportX, footY, 0, 0,0,0});
 pRLeg = vector.new({-supportX, -footY, 0, 0,0,0});
 
 -- Max change in position6D to reach stance:
-dpLimit = vector.new({.04, .03, .07, .4, .4, .4});
+dpLimit = Config.stance.dpLimit or vector.new({.04, .03, .07, .4, .4, .4});
 
 tFinish=0;
 tWait=0.1;
