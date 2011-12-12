@@ -40,7 +40,13 @@ tZmp = Config.walk.tZmp;
 stepHeight = Config.walk.stepHeight;
 ph1Single = Config.walk.phSingle[1];
 ph2Single = Config.walk.phSingle[2];
-ph1Zmp,ph2Zmp = ph1Single, ph2Single;
+if (Config.walk.phZmp) then
+  ph1Zmp=Config.walk.phZmp[1];
+  ph2Zmp=Config.walk.phZmp[2];
+else
+  ph1Zmp,ph2Zmp=ph1Single,ph2Single;
+end
+
 
 --Compensation parameters
 hipRollCompensation = Config.walk.hipRollCompensation;
@@ -273,7 +279,9 @@ function motion_legs(qLegs)
   gyro_roll=imuGyr[1];
   gyro_pitch=imuGyr[2];
 
-  --TODO: Nao gyro conversion should go to Body, not here
+  --print("Gyro RPY", unpack(imuGyr))
+ 
+ --TODO: Nao gyro conversion should go to Body, not here
   --[[
     gyro_roll = -(imuGyr[1]-gyro0[1]);
     gyro_pitch = -(imuGyr[2]-gyro0[2]);
@@ -518,6 +526,17 @@ function foot_phase(ph)
   local phSingleSkew = phSingle^0.8 - 0.17*phSingle*(1-phSingle);
   local xf = .5*(1-math.cos(math.pi*phSingleSkew));
   local zf = .5*(1-math.cos(2*math.pi*phSingleSkew));
+
+  --hack: vertical takeoff and landing
+--  factor1 = 0.2;
+  factor1 = 0;
+  factor2 = 0;
+  phSingleSkew2 = math.max(
+	math.min(1,
+	(phSingleSkew-factor1)/(1-factor1-factor2)
+	 ), 0);
+  local xf = .5*(1-math.cos(math.pi*phSingleSkew2));
+
 
   --Check for walkkick step
   if walkKickRequest == 4 then 

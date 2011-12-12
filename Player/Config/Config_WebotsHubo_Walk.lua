@@ -36,6 +36,7 @@ walk.tStep = 1.0;
 walk.tZmp = 0.25;
 walk.stepHeight = 0.13;
 walk.phSingle={0.1,0.9};
+walk.phZmp={0.1,0.9};
 
 --------------------------------------------
 -- Compensation parameters
@@ -68,4 +69,14 @@ walk.walkKickHeightFactor = 1.5;
 walk.kickXComp = 0;
 walk.supportCompL = {0,0,0};
 walk.supportCompR = {0,0,0};
+
+--[[
+walk.tStep = 0.8;
+walk.tZmp = 0.25;
+walk.supportY = -0.03;
+walk.footY = 0.09;
+walk.stepHeight = 0.13;
+walk.hardnessSupport = .7;
+walk.hardnessSwing = 0.2;
+--]]
 

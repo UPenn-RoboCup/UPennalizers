@@ -317,16 +317,9 @@ end
 
 function get_sensor_imuGyr( )
   gyro = controller.wb_gyro_get_values(tags.gyro);
-
-
-print("Gyro values:",unpack(gyro))
-
-
-
---  gyro_proc={0, (gyro[2]-512)/0.273,(gyro[1]-512)/0.273};
---SJ: Hubo model has rotated IMU
-
-  gyro_proc={0, -(gyro[1]-512)/0.273,(gyro[2]-512)/0.273};
+  --Roll Pitch Yaw
+  --SJ: Checked and fine
+  gyro_proc={-(gyro[2]-512)/0.273, (gyro[1]-512)/0.273,(gyro[3]-512)/0.273};
   return gyro_proc;
 end
 

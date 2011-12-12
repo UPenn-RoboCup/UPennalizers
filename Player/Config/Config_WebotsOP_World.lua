@@ -25,8 +25,9 @@ world.landmarkCyan = {0.0, -2.4};
 world.landmarkYellow = {0.0, 2.4};
 world.cResample = 10; --Resampling interval
 
---SJ: Enabled yaw odometry (I don't want to re-code the gyro based yaw)
-world.odomScale = {1, 1, 1};  
+--SJ: OP does not use yaw odometry data (only use gyro)
+world.odomScale = {1, 1, 0};  
+world.imuYaw = 1;
 
 -- filter weights
 world.rGoalFilter = 0.02;
