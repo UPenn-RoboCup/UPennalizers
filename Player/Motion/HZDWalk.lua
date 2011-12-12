@@ -22,6 +22,10 @@ logfile_name = string.format("/tmp/joint_angles.raw");
 
 function update( supportLeg, qLegs )
 
+  -- Read the ankle joint value
+  supportLeg = 0;
+  qLegs = Body.get_lleg_position();
+
   if( supportLeg == 0 ) then -- Left left on ground
     Body.set_lleg_hardness(hardnessLeg_gnd);
     Body.set_rleg_hardness(hardnessLeg_air);    
@@ -37,6 +41,7 @@ function update( supportLeg, qLegs )
   t = Body.get_time();
   
   theta = qLegs[stance_ankle_id]; -- Just use the ankle
+  
 --[[--webots
   theta_max = -0.3527;
   theta_min = 0.2063;
@@ -55,6 +60,7 @@ function update( supportLeg, qLegs )
     end
   end
 
+--[[
   -- Debug Printing in degrees
   print('Support Leg: ', supportLeg);
   print('theta: ', theta, ', s: ', s);
@@ -62,7 +68,8 @@ function update( supportLeg, qLegs )
     print( jointNames[i] .. ':\t'..qLegs[i]*180/math.pi );
   end
   print();
-  
+--]]
+  Body.set_lleg_command(qLegs);
   -- return the HZD qLegs
   return qLegs;
 
