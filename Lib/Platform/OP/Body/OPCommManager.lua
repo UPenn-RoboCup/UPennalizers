@@ -260,7 +260,7 @@ function nonsync_read()
 		for i=1,#idMap do 
 			idToRead[i]=i;
 		end
-  else if actuator.readType[1]==3 then -- Read ankles only
+  elseif actuator.readType[1]==3 then -- Read ankles only
     idToRead = {10,16}
     for i = 1,#idMap do
 	    sensor.position[i] = actuator.command[i];
@@ -386,18 +386,22 @@ end
 
 
 function entry()
-   Dynamixel.open();
-   --   Dynamixel.ping_probe();
-   --We have to manually turn on the MC for OP   
-   Dynamixel.set_torque_enable(200,1);
-   unix.usleep(200000);
-   -- Dynamixel.ping_probe();
-   shm_init();
-   carray_init();
-   actuator.readType[1]=1;
-   if syncread_enable==1 then
-	 calibrate_gyro();
-   end
+  Dynamixel.open();
+  --   Dynamixel.ping_probe();
+  --We have to manually turn on the MC for OP   
+  Dynamixel.set_torque_enable(200,1);
+  unix.usleep(200000);
+  -- Dynamixel.ping_probe();
+  shm_init();
+  carray_init();
+  -- Read head and not legs
+  actuator.readType[1]=1;
+  -- Read only ankles
+  actuator.readType[1]=3;
+  
+  if syncread_enable==1 then
+	  calibrate_gyro();
+  end
 end
 
 function calibrate_gyro()
