@@ -254,16 +254,21 @@ end
 
 function nonsync_read()
 
---Position reading
+  --Position reading
 	local idToRead={1,2};   --Head only reading
 	if actuator.readType[1]==1 then --All servo reading
 		for i=1,#idMap do 
 			idToRead[i]=i;
 		end
-        else --if actuator.readType[1]==0 then --Head only reading
-	    for i = 3,#idMap do
-	        sensor.position[i] = actuator.command[i];
-	    end;
+  else if actuator.readType[1]==3 then -- Read ankles only
+    idToRead = {10,16}
+    for i = 1,#idMap do
+	    sensor.position[i] = actuator.command[i];
+	  end;
+  else --if actuator.readType[1]==0 then --Head only reading
+	  for i = 3,#idMap do
+	    sensor.position[i] = actuator.command[i];
+	  end;
 
 --[[
 	elseif actuator.readType[1]==2 then --Head+Leg reading
@@ -288,17 +293,19 @@ function nonsync_read()
 --]]
 
 	end
-	for i = 1,#idToRead do
- 	    local id = idMap[idToRead[i]];
-	    --Sometimes DCM crashes here... maybe a bug
-            local raw=null;
-	    if id then
-	        raw=Dynamixel.get_position(id);
-	        if raw then
-		    sensor.position[i] = (raw-posZero[i])/scale[i] - actuator.offset[i];
-	    	end
-	    end
-	end
+
+  -- Update the readings
+  for i = 1,#idToRead do
+ 	  local id = idMap[idToRead[i]];
+    --Sometimes DCM crashes here... maybe a bug
+    local raw=null;
+    if id then
+      raw=Dynamixel.get_position(id);
+      if raw then
+        sensor.position[i] = (raw-posZero[i])/scale[i] - actuator.offset[i];
+      end
+    end
+  end
 
   --IMU reading
 
