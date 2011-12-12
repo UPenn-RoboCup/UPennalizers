@@ -120,15 +120,18 @@ function update(enable)
   send.team.player_id = gcm.get_team_player_id();
   send.team.color = gcm.get_team_color();
   send.team.role = gcm.get_team_role();
+
+  -- Send information about other players
+  send.team.states = Team.states;
   
   MonitorComm.send(serialization.serialize(send));
-
-  -- If level 1, then just send the data, no vision
-  if enable==1 then
+  
+  -- Send camera frames
+  if enable==1 then -- just send the data, no vision
     return;
-  elseif enable==2 then -- If level 2, then just send labelB 
+  elseif enable==2 then -- send labelB in addition to data
     sendB();
-  elseif enable==3 then
+  elseif enable==3 then -- send labelA in addition to data
     -- Send labelA image      
     sendA();
     --Send image packets--

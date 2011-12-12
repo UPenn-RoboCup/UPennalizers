@@ -1,17 +1,8 @@
 module(... or "", package.seeall)
 
 require('unix')
-webots = false;
-darwin = false;
 
 local cwd = unix.getcwd();
--- the webots sim is run from the WebotsController dir (not Player)
-if string.find(cwd, "WebotsController") then
-  webots = true;
-  cwd = cwd.."/Player"
-  package.path = cwd.."/?.lua;"..package.path;
-end
-
 computer = os.getenv('COMPUTER') or "";
 if (string.find(computer, "Darwin")) then
    -- MacOS X uses .dylib:
@@ -21,55 +12,30 @@ else
 end
 
 package.path = cwd.."/Util/?.lua;"..package.path;
-package.path = cwd.."/Config/?.lua;"..package.path;
 package.path = cwd.."/Lib/?.lua;"..package.path;
-package.path = cwd.."/Dev/?.lua;"..package.path;
-package.path = cwd.."/Motion/?.lua;"..package.path;
-package.path = cwd.."/Vision/?.lua;"..package.path;
-package.path = cwd.."/World/?.lua;"..package.path;
 
-require('Config');
-require('shm')
 require('Body')
-require('vector')
 require('getch')
-require('vcm'); 
-require('Motion');
-require('walk');
 require('Broadcast')
-require('Speak')
 
+-- Do not wait for a carriage return
 getch.enableblock(1);
 unix.usleep(1E6*1.0);
 
-tUpdate = unix.time();
-count = 0;
-vcmcount=0;
+local count = 0;
+local ncount = 100;
 local t0=Body.get_time();
-local last_update_time=t0;
-local headangle=vector.new({0,10*math.pi/180});
-local headsm_running=0;
-local last_vision_update_time=t0;
-targetvel=vector.zeros(3);
-t_update=2;
+local tUpdate = t0;
 
-broadcast_enable=0;
-ballcount,visioncount,imagecount=0,0,0;
+-- Broadcast the images at a lower rate than other data
+local maxFPS = 10;
+local imgFPS = 5;
+local maxPeriod = 1.0 / maxFPS;
+local imgRate = math.max( math.floor( maxFPS / imgFPS ), 1);
 
-cameraparamcount=1;
-broadcast_count=0;
-buttontime=0;
+local broadcast_enable=0;
 
 function update()
-  Body.set_syncread_enable(0); --read from only head servos
-  count = count + 1;
-  local t = Body.get_time();
-
-  if (count % 300 == 0) then
-    print('fps: '..(300 / (unix.time() - tUpdate))..', Level: '..broadcast_enable );
-    tUpdate = unix.time();
-  end
-
   -- Get a keypress
   local str=getch.get();
   if #str>0 then
@@ -80,13 +46,34 @@ function update()
       print("Broadcast:", broadcast_enable);
     end
   end
+  -- Always send non-image data
   Broadcast.update(broadcast_enable);
+  -- Send image data every so often
+  if( count % imgRate == 0 ) then
+    Broadcast.update_img(broadcast_enable);    
+  end
 end
 
-local tDelay=0.002*1E6;
-while 1 do
---Wait until dcm has done reading/writing
-  unix.usleep(tDelay);
-  update()
+while true do
+
+  count = count + 1;
+
+  -- Get the time before sending packets
+  local tstart = unix.time();
+  update();
+  -- Get time after sending packets
+  tloop = unix.time() - tstart;
+  -- Sleep in order to get the right FPS
+  if (tloop < 0.025) then
+    unix.usleep((.025 - tloop)*(1E6));
+  end
+
+  -- Display our FPS and broadcast level
+  if (count % ncount == 0) then
+    print('fps: '..(ncount / (t - tUpdate))..', Level: '..broadcast_enable );
+    tUpdate = Body.get_time();
+  end
+
+
 end
 
