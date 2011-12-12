@@ -261,7 +261,7 @@ function nonsync_read()
 			idToRead[i]=i;
 		end
   elseif actuator.readType[1]==3 then -- Read ankles only
-    idToRead = {10,16}
+    idToRead = {10,16}; --kankle ids
     for i = 1,#idMap do
 	    sensor.position[i] = actuator.command[i];
 	  end;
@@ -302,7 +302,7 @@ function nonsync_read()
     if id then
       raw=Dynamixel.get_position(id);
       if raw then
-        sensor.position[i] = (raw-posZero[i])/scale[i] - actuator.offset[i];
+        sensor.position[ idToRead[i] ] = (raw-posZero[i])/scale[i] - actuator.offset[i];
       end
     end
   end
@@ -396,7 +396,7 @@ function entry()
   carray_init();
   -- Read head and not legs
   actuator.readType[1]=1;
-  -- Read only ankles
+  -- Read only kankles
   actuator.readType[1]=3;
   
   if syncread_enable==1 then
