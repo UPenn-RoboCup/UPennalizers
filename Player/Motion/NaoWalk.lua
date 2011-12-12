@@ -189,7 +189,7 @@ function entry()
 
   pLLeg = vector.new{uLeft[1], uLeft[2], 0, 0, 0, uLeft[3]};
   pRLeg = vector.new{uRight[1], uRight[2], 0, 0, 0, uRight[3]};
-  pTorso = vector.new{uTorso[1], uTorso[2], bodyHeight, 0, 0, uTorso[3]};
+  pTorso = vector.new{uTorso[1], uTorso[2], bodyHeight, 0, bodyTilt, uTorso[3]};
    
   qLegs = Kinematics.inverse_legs(pLLeg, pRLeg, pTorso, 0);
   -- This assumes RLeg follows LLeg in servo order:
@@ -430,6 +430,7 @@ function update()
           math.min(1, phSingle/.1, (1-phSingle)/.1);
   end
 
+
   if supportLeg == 0 then
     -- Left support
     uRight = se2_interpolate(xFoot, uRight1, uRight2);
@@ -661,6 +662,12 @@ function set_velocity(vx, vy, vz)
 
   velCommand[1]=vx*magFactor*angleFactor;
   velCommand[2]=vy*magFactor*angleFactor;
+  velCommand[3]=vz;
+
+--Skip velocity limitation
+
+  velCommand[1]=vx;
+  velCommand[2]=vy;
   velCommand[3]=vz;
 
   --print("Velocity :",unpack(velCommand))
