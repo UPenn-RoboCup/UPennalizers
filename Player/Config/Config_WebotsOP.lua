@@ -33,7 +33,7 @@ dev.walk='NewWalk';
 dev.kick = 'SimpleKick'
 
 --dev.walk='NSLWalk';
-dev.kick='NSLKick';
+--dev.kick='NSLKick';
 --dev.kick='Jump';
 --dev.kick='kickKeyframe';
 --dev.walk='EKWalk';
