@@ -30,10 +30,9 @@ dev.comm='WebotsOPComm';
 dev.monitor_comm = 'NullComm';
 dev.game_control='WebotsOPGameControl';
 dev.walk='NewWalk';
-dev.kick = 'SimpleKick'
+dev.kick='NewKick';
 
 --dev.walk='NSLWalk';
-dev.kick='NSLKick';
 --dev.kick='Jump';
 --dev.kick='kickKeyframe';
 --dev.walk='EKWalk';
