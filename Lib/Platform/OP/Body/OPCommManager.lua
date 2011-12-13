@@ -294,6 +294,7 @@ function nonsync_read()
 
 	end
 
+
   -- Update the readings
   for i = 1,#idToRead do
  	  local id = idMap[idToRead[i]];
@@ -306,6 +307,7 @@ function nonsync_read()
       end
     end
   end
+
 
   --IMU reading
 

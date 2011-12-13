@@ -48,13 +48,10 @@ focalB = focalA/scaleB;
 print('HeadTransform LabelB size: ('..labelB.m..', '..labelB.n..')');
 print('HeadTransform LabelA size: ('..labelA.m..', '..labelA.n..')');
 
--- OP specific
 neckX    = Config.head.neckX; 
 neckZ    = Config.head.neckZ; 
-footX    = Config.walk.footX + Config.walk.footXComp;
-supportX = Config.walk.supportX;
---TODO: use actual bodyHeight and bodyTilt using shm
-bodyTilt=Config.walk.bodyTilt; --Original
+footX    = Config.walk.footX; 
+bodyTilt=Config.walk.bodyTilt; 
 bodyHeight=Config.walk.bodyHeight;
 
 function entry()

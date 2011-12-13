@@ -10,7 +10,7 @@ require('walk')
 active = true;
 t0 = 0;
 
-bodyHeight = 0.20;
+bodyHeight = Config.sit.bodyHeight;
 supportX = 0.0;
 footY = walk.footY;
 bodyTilt=walk.bodyTilt;

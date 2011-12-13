@@ -12,6 +12,7 @@ require('stance')
 require('nullstate')
 require('walk')
 require('sit')
+require('standstill') -- This makes torso straight (for webots robostadium)
 
 require('falling')
 require('standup')
@@ -25,6 +26,7 @@ sm:add_state(sit);
 sm:add_state(standup);
 sm:add_state(falling);
 sm:add_state(kick);
+sm:add_state(standstill);
 
 
 sm:set_transition(sit, 'done', relax);
@@ -43,6 +45,10 @@ sm:set_transition(stance, 'sit', sit);
 
 sm:set_transition(walk, 'sit', sit);
 sm:set_transition(walk, 'stance', stance);
+sm:set_transition(walk, 'standstill', standstill);
+
+sm:set_transition(standstill, 'stance', stance);
+sm:set_transition(standstill, 'walk', walk);
 
 -- falling behaviours
 sm:set_transition(walk, 'fall', falling);

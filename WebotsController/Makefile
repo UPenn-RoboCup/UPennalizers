@@ -51,8 +51,12 @@ all: controller
 %.o: %.c
 	$(CC) $(CXXFLAGS) $(LUA_INC) $(WEBOTS_INC) $(WEBOTS_C_INC) $(SYS_INC) -o $@ -c $<
 
-controller_wrap.c: controller.i
-	swig -lua $(WEBOTS_C_INC) controller.i
+#SJ: Auto generation makes some problem with IMU reading 
+#So we just keep hand-modified c file here
+#Any better implementations?
+
+#controller_wrap.c: controller.i
+#	swig -lua $(WEBOTS_C_INC) controller.i
 
 controller: controller_wrap.o
 	$(LD) -o $@.$(SHLIBEXT) $(LIBOPTS) $^ -L$(LIB_DIR) -lController
@@ -64,5 +68,10 @@ endif
 webotsController: webotsController.o
 	$(LD) -o $@.$(SHLIBEXT) $(LIBOPTS) $^ -L$(LIB_DIR) -lController
 
+#SJ: keep controller_wrap.c here
+
+#clean:
+#	rm -f controller.$(SHLIBEXT) controller_wrap.c *.o *.so *.dylib 
+
 clean:
-	rm -f controller.$(SHLIBEXT) controller_wrap.c *.o *.so *.dylib 
+	rm -f controller.$(SHLIBEXT) *.o *.so *.dylib 

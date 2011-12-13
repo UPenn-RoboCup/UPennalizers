@@ -48,6 +48,16 @@ function se2_interpolate(t, u1, u2)
                     u1[3]+t*mod_angle(u2[3]-u1[3])};
 end
 
+function procFunc(a,deadband,maxvalue)
+  --Piecewise linear function for IMU feedback
+  if a>0 then
+        b=math.min( math.max(0,math.abs(a)-deadband), maxvalue);
+  else
+        b=-math.min( math.max(0,math.abs(a)-deadband), maxvalue);
+  end
+  return b;
+end
+
 function pose_global(pRelative, pose)
   local ca = math.cos(pose[3]);
   local sa = math.sin(pose[3]);

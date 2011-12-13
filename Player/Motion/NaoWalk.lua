@@ -509,6 +509,11 @@ function update()
   gyro_roll = -(imuGyr[1]-gyro0[1]);
   gyro_pitch = -(imuGyr[2]-gyro0[2]);
 
+
+  print("Gyro:",gyro_roll,gyro_pitch);
+
+
+
 	if imuOn then
 		ankleShiftX=procFunc(gyro_pitch*ankleImuParamX[2],ankleImuParamX[3],
 			ankleImuParamX[4]);

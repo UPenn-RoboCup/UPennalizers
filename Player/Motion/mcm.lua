@@ -25,6 +25,10 @@ shared.walk.stillTime = vector.zeros(1);
 --To notify world to reset heading
 shared.walk.isFallDown = vector.zeros(1);
 
+--Is the robot spinning in bodySearch?
+shared.walk.isSearching = vector.zeros(1);
+
+
 shared.us = {};
 shared.us.left = vector.zeros(10);
 shared.us.right = vector.zeros(10);
