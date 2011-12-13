@@ -280,6 +280,10 @@ function update()
     imuAngle[2] = imuAngle[2] + aImuFilter*(math.asin(accX) - imuAngle[2]);
   end
 
+  --Yaw angle generation by gyro integration
+  imuAngle[3] = imuAngle[3] + tDelta * (gyro[3]-512) / 0.273 *
+        math.pi/180 *
+        0.9; --to compensate bodyTilt
 
 
 

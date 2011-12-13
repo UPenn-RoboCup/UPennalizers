@@ -9,23 +9,20 @@ t0 = 0;
 timeout = 10.0*Config.speedFactor;
 
 -- maximum walk velocity
-maxStep = 0.03;
+maxStep = 0.12;
 
 -- ball detection timeout
 tLost = 3.0*Config.speedFactor;
 
--- kick threshold
-xKick = 0.14;
-xTarget = 0.13;
-yKickMin = 0.01;
-yKickMax = 0.05;
-yTarget0 = 0.04;
-
-
-
+-- kick threshold for hubo
+xKick = 0.20;
+xTarget = 0.16;
+yKickMin = 0.02;
+yKickMax = 0.10;
+yTarget0 = 0.08;
 
 -- maximum ball distance threshold
-rFar = 0.45;
+rFar = 0.90;
 
 function entry()
   print("Body FSM:".._NAME.." entry");
@@ -50,7 +47,8 @@ function update()
 
   ballA = math.atan2(ball.y - math.max(math.min(ball.y, 0.05), -0.05),
             ball.x+0.10);
-  --  vStep[3] = 0.5*ballA;
+
+  --vStep[3] = 0.5*ballA;
   --SJ: turn towards the goal, not the ball  
   attackBearing, daPost = wcm.get_attack_bearing();
   if attackBearing > 10*math.pi/180 then
