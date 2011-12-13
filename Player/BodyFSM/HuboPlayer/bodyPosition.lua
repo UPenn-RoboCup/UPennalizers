@@ -12,9 +12,9 @@ require('UltraSound')
 t0 = 0;
 timeout = 20.0*Config.speedFactor;
 
-maxStep = 0.06;
+maxStep = 0.20;
 
-rClose = 0.35;
+rClose = 0.70;
 
 tLost = 3.0*Config.speedFactor;
 

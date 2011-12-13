@@ -31,8 +31,11 @@ dev.kinematics = 'HuboKinematics';
 dev.comm = 'WebotsNaoComm';
 dev.monitor_comm = 'NullComm';
 dev.game_control='WebotsOPGameControl';
-dev.walk = 'NaoWalk';
-dev.kick = 'NaoKick';
+--dev.walk = 'NaoWalk';
+--dev.kick = 'NaoKick';
+
+dev.walk = 'NewWalk';
+dev.kick = 'NewKick';
 
 -- Game Parameters
 game = {};
@@ -47,8 +50,11 @@ game.nPlayers = 4;
 -- FSM Parameters
 fsm = {};
 fsm.game = 'OpDemo'
-fsm.body = {'OpPlayer'};
+fsm.body = {'HuboPlayer'};
 fsm.head = {'OpPlayer'};
+
+
+fsm.head = {'OpPlayerNSL'}; 
 
 -- Team Parameters
 
@@ -96,3 +102,8 @@ stance.delay = 80; --amount of time to stand still after standing to regain bala
 BodyFSM = {}
 BodyFSM.enable_obstacle_detection = 1;
 
+--How slow is the walking compared to real OP?
+speedFactor = 4.0;
+
+--Skip all checks in vision for 160*120 image 
+webots_vision = 1; 

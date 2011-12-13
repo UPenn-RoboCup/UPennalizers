@@ -295,7 +295,7 @@ function nonsync_read()
 	    if id then
 	        raw=Dynamixel.get_position(id);
 	        if raw then
-		    sensor.position[i] = (raw-posZero[i])/scale[i] - actuator.offset[i];
+		    sensor.position[ idToRead[i] ] = (raw-posZero[i])/scale[i] - actuator.offset[i];
 	    	end
 	    end
 	end

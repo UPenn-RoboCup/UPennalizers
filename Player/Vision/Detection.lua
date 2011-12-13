@@ -13,6 +13,14 @@ require('detectGoal');
 require('detectLine');
 require('detectLandmarks'); -- for NSL
 require('detectSpot');
+
+--For webots (160*120)
+webots_vision = Config.webots_vision or 0;
+if webots_vision==1 then
+  detectBall = require('detectBallWebots');
+  detectGoal = require('detectGoalWebots');
+end
+
 --[[
 require('detectFreespace');
 require('detectObstacles');
