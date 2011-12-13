@@ -11,7 +11,7 @@ walk.stanceLimitX={-0.60,0.60};
 walk.stanceLimitY={0.16,0.60};
 walk.stanceLimitA={-10*math.pi/180,30*math.pi/180};
 walk.velLimitX={-.20,.40};
-walk.velLimitY={-.20,.20};
+walk.velLimitY={-.15,.15};
 walk.velLimitA={-.3,.3};
 walk.velDelta={0.10,0.10,0.15} 
 

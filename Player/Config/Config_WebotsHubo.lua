@@ -50,7 +50,7 @@ game.nPlayers = 4;
 -- FSM Parameters
 fsm = {};
 fsm.game = 'OpDemo'
-fsm.body = {'OpPlayer'};
+fsm.body = {'HuboPlayer'};
 fsm.head = {'OpPlayer'};
 
 
