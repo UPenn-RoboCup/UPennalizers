@@ -6,13 +6,13 @@ require('walk')
 require('vector')
 
 t0 = 0;
-timeout = 10.0;
+timeout = 10.0*Config.speedFactor;
 
 -- maximum walk velocity
 maxStep = 0.03;
 
 -- ball detection timeout
-tLost = 3.0;
+tLost = 3.0*Config.speedFactor;
 
 -- kick threshold
 xKick = 0.14;

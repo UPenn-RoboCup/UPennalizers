@@ -8,12 +8,20 @@ function entry()
 
   walk.set_velocity(0,0,0);
   walk.stop();
+  started = false;
 end
 
 function update()
-  -- do nothing
+  --for webots : we have to stop with 0 bodytilt
+  if not started then
+    if not walk.active then
+    Motion.sm:set_state('standstill');
+    started = true;
+    end
+  end
+  
 end
 
 function exit()
-  walk.start();
+  Motion.sm:add_event('walk');
 end

@@ -100,7 +100,7 @@ walkKickRequest = 0;
 walkKickType = 0;
 
 initdone=false;
-initial_step=0;
+initial_step=2;
 ----------------------------------------------------------
 -- End initialization 
 ----------------------------------------------------------
@@ -433,7 +433,7 @@ function start()
     iStep0 = -1;
     t0 = Body.get_time();
     initdone=false;
-    initial_step=1;
+    initial_step=2;
   end
 end
 

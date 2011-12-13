@@ -53,6 +53,9 @@ fsm.game = 'OpDemo'
 fsm.body = {'OpPlayer'};
 fsm.head = {'OpPlayer'};
 
+
+fsm.head = {'OpPlayerNSL'}; 
+
 -- Team Parameters
 
 team = {};
@@ -99,3 +102,4 @@ stance.delay = 80; --amount of time to stand still after standing to regain bala
 BodyFSM = {}
 BodyFSM.enable_obstacle_detection = 1;
 
+speedFactor = 4.0;

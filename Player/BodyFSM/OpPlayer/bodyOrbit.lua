@@ -7,14 +7,18 @@ require('Config')
 require('wcm')
 
 t0 = 0;
-timeout = 30.0;
+timeout = 30.0*Config.speedFactor;
 maxStep = 0.06;
 rOrbit = 0.27;
 rFar = 0.45;
 thAlign = 10*math.pi/180;
-tLost = 3.0;
+tLost = 3.0*Config.speedFactor;
 direction = 1;
 dribbleThres = 0.75;
+
+--hack
+
+tLost = 10.0*Config.speedFactor;
 
 
 rOrbit = 0.20;

@@ -10,13 +10,13 @@ require('gcm')
 require('UltraSound')
 
 t0 = 0;
-timeout = 20.0;
+timeout = 20.0*Config.speedFactor;
 
 maxStep = 0.06;
 
 rClose = 0.35;
 
-tLost = 3.0;
+tLost = 3.0*Config.speedFactor;
 
 
 function entry()

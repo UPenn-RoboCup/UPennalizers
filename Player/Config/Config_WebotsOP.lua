@@ -14,7 +14,8 @@ end
 
 loadconfig('Config_WebotsOP_Walk')
 loadconfig('Config_WebotsOP_World')
-loadconfig('Config_WebotsOP_Kick')
+--loadconfig('Config_WebotsOP_Kick')
+loadconfig('Config_WebotsOP_KickPunch')
 loadconfig('Config_WebotsOP_Vision')
 loadconfig('Config_WebotsOP_Robot')
 
@@ -30,7 +31,8 @@ dev.comm='WebotsOPComm';
 dev.monitor_comm = 'NullComm';
 dev.game_control='WebotsOPGameControl';
 dev.walk='NewWalk';
-dev.kick='NewKick';
+--dev.kick='NewKick';
+dev.kick='NSLKickPunch';
 
 --dev.walk='NSLWalk';
 --dev.kick='NSLKick';
@@ -111,3 +113,7 @@ km.standup_back = 'km_WebotsOP_StandupFromBack.lua';
 km.kick_right = 'km_NSLOP_taunt1.lua';
 km.kick_left = 'km_NSLOP_StandupFromFront2.lua';
 
+
+--Webots tStep is 2x of real robot
+--So slow down SM durations
+speedFactor = 2.0; 

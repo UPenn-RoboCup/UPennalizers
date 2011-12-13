@@ -5,9 +5,10 @@ require('walk')
 require('vector')
 require('Config')
 require('wcm')
+require('mcm')
 
 t0 = 0;
-timeout = 10.0;
+timeout = 10.0*Config.speedFactor;
 
 -- turn velocity
 vSpin = 0.3;
@@ -24,8 +25,10 @@ function entry()
   ball = wcm.get_ball();
   if (ball.y > 0) then
     direction = 1;
+    mcm.set_walk_isSearching(1);
   else
     direction = -1;
+    mcm.set_walk_isSearching(-1);
   end
 end
 
@@ -46,4 +49,5 @@ function update()
 end
 
 function exit()
+  mcm.set_walk_isSearching(0);
 end

@@ -29,6 +29,10 @@ world.cResample = 10; --Resampling interval
 world.odomScale = {1, 1, 0};  
 world.imuYaw = 1;
 
+--Vision only
+--world.odomScale = {1, 1, 1};  
+--world.imuYaw = 0;
+
 -- filter weights
 world.rGoalFilter = 0.02;
 world.aGoalFilter = 0.05;
