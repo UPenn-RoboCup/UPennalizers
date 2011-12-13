@@ -13,9 +13,11 @@ t0 = Body.get_time();
 velCurrent = vector.new({0, 0, 0});
 
 -- Walk Parameters
-hardnessLeg_gnd = Config.walk.hardnessLeg;
+--hardnessLeg_gnd = Config.walk.hardnessLeg;
+hardnessLeg_gnd = vector.new({1,1,1,1,1,1});
 hardnessLeg_gnd[5] = 0; -- Ankle pitch is free moving
-hardnessLeg_air = Config.walk.hardnessLeg;
+--hardnessLeg_air = Config.walk.hardnessLeg;
+hardnessLeg_air = vector.new({1,1,1,1,1,1});
 
 -- For Debugging
 saveCount = 0;
@@ -158,7 +160,7 @@ function exit()
 end
 
 function get_odometry(u0)
-  return {0,0,0,0};  
+  return vector.new({0,0,0}),0;
 end
    
 function get_body_offset()
