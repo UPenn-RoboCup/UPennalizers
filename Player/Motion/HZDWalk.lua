@@ -24,31 +24,47 @@ saveCount = 0;
 jointNames = {"Left_Hip_Yaw", "Left_Hip_Roll", "Left_Hip_Pitch", "Left_Knee_Pitch", "Left_Ankle_Pitch", "Left_Ankle_Roll", "Right_Hip_Yaw", "Right_Hip_Roll", "Right_Hip_Pitch", "Right_Knee_Pitch", "Right_Ankle_Pitch", "Right_Ankle_Roll"};
 logfile_name = string.format("/tmp/joint_angles.raw");
 stance_ankle_id = 5;
+air_ankle_id = 11;
 supportLeg = 0;
+beta = .2;
+qLegs = Body.get_lleg_position();
 
 function entry()
   Body.set_syncread_enable( 3 );
   supportLeg = 0;
+  qLegs = Body.get_lleg_position();
+  theta_running = qLegs[stance_ankle_id];
 end
+
+entry();
 
 function update( )
   t = Body.get_time();
+  -- Read the ankle joint value
+  qLegs = Body.get_lleg_position();
+  qLegs2 = Body.get_rleg_position();
+  for i=1,6 do
+    qLegs[i+6] = qLegs2[i];
+  end
 
   if( supportLeg == 0 ) then -- Left left on ground
     Body.set_lleg_hardness(hardnessLeg_gnd);
     Body.set_rleg_hardness(hardnessLeg_air);    
     alpha = Config_OP_HZD.alpha_L;
-    -- Read the ankle joint value
-    qLegs = Body.get_lleg_position();
+    stance_ankle_id = 5;
+    air_ankle_id = 11;
   else
     Body.set_rleg_hardness(hardnessLeg_gnd);
     Body.set_lleg_hardness(hardnessLeg_air);    
     alpha = Config_OP_HZD.alpha_R;
     -- Read the ankle joint value
-    qLegs = Body.get_rleg_position();
+    stance_ankle_id = 11;
+    air_ankle_id = 5;
   end
+
    
-  theta = qLegs[stance_ankle_id]; -- Just use the ankle
+  theta = qLegs[stance_ankle_id]; -- Just use the stance ankle
+  theta_running = beta*theta + (1-beta)*theta_running
   
 --[[--webots
   theta_max = -0.3527;
@@ -59,15 +75,21 @@ function update( )
 
   s = (theta - theta_min) / (theta_max - theta_min) ;
 
-  if( s>1 ) then
-    supportLeg = 1 - supportLeg;
+  if( s>.98 ) then
+    switchLeg = 1;
     s = 1;
   end
   if(s<0) then
-    supportLeg = 1 - supportLeg;
+--    supportLeg = 1 - supportLeg;
     s = 0;
   end;
-  
+
+  if( switchLeg == 1 ) then
+    switchLeg = 0;
+    supportLeg = 1 - supportLeg;
+    theta_running = qLegs[air_ankle_id];    
+  end
+
   for i=1,12 do
     if (i~=stance_ankle_id) then
       qLegs[i] = util.polyval_bz(alpha[i], s);
@@ -75,12 +97,14 @@ function update( )
   end
 
   -- Debug Printing in degrees
+  print();
   print('Support Leg: ', supportLeg);
   print('theta: ', theta, ', s: ', s);
+--[[
   for i=1,12 do
     print( jointNames[i] .. ':\t'..qLegs[i]*180/math.pi );
   end
-  print();
+--]]
 
   Body.set_lleg_command(qLegs);
   -- return the HZD qLegs
