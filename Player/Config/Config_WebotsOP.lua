@@ -14,8 +14,8 @@ end
 
 loadconfig('Config_WebotsOP_Walk')
 loadconfig('Config_WebotsOP_World')
---loadconfig('Config_WebotsOP_Kick')
-loadconfig('Config_WebotsOP_KickPunch')
+loadconfig('Config_WebotsOP_Kick')
+--loadconfig('Config_WebotsOP_KickPunch')
 loadconfig('Config_WebotsOP_Vision')
 loadconfig('Config_WebotsOP_Robot')
 
@@ -31,15 +31,8 @@ dev.comm='WebotsOPComm';
 dev.monitor_comm = 'NullComm';
 dev.game_control='WebotsOPGameControl';
 dev.walk='NewWalk';
---dev.kick='NewKick';
-dev.kick='NSLKickPunch';
-
---dev.walk='NSLWalk';
---dev.kick='NSLKick';
---dev.kick='Jump';
---dev.kick='kickKeyframe';
---dev.walk='EKWalk';
---dev.kick='NSLPunch';
+dev.kick='NewKick';
+--dev.kick='NSLKickPunch';
 
 -- Game Parameters
 
@@ -71,9 +64,8 @@ if( fsm.game == 'RoboCup' ) then
 
   fsm.body = {'OpPlayer'};
   fsm.head = {'OpPlayer'};
-
-fsm.head = {'OpPlayerNSL'};
-fsm.body = {'OpPlayerNSL'};
+--fsm.head = {'OpPlayerNSL'};
+--fsm.body = {'OpPlayerNSL'};
 
 elseif( fsm.game == 'Dodgeball' ) then
   fsm.body = {'Dodgeball'};
@@ -117,3 +109,6 @@ km.kick_left = 'km_NSLOP_StandupFromFront2.lua';
 --Webots tStep is 2x of real robot
 --So slow down SM durations
 speedFactor = 2.0; 
+
+--Skip all checks in vision for 160*120 image 
+webots_vision = 1; 

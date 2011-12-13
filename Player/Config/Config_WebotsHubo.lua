@@ -102,4 +102,8 @@ stance.delay = 80; --amount of time to stand still after standing to regain bala
 BodyFSM = {}
 BodyFSM.enable_obstacle_detection = 1;
 
+--How slow is the walking compared to real OP?
 speedFactor = 4.0;
+
+--Skip all checks in vision for 160*120 image 
+webots_vision = 1; 
