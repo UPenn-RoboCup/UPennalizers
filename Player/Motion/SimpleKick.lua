@@ -10,12 +10,12 @@ require('Config')
 kickType = "kickForwardLeft";
 active = false;
 
-bodyHeight = walk.bodyHeight;
-footY = walk.footY;
-bodyTilt = walk.bodyTilt;
-supportX = walk.supportX;
-qLArm = walk.qLArm;
-qRArm = walk.qRArm;
+bodyHeight = Config.walk.bodyHeight;
+footY = Config.walk.footY;
+bodyTilt = Config.walk.bodyTilt;
+supportX = Config.walk.supportX;
+qLArm = Config.walk.qLArm;
+qRArm = Config.walk.qRArm;
 
 -- pTorso fixed for stance:
 pTorso = vector.new({0, 0, bodyHeight, 0,bodyTilt,0});
