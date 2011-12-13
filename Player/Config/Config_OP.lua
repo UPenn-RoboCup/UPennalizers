@@ -31,10 +31,11 @@ dev.kinematics = 'OPKinematics';
 dev.comm='NullComm';
 dev.monitor_comm = 'OPMonitorCommWired';
 dev.game_control='OPGameControl';
-dev.walk='NaoWalk';
---dev.kick='NaoKick';
-dev.kick = 'ik_kick'
+--dev.walk='NaoWalk';
+dev.walk='HZDWalk';
+dev.kick = 'SimpleKick'
 --[[
+-- For NSL
 dev.walk='NSLWalk';
 dev.kick='NSLKick';
 --]]

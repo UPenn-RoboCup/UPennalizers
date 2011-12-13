@@ -9,6 +9,9 @@ require 'util'
 
 t0 = Body.get_time();
 
+-- Suport the Walk API
+velCurrent = vector.new({0, 0, 0});
+
 -- Walk Parameters
 hardnessLeg_gnd = Config.walk.hardnessLeg;
 hardnessLeg_gnd[5] = 0; -- Ankle pitch is free moving
@@ -18,28 +21,31 @@ hardnessLeg_air = Config.walk.hardnessLeg;
 saveCount = 0;
 jointNames = {"Left_Hip_Yaw", "Left_Hip_Roll", "Left_Hip_Pitch", "Left_Knee_Pitch", "Left_Ankle_Pitch", "Left_Ankle_Roll", "Right_Hip_Yaw", "Right_Hip_Roll", "Right_Hip_Pitch", "Right_Knee_Pitch", "Right_Ankle_Pitch", "Right_Ankle_Roll"};
 logfile_name = string.format("/tmp/joint_angles.raw");
+stance_ankle_id = 5;
+supportLeg = 0;
 
-
-function update( supportLeg, qLegs )
-
-  -- Read the ankle joint value
+function entry()
+  Body.set_syncread_enable( 3 );
   supportLeg = 0;
-  qLegs = Body.get_lleg_position();
+end
+
+function update( )
+  t = Body.get_time();
 
   if( supportLeg == 0 ) then -- Left left on ground
     Body.set_lleg_hardness(hardnessLeg_gnd);
     Body.set_rleg_hardness(hardnessLeg_air);    
     alpha = Config_OP_HZD.alpha_L;
-    stance_ankle_id = 5;
+    -- Read the ankle joint value
+    qLegs = Body.get_lleg_position();
   else
     Body.set_rleg_hardness(hardnessLeg_gnd);
     Body.set_lleg_hardness(hardnessLeg_air);    
     alpha = Config_OP_HZD.alpha_R;
-    stance_ankle_id = 11;
+    -- Read the ankle joint value
+    qLegs = Body.get_rleg_position();
   end
-  
-  t = Body.get_time();
-  
+   
   theta = qLegs[stance_ankle_id]; -- Just use the ankle
   
 --[[--webots
@@ -51,8 +57,14 @@ function update( supportLeg, qLegs )
 
   s = (theta - theta_min) / (theta_max - theta_min) ;
 
-  if( s>1 ) then s = 1; end;
-  if(s<0) then s = 0; end;
+  if( s>1 ) then
+    supportLeg = 1 - supportLeg;
+    s = 1;
+  end
+  if(s<0) then
+    supportLeg = 1 - supportLeg;
+    s = 0;
+  end;
   
   for i=1,12 do
     if (i~=stance_ankle_id) then
@@ -60,7 +72,6 @@ function update( supportLeg, qLegs )
     end
   end
 
---[[
   -- Debug Printing in degrees
   print('Support Leg: ', supportLeg);
   print('theta: ', theta, ', s: ', s);
@@ -68,7 +79,7 @@ function update( supportLeg, qLegs )
     print( jointNames[i] .. ':\t'..qLegs[i]*180/math.pi );
   end
   print();
---]]
+
   Body.set_lleg_command(qLegs);
   -- return the HZD qLegs
   return qLegs;
@@ -108,5 +119,41 @@ function record_joint_angles( supportLeg )
   f:close();
   saveCount = saveCount + 1;
 
+end
+
+-- Walk API functions
+function set_velocity(vx, vy, vz)
+end
+
+function stop()
+  stopRequest = math.max(1,stopRequest);
+end
+
+function stopAlign()
+  stop()
+end
+
+--dummy function for NSL kick
+function zero_velocity()
+end
+
+function start()
+--  stopRequest = false;
+  stopRequest = 0;
+  if (not active) then
+    active = true;
+    iStep0 = -1;
+    t0 = Body.get_time();
+    initdone=false;
+    delaycount=0;
+    initial_step=1;
+  end
+end
+
+function get_velocity()
+  return velCurrent;
+end
+
+function exit()
 end
 
