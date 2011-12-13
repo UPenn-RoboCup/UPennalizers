@@ -157,3 +157,11 @@ end
 function exit()
 end
 
+function get_odometry(u0)
+  return {0,0,0,0};  
+end
+   
+function get_body_offset()
+  return {0,0,0}; 
+end
+
