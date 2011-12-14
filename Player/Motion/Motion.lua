@@ -47,8 +47,9 @@ sm:set_transition(walk, 'sit', sit);
 sm:set_transition(walk, 'stance', stance);
 sm:set_transition(walk, 'standstill', standstill);
 
+--standstill makes the robot stand still with 0 bodytilt (for webots)
 sm:set_transition(standstill, 'stance', stance);
-sm:set_transition(standstill, 'walk', walk);
+sm:set_transition(standstill, 'walk', stance);
 
 -- falling behaviours
 sm:set_transition(walk, 'fall', falling);
