@@ -17,12 +17,15 @@ nUpdate = 0;
 scale = 1; % 1: labelA, 4: labelB
 
 %% Initialize data
+t0=tic;
 robots = cell(nPlayers, length(teamNumbers));
 for t = 1:length(teamNumbers)
     for p = 1:nPlayers
         robots{p,t} = shm_robot(teamNumbers(t), p);
     end
 end
+t = toc( t0 );
+fprintf('Initialization time: %f\n',t);
 
 %% Update our plots
 while continuous

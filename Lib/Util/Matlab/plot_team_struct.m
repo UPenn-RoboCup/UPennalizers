@@ -1,4 +1,4 @@
-function h = plot_robot_struct(robot_struct, scale)
+function h = plot_team_struct(robot_struct, scale)
 
   if( isempty(robot_struct) )
       return;
@@ -40,7 +40,6 @@ function h = plot_robot_struct(robot_struct, scale)
   xab = cos(robot_struct.attackBearing)*ca - sin(robot_struct.attackBearing)*sa;
   yab = cos(robot_struct.attackBearing)*sa + sin(robot_struct.attackBearing)*ca;
   quiver(robot_struct.pose.x, robot_struct.pose.y, xab, yab);
-  
 
   if ~isempty(robot_struct.ball),
     ball = [robot_struct.ball.x robot_struct.ball.y];

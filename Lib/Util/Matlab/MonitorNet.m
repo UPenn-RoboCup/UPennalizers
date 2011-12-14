@@ -1,6 +1,6 @@
 clear all;
 % Players and team to track
-nPlayers = 1;
+nPlayers = 3;
 teamNumbers = [18];
 team2track = 1;
 player2track = 1;
@@ -17,12 +17,15 @@ nUpdate = 0;
 scale = 1; % 1: labelA, 4: labelB
 
 %% Initialize data
+t0=tic;
 robots = cell(nPlayers, length(teamNumbers));
 for t = 1:length(teamNumbers)
     for p = 1:nPlayers
         robots{p,t} = net_robot(teamNumbers(t), p);
     end
 end
+t = toc( t0 );
+fprintf('Initialization time: %f\n',t);
 
 %% Update our plots
 while continuous
@@ -43,7 +46,7 @@ while continuous
         if ~isempty(msg)
             msg = lua2mat(char(msg));
             % Only track one robot...
-            scale = robots{1,1}.update( msg );
+            scale = robots{player2track,team2track}.update( msg );
         end
     end
     

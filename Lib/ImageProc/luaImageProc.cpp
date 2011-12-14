@@ -318,7 +318,8 @@ static const struct luaL_reg imageProc_lib [] = {
   {"goal_posts", lua_goal_posts},
   {"field_lines", lua_field_lines},
   {"field_spots", lua_field_spots},
-
+  {"subsample_yuyv2yuv", lua_subsample_yuyv2yuv},
+//  {"field_spots", lua_field_spots},
   {NULL, NULL}
 };
 

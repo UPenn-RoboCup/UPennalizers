@@ -32,7 +32,6 @@ h.get_labelB = @get_labelB;
         % returns the robot struct (in the same form as the team messages)
         r = [];
         try
-            %r.time = h.gcmTeam.get_time();
             r.teamNumber = h.gcmTeam.get_number();
             r.teamColor = h.gcmTeam.get_color();
             r.id = h.gcmTeam.get_player_id();
@@ -40,13 +39,18 @@ h.get_labelB = @get_labelB;
             
             pose = h.wcmRobot.get_pose();
             r.pose = struct('x', pose(1), 'y', pose(2), 'a', pose(3));
-            r.attackBearing = h.wcmGoal.get_attack_bearing();
             
             ballxy = h.wcmBall.get_xy();
             ballt = h.wcmBall.get_t();
             ballvel = h.wcmBall.get_velocity();
             r.ball = struct('x', ballxy(1), 'y', ballxy(2), 't', ballt, ...
                 'vx', ballvel(1), 'vy', ballvel(2) );
+            
+            % TODO: implement penalty and time
+            r.penalty = 0;
+            r.attackBearing = h.wcmGoal.get_attack_bearing();
+            r.time = 0;
+            r.tReceive = 0;
             
         catch
         end
