@@ -1,4 +1,3 @@
-clear all;
 % Players and team to track
 nPlayers = 3;
 teamNumbers = [18];

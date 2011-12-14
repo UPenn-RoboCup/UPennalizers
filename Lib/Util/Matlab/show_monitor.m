@@ -1,8 +1,8 @@
 function show_monitor( robots, scale, teamNumber, playerNumber )
 
 % Robot to display
-r = robots{playerNumber,teamNumber}.get_monitor_struct();
-if( isempty(r) )
+r_mon = robots{playerNumber,teamNumber}.get_monitor_struct();
+if( isempty(r_mon) )
     disp('Empty monitor struct!');
     return;
 end
@@ -33,32 +33,29 @@ if( ~isempty(label) )
     xlim([0 size(label,2)]);
     ylim([0 size(label,1)]);
     hold on;
-    if(r.ball.detect==1)
-        plot_ball( r.ball, scale );
+    if(r_mon.ball.detect==1)
+        plot_ball( r_mon.ball, scale );
     end
-    if( r.goal.detect == 1 )
+    if( r_mon.goal.detect == 1 )
         %disp('Goal detected!');
         % Determine which bounding box:
-        if(r.goal.v1.scale~=0)
-            pBBoxA = r.goal.postBoundingBox1;
-            pBBoxB = r.goal.postBoundingBox2;
+        if(r_mon.goal.v1.scale~=0)
+            pBBoxA = r_mon.goal.postBoundingBox1;
+            pBBoxB = r_mon.goal.postBoundingBox2;
         else
-            pBBoxA = r.goal.postBoundingBox2;
-            pBBoxB = r.goal.postBoundingBox1;
+            pBBoxA = r_mon.goal.postBoundingBox2;
+            pBBoxB = r_mon.goal.postBoundingBox1;
         end
-        postStats = bboxStats( label, r.goal.color, pBBoxA, scale );
+        postStats = bboxStats( label, r_mon.goal.color, pBBoxA, scale );
         plot_goalposts( postStats, scale );
-        if(r.goal.type==3)
-            postStats = bboxStats( label, r.goal.color, pBBoxB, scale );
+        if(r_mon.goal.type==3)
+            postStats = bboxStats( label, r_mon.goal.color, pBBoxB, scale );
             plot_goalposts( postStats, scale );
         end
         
     end
 end   
-%else
-     % Plot a random image indicating nothing received
-%     imagesc( magic(64) );
-%end
+
 colormap(cmap);
 
 subplot(2,2,3);
@@ -75,9 +72,14 @@ for t = 1:nTeams
     end
 end
 
-subplot(2,2,4);
+h4 = subplot(2,2,4);
+% Assume that we can only see 3 meters left and right
+% Assume that we do not see objects very far behind us
+cla( h4 );
+xlim([-3 3]);
+ylim([-1 4]);
+hold on;
 % What to draw here?
-plot(10,10);
-%hold on;
+plot_surroundings( r_mon );
 
 end
