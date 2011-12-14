@@ -36,11 +36,11 @@ util.init_shm_segment(getfenv(), _NAME, shared, shsize);
 
 
 -- initialize player id
-set_team_number(Config.game.playerID);
+set_team_player_id( Config.game.playerID );
 Speak.talk('Player ID '..Config.game.playerID);
 
 -- initialize team id
-set_team_player_id( Config.game.teamNumber );
+set_team_number(Config.game.teamNumber);
 Speak.talk('Team Number '..Config.game.teamNumber);
 
 

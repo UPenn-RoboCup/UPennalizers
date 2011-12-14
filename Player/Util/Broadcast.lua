@@ -170,7 +170,8 @@ function update(enable)
   send.team.role = gcm.get_team_role();
 
   -- Send information about other players
-  send.team.states = Team.states;
+  -- TODO: lua2mat does not handle this correctly
+--  send.team.states = Team.states;
   
   MonitorComm.send(serialization.serialize(send));
   
@@ -188,5 +189,5 @@ function update(enable)
 
 end
 
-function send_img()
+function update_img()
 end

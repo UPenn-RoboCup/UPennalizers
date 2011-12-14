@@ -34,6 +34,7 @@ state.tReceive = Body.get_time();
 
 
 states = {};
+states[playerID] = state;
 
 function recv_msgs()
   while (Comm.size() > 0) do 
