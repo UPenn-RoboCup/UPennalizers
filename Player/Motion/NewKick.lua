@@ -217,7 +217,7 @@ end
 function motion_legs()
 
 --Ankle stabilization using gyro feedback
-  imuGyr = Body.get_sensor_imuGyr();
+  imuGyr = Body.get_sensor_imuGyrRPY();
 
   gyro_roll=imuGyr[1];
   gyro_pitch=imuGyr[2];

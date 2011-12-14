@@ -11,6 +11,7 @@ active = true;
 t0 = 0;
 
 bodyHeight = Config.walk.bodyHeight;
+footX = Config.walk.footX or 0;
 footY = Config.walk.footY;
 supportX = Config.walk.supportX;
 qLArm = Config.walk.qLArm;
@@ -19,8 +20,8 @@ bodyTilt=Config.walk.bodyTilt;
 
 -- Final stance foot position6D
 pTorsoStance = vector.new({0, 0, bodyHeight, 0,bodyTilt,0});
-pLLeg = vector.new({-supportX, footY, 0, 0,0,0});
-pRLeg = vector.new({-supportX, -footY, 0, 0,0,0});
+pLLeg = vector.new({-supportX + footX, footY, 0, 0,0,0});
+pRLeg = vector.new({-supportX + footX, -footY, 0, 0,0,0});
 
 -- Max change in position6D to reach stance:
 dpLimit = Config.stance.dpLimit or vector.new({.04, .03, .07, .4, .4, .4});

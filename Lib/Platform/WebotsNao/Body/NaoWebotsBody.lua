@@ -324,9 +324,21 @@ end
 
 function get_sensor_imuGyr( )
   gyro = controller.wb_gyro_get_values(tags.gyro);
-  gyro_proc={0, (gyro[2]-512)/0.273,(gyro[1]-512)/0.273};
+  return gyro;
+end
+
+--Roll Pitch Yaw in degree per seconds
+function get_sensor_imuGyrRPY( )
+  --SJ: modified the controller wrapper function
+  gyro = controller.wb_gyro_get_values(tags.gyro);
+  -- From rad/s to DPS conversion
+  gyro_proc={-gyro[1]*57.2, -gyro[2]*57.2,0};
   return gyro_proc;
 end
+
+
+
+
 
 function get_sensor_imuAcc( )
   accel = controller.wb_accelerometer_get_values(tags.accelerometer);

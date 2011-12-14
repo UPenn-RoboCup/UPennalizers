@@ -38,9 +38,15 @@ ifeq ($(OSTYPE),darwin)
   LIBRT=
 endif
 
-BOOST_INCLUDE_DIRS = -I/usr/local/include/boost -I/usr/local/include/boost/python
+# http://stackoverflow.com/questions/4933285/how-to-detemine-python-version-in-makefile
+python_version_full := $(wordlist 2,4,$(subst ., ,$(shell python --version 2>&1)))
+python_version_major := $(word 1,${python_version_full})
+python_version_minor := $(word 2,${python_version_full})
 
-INCLUDE_DIRS = -I/usr/local/include -I/usr/include/python2.6 $(BOOST_INCLUDE_DIRS)
+PYTHON_INC=-I/usr/include/python${python_version_major}.${python_version_minor} -I/usr/local/include/python${python_version_major}.${python_version_minor}
+
+BOOST_INCLUDE_DIRS = -I/usr/local/include/boost -I/usr/local/include/boost/python
+INCLUDE_DIRS = -I/usr/local/include $(PYTHON_INC) $(BOOST_INCLUDE_DIRS)
 LIB_DIRS = -L/usr/local/lib
 
 all: pyshm 
@@ -53,7 +59,10 @@ all: pyshm
 	$(CC) $(CXXFLAGS) $(INCLUDE_DIRS) -o $@ -c $<
 
 pyshm: pyshm.o
-#	$(CXX) -Wl,-soname,"lib$@.$(SHLIBEXT)" $(LIBOPTS) $^ $(LIBRT) $(LIBLNK) -o $@.$(SHLIBEXT)
 	$(CXX) $(LIBNAME) $(LIBOPTS) $^ $(LIBRT) $(LIBLNK) -o $@.$(SHLIBEXT)
+
+libMonitor.py: libMonitor.i
+	swig -python libMonitor.i
+
 clean:
 	rm -f *.o *.$(SHLIBEXT) 

@@ -6,10 +6,10 @@ require('Config')
 require('wcm')
 
 t0 = 0;
-timeout = 3.0;
+timeout = 3.0*Config.speedFactor;
 
 -- ball detection timeout
-tLost = 1.5;
+tLost = 1.5*Config.speedFactor;
 
 -- z-axis tracking position
 trackZ = Config.vision.ball_diameter; 
