@@ -120,8 +120,6 @@ function ikineCam(x, y, z, select)
   --Bottom camera by default (cameras are 0 indexed so add 1)
   select = (select or 0) + 1;
 
-print("Target position",x,y,z)
-
   --Look at ground by default
   z = z or 0;
 
@@ -129,9 +127,6 @@ print("Target position",x,y,z)
   v = getNeckOffset();
   x = x-v[1]; 
   z = z-v[3]; 
-
-print("NeckOffset:",unpack(v))
-
 
   --Cancel out body tilt angle
   v = Transform.rotY(-bodyTilt)*vector.new({x,y,z,1});
@@ -153,8 +148,6 @@ print("NeckOffset:",unpack(v))
   local d = math.sqrt(x^2+z^2);
   local p0 = math.atan2(r,z) - math.acos(c/d);
   pitch=p0;
-
-print("Original pitch:",pitch*180/math.pi)
 
   pitch = pitch - cameraAngle[select][2]- pitch0;
   yaw = math.min(math.max(yaw, yawMin), yawMax);
