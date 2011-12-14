@@ -112,7 +112,7 @@ function update( )
 
 end
 
-function record_joint_angles( supportLeg )
+function record_joint_angles( supportLeg, qlegs )
 
   -- Open the file
   local f = io.open(logfile_name, "a");
@@ -132,13 +132,16 @@ function record_joint_angles( supportLeg )
   f:write( string.format(",%d,%d",1-supportLeg,supportLeg) );
   local imuAngle = Body.get_sensor_imuAngle();
   f:write( string.format(",%f,%f,%f",unpack(imuAngle)) );
-  local lleg = Body.get_lleg_position();
+  -- Read the joint values
+--[[
+  qLegs = Body.get_lleg_position();
+  qLegs2 = Body.get_rleg_position();
   for i=1,6 do
-    f:write( string.format(",%f",lleg[i]) );
+    qLegs[i+6] = qLegs2[i];
   end
-  local rleg = Body.get_rleg_position();
-  for i=1,6 do
-    f:write( string.format(",%f",rleg[i]) );
+--]]
+  for i=1,12 do
+    f:write( string.format(",%f",qlegs[i]) );
   end
   f:write( "\n" );
   -- Close the file

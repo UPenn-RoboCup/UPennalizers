@@ -34,10 +34,10 @@ walk.velDelta={0.02,0.02,0.15}
 walk.bodyHeight = 0.295; --Using new corrected IK
 walk.footX= -0.020; 
 walk.footY = 0.035;
-walk.bodyTilt=20*math.pi/180; --Commanded tilt angle
-walk.bodyTiltActual=20*math.pi/180;--Actual body tilt angle considering flex
---walk.bodyTilt=0*math.pi/180; --Commanded tilt angle
---walk.bodyTiltActual=0*math.pi/180;--Actual body tilt angle considering flex
+--walk.bodyTilt=20*math.pi/180; --Commanded tilt angle
+--walk.bodyTiltActual=20*math.pi/180;--Actual body tilt angle considering flex
+walk.bodyTilt=0*math.pi/180; --Commanded tilt angle
+walk.bodyTiltActual=0*math.pi/180;--Actual body tilt angle considering flex
 
 
 --Support movement parameters
@@ -79,6 +79,17 @@ walk.tStep = 0.25;
 walk.phSingle={0.1,0.9};
 walk.supportY = 0.010;
 walk.stepHeight = 0.035;
+
+
+-- Slow walk
+walk.tZmp = 0.165;
+walk.tStep = 0.5;
+walk.phSingle={0.1,0.9};
+walk.supportY = 0.010;
+walk.supportX = -0.005;
+walk.stepHeight = 0.06;
+walk.qLArm=math.pi/180*vector.new({90,0,-80});
+walk.qRArm=math.pi/180*vector.new({90,0,-80});
 
 --------------------------------------------------------------
 --Imu feedback parameters, alpha / gain / deadband / max
