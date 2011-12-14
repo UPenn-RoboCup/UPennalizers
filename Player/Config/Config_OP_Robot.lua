@@ -126,7 +126,7 @@ head.yawMin = -90*math.pi/180;
 head.yawMax = 90*math.pi/180;
 
 head.cameraPos = {{0.034, 0.0, 0.0332}} --OP, spec value, may need to be recalibrated
-head.cameraAngle = {{0.0, 40*math.pi/180, 0.0}}; --Default value for production OP
+head.cameraAngle = {{0.0,0}}; -- We set it zero here
 head.neckZ=0.0765; --From CoM to neck joint 
 head.neckX=0.013; --From CoM to neck joint
 

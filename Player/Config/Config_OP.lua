@@ -35,11 +35,6 @@ dev.game_control='OPGameControl';
 dev.walk='NewWalk';
 dev.kick='NewKick';
 
---[[
-dev.walk='NSLWalk';
-dev.kick='NSLKick';
---]]
-
 -- Game Parameters
 
 game = {};
