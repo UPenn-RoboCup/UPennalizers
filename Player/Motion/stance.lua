@@ -13,8 +13,8 @@ t0 = 0;
 bodyHeight = Config.walk.bodyHeight;
 footY = Config.walk.footY;
 supportX = Config.walk.supportX;
-qLArm = walk.qLArm;
-qRArm = walk.qRArm;
+qLArm = Config.walk.qLArm;
+qRArm = Config.walk.qRArm;
 bodyTilt=Config.walk.bodyTilt;
 
 -- Final stance foot position6D
