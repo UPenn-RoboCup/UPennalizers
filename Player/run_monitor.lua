@@ -11,10 +11,17 @@ else
    package.cpath = cwd.."/Lib/?.so;"..package.cpath;
 end
 
-package.path = cwd.."/Util/?.lua;"..package.path;
-package.path = cwd.."/Lib/?.lua;"..package.path;
+package.path = cwd .. '/?.lua;' .. package.path;
+package.path = cwd .. '/Util/?.lua;' .. package.path;
+package.path = cwd .. '/Config/?.lua;' .. package.path;
+package.path = cwd .. '/Lib/?.lua;' .. package.path;
+package.path = cwd .. '/Dev/?.lua;' .. package.path;
+package.path = cwd .. '/Motion/?.lua;' .. package.path;
+package.path = cwd .. '/Motion/keyframes/?.lua;' .. package.path;
+package.path = cwd .. '/Vision/?.lua;' .. package.path;
+package.path = cwd .. '/World/?.lua;' .. package.path;
 
-require('Body')
+--require 'Config'
 require('getch')
 require('Broadcast')
 
@@ -24,7 +31,7 @@ unix.usleep(1E6*1.0);
 
 local count = 0;
 local ncount = 100;
-local t0=Body.get_time();
+local t0 = unix.time();
 local tUpdate = t0;
 
 -- Broadcast the images at a lower rate than other data
@@ -70,10 +77,8 @@ while true do
 
   -- Display our FPS and broadcast level
   if (count % ncount == 0) then
-    print('fps: '..(ncount / (t - tUpdate))..', Level: '..broadcast_enable );
-    tUpdate = Body.get_time();
+    print('fps: '..(ncount / (tstart - tUpdate))..', Level: '..broadcast_enable );
+    tUpdate = unix.time();
   end
 
-
 end
-

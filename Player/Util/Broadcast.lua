@@ -79,6 +79,7 @@ function sendAsub()
     -- Need to sleep in order to stop drinking out of firehose
     unix.usleep(pktDelay);
   end
+end
 
 function sendImg()
   -- yuyv --
@@ -185,4 +186,7 @@ function update(enable)
     sendImg();
   end
 
+end
+
+function send_img()
 end
