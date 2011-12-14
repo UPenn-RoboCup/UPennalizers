@@ -23,12 +23,16 @@ const double upperArmLength = .060;  //OP, spec
 const double lowerArmLength = .129;  //OP, spec
 
 //Hubo values (guesswork from webots prototype file)
-const double hipOffsetY = .089;    //Hubo
+//const double hipOffsetY = .089;    //Hubo
+const double hipOffsetY = .0741;    //Hubo
 const double hipOffsetZ = .1345;   //Hubo
 const double hipOffsetX = .00;     //Hubo
-const double thighLength = .31;    //Hubo
-const double tibiaLength = .305;   //Hubo
-const double footHeight = .040;    //Hubo
+//const double thighLength = .31;    //Hubo
+//const double tibiaLength = .305;   //Hubo
+const double thighLength = .30;    //Hubo
+const double tibiaLength = .30;   //Hubo
+//const double footHeight = .091;    //Hubo
+const double footHeight = .083;    //Hubo
 const double kneeOffsetX = .0;     //Hubo
 
 const double dThigh = sqrt(thighLength*thighLength+kneeOffsetX*kneeOffsetX);

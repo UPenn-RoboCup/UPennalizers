@@ -42,7 +42,7 @@ jointReverse={
 
 
 jointBias={
-        -math.pi/2,0,
+	0,0,
 	-90*math.pi/180,0,0,0,
 	0,0,0,0,0,0,
 	0,0,0,0,0,0,
