@@ -28,7 +28,7 @@ h.get_labelB = @get_labelB;
 
     function scale = update( msg )
         %fprintf('msg.team# / h.team#:\t %d / %d\n',msg.team.number,h.teamNumber);
-        %fprintf('msg.playerid# / h.playerid#:\t %d / %d\n', msg.team.player_id, h.playerID);
+        %fprintf('msg.playerid# / h.playerid#:\t %d / %d\n', msg.team.id, h.playerID);
         % Check if the id field is correct before updating this robot
         if( msg.team.player_id == h.playerID && msg.team.number == h.teamNumber )
             if (isfield(msg, 'arr'))
@@ -43,13 +43,12 @@ h.get_labelB = @get_labelB;
             else
                 % Update the robot
                 h.robot_msg = msg;
-                % TODO: fix based on team and player id array access
-                %h.team_msg = msg.team;
-            end
-        else
-            if ( ~isfield(msg, 'arr') )
-                % TODO: fix based on team and player id array access
-                %h.team_msg = msg.team.states;
+                h.team_msg = msg.team;
+                h.team_msg.id = h.playerID;
+                h.team_msg.teamNumber = h.teamNumber;
+                h.team_msg.ball = msg.ball;
+                h.team_msg.pose = msg.robot.pose;
+                h.team_msg.teamColor = msg.team.color;
             end
         end
         scale = h.scale;

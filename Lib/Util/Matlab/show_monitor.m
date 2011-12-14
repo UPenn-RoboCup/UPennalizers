@@ -67,7 +67,7 @@ for t = 1:nTeams
     for p = 1:nPlayers
         if (~isempty(robots{p, t}))
             r_team = robots{p,t}.get_team_struct();
-            plot_team_struct( r_team );
+            plot_team_struct( r_team,playerNumber );
         end
     end
 end
