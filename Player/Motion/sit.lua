@@ -12,8 +12,8 @@ t0 = 0;
 
 bodyHeight = Config.sit.bodyHeight;
 supportX = 0.0;
-footY = walk.footY;
-bodyTilt=walk.bodyTilt;
+footY = Config.walk.footY;
+bodyTilt = Config.walk.bodyTilt;
 
 -- pTorso fixed for stance:
 pTorso = vector.new({supportX, 0, bodyHeight, 0,0,0});
