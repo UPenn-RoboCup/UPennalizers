@@ -63,6 +63,9 @@ walk.walkKickVel = {0.06, 0.14} --step / kick / follow
 walk.walkKickSupportMod = {{0,0},{0,0}}
 walk.walkKickHeightFactor = 1.5;
 
+--Fall detection angle... OP requires large angle
+walk.fallAngle = 50*math.pi/180;
+
 --------------------------------------------
 -- Robot - specific calibration parameters
 --------------------------------------------

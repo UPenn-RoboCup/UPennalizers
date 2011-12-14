@@ -39,7 +39,7 @@ servo.dirReverse={
 	}
 
 -- For old firmware
---[[
+--
 servo.steps=vector.new({
 	1024,1024,
 	1024,1024,1024,
@@ -66,9 +66,10 @@ servo.moveRange=vector.new({
 	300,300,300,
 	300,		--For aux
 	})*math.pi/180;
---]]
+--
 
 -- For new, PID, firmware
+--[[
 servo.steps=vector.new({
 	4096,4096,
 	4096,4096,4096,
@@ -93,6 +94,7 @@ servo.moveRange=vector.new({
 	360,360,360,
 	360,		--For aux
 	})*math.pi/180;
+--]]
 -- End motor definitions
 
 --Measured IMU bias parameters

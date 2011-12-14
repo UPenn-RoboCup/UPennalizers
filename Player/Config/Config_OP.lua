@@ -33,7 +33,7 @@ dev.comm='NullComm';
 dev.monitor_comm = 'OPMonitorCommWired';
 dev.game_control='OPGameControl';
 dev.walk='NewWalk';
-dev.kickk='NewKickk';
+dev.kick='NewKick';
 
 --[[
 dev.walk='NSLWalk';
