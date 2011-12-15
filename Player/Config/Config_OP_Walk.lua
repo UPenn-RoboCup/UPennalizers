@@ -38,6 +38,18 @@ walk.tZmp = 0.165;
 walk.stepHeight = 0.035;
 walk.phSingle={0.1,0.9};
 
+--[[
+-- Slow walk
+walk.tZmp = 0.165;
+walk.tStep = 0.5;
+walk.phSingle={0.1,0.9};
+walk.supportY = 0.010;
+walk.supportX = -0.005;
+walk.stepHeight = 0.06;
+walk.qLArm=math.pi/180*vector.new({90,0,-80});
+walk.qRArm=math.pi/180*vector.new({90,0,-80});
+--]]
+
 --------------------------------------------
 -- Compensation parameters
 --------------------------------------------

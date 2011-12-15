@@ -28,6 +28,7 @@ t0 = unix.time();
 dcm.actuator.readType[1]=0;--Read Head only
 --dcm.actuator.readType[1]=1;--Read ALL
 --dcm.actuator.readType[1]=2;--Read Head and Leg
+--dcm.actuator.readType[1]=3;--Read Kankles only
 
 
 fpsdesired=100; --100 HZ cap on refresh rate
