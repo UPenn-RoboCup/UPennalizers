@@ -68,7 +68,6 @@ servo.moveRange=vector.new({
 	})*math.pi/180;
 --
 
---[[
 -- For new, PID, firmware
 --[[
 servo.steps=vector.new({
@@ -97,7 +96,7 @@ servo.moveRange=vector.new({
 	})*math.pi/180;
 --]]
 -- End motor definitions
---]]
+
 --Measured IMU bias parameters
 
 gyro={};

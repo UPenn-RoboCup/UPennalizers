@@ -32,14 +32,9 @@ dev.kinematics = 'OPKinematics';
 dev.comm='NullComm';
 dev.monitor_comm = 'OPMonitorCommWired';
 dev.game_control='OPGameControl';
---dev.walk='NewWalk';
-dev.walk='HZDWalk';
+dev.walk='NewWalk';
+--dev.walk='HZDWalk';
 dev.kick = 'NewKick'
---[[
--- For NSL
-dev.walk='NSLWalk';
-dev.kick='NSLKick';
---]]
 
 -- Game Parameters
 

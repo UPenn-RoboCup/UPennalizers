@@ -7,9 +7,6 @@ require('vector')
 require('mcm')
 require('unix')
 
--- For HZD Walking
-require 'HZDWalk'
-
 active = true;
 --stopRequest = false;
 stopRequest = 2;
@@ -573,10 +570,7 @@ function update()
   qLegs[11] = qLegs[11]  + 
 	Config.walk.anklePitchComp[2]*math.cos(spread);
 
-  -- Compare the HZD walk
-  qlegs = HZDWalk.update( supportLeg, qLegs );
---  HZDWalk.record_joint_angles( supportLeg );
---  Body.set_lleg_command(qLegs);  
+  Body.set_lleg_command(qLegs);  
 
 end
 

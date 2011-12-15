@@ -22,7 +22,6 @@ walk.bodyHeight = 0.295;
 walk.bodyTilt=20*math.pi/180; 
 walk.footX= -0.020; 
 walk.footY = 0.035;
-
 walk.supportX = 0;
 walk.supportY = 0.010;
 walk.qLArm=math.pi/180*vector.new({90,8,-40});
@@ -39,13 +38,7 @@ walk.tZmp = 0.165;
 walk.stepHeight = 0.035;
 walk.phSingle={0.1,0.9};
 
---------------------------------------------
--- Compensation parameters
---------------------------------------------
-walk.hipRollCompensation = 4*math.pi/180;
-walk.ankleMod = vector.new({-1,0})/0.12 * 10*math.pi/180;
-
-
+--[[
 -- Slow walk
 walk.tZmp = 0.165;
 walk.tStep = 0.5;
@@ -55,6 +48,13 @@ walk.supportX = -0.005;
 walk.stepHeight = 0.06;
 walk.qLArm=math.pi/180*vector.new({90,0,-80});
 walk.qRArm=math.pi/180*vector.new({90,0,-80});
+--]]
+
+--------------------------------------------
+-- Compensation parameters
+--------------------------------------------
+walk.hipRollCompensation = 4*math.pi/180;
+walk.ankleMod = vector.new({-1,0})/0.12 * 10*math.pi/180;
 
 --------------------------------------------------------------
 --Imu feedback parameters, alpha / gain / deadband / max

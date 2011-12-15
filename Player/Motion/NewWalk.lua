@@ -8,7 +8,7 @@ require('mcm')
 require('unix')
 require('util')
 
-require 'HZDWalk'
+--require 'HZDWalk'
 
 -- Walk Parameters
 -- Stance and velocity limit values
@@ -326,7 +326,7 @@ function motion_legs(qLegs)
 --]]
 
   Body.set_lleg_command(qLegs);
-  HZDWalk.record_joint_angles( supportLeg, qLegs );
+  --HZDWalk.record_joint_angles( supportLeg, qLegs );
 end
 
 function motion_arms()
