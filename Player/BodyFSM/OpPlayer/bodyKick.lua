@@ -11,11 +11,14 @@ require('wcm')
 require('walk');
 
 t0 = 0;
+tStart = 0;
 timeout = 20.0;
 
 started = false;
-
 kickable = true;
+follow = false;
+
+tFollowDelay = 2.2; --for straight kick
 
 
 function entry()
@@ -34,9 +37,10 @@ function entry()
   --SJ - only initiate kick while walking
   kickable = walk.active;  
 
-  HeadFSM.sm:set_state('headIdle');
   Motion.event("kick");
   started = false;
+  follow = false;
+
 end
 
 function update()
@@ -50,11 +54,19 @@ function update()
   
   if (not started and kick.active) then
     started = true;
-  elseif (started and not kick.active) then
+    tStart =t;
+  elseif started then
+    if kick.active then
+      if follow==false and t-tStart > tFollowDelay then
+  	HeadFSM.sm:set_state('headKickFollow');
+	follow=true;
+      end
+    else --Kick ended
   	--Set velocity to 0 after kick to prevent instability--
-  	walk.still=true;
-  	walk.set_velocity(0, 0, 0);
-    return "done";
+      walk.still=true;
+      walk.set_velocity(0, 0, 0);
+      return "done";
+    end
   end
 
   if (t - t0 > timeout) then
@@ -63,5 +75,4 @@ function update()
 end
 
 function exit()
-  HeadFSM.sm:set_state('headTrack');
 end

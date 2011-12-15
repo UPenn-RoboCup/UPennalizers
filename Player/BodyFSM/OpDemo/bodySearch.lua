@@ -1,19 +1,23 @@
 module(..., package.seeall);
 
 require('Body')
-require('wcm')
 require('walk')
 require('vector')
+require('Config')
+require('wcm')
+require('mcm')
 
 t0 = 0;
-timeout = 10.0;
+timeout = 10.0*Config.speedFactor;
 
 -- turn velocity
 vSpin = 0.3;
+
 direction = 1;
 
+
 function entry()
-  print("Body FSM:".._NAME.." entry");
+  print(_NAME.." entry");
 
   t0 = Body.get_time();
 
@@ -21,8 +25,10 @@ function entry()
   ball = wcm.get_ball();
   if (ball.y > 0) then
     direction = 1;
+    mcm.set_walk_isSearching(1);
   else
     direction = -1;
+    mcm.set_walk_isSearching(-1);
   end
 end
 
@@ -35,16 +41,13 @@ function update()
   walk.set_velocity(0, 0, direction*vSpin);
 
   if (t - ball.t < 0.1) then
-    print('Saw a ball!');
     return "ball";
   end
   if (t - t0 > timeout) then
     return "timeout";
   end
-  if (t - t0 > 1.0 and Body.get_sensor_button()[1] > 0) then
-    return "button";
-  end
 end
 
 function exit()
+  mcm.set_walk_isSearching(0);
 end

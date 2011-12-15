@@ -71,6 +71,10 @@ sm:set_state_debug_handle(gcm.set_fsm_motion_state);
 --added for OP... bodyTilt consideration for detecting falldown
 bodyTilt = Config.walk.bodyTilt or 0;
 
+--OP requires large fall angel detection threshold
+--Default value is 30 degree
+fallAngle = Config.walk.fallAngle or 30*math.pi/180;
+
 -- For still time measurement (dodgeball)
 stillTime = 0;
 stillTime0 = 0;
@@ -89,10 +93,20 @@ function update()
   UltraSound.update();
 
   -- check if the robot is falling
+  --TODO: Imu angle should be in RPY
+  --Counter-clockwise rotation in X,Y,Z axis
+  --Current imuAngle is inverted
+
   local imuAngle = Body.get_sensor_imuAngle();
 
+  --[[
+  local imuGyrRPY = Body.get_sensor_imuGyrRPY();
+  print("Imu RPY:",unpack(vector.new(imuAngle)*180/math.pi))
+  print("Imu Gyr RPY:",unpack(vector.new(imuGyrRPY)*180/math.pi))
+  --]]
+
   local maxImuAngle = math.max(math.abs(imuAngle[1]), math.abs(imuAngle[2]-bodyTilt));
-  if (maxImuAngle > 30*math.pi/180) then
+  if (maxImuAngle > fallAngle) then
     sm:add_event("fall");
     mcm.set_walk_isFallDown(1); --Notify world to reset heading 
   else

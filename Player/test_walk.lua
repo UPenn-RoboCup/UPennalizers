@@ -82,12 +82,24 @@ local str=getch.get();
 	elseif byte==string.byte("h") then	targetvel[2]=targetvel[2]+0.02;
 	elseif byte==string.byte(";") then	targetvel[2]=targetvel[2]-0.02;
 
-	elseif byte==string.byte("3") then	
+	elseif byte==string.byte("1") then	
 		kick.set_kick("kickForwardLeft");
 		Motion.event("kick");
-	elseif byte==string.byte("4") then	
+	elseif byte==string.byte("2") then	
 		kick.set_kick("kickForwardRight");
 		Motion.event("kick");
+	elseif byte==string.byte("3") then	
+		kick.set_kick("kickSideLeft");
+		Motion.event("kick");
+	elseif byte==string.byte("4") then	
+		kick.set_kick("kickSideRight");
+		Motion.event("kick");
+
+        elseif byte==string.byte("5") then
+                walk.doWalkKickLeft();
+        elseif byte==string.byte("6") then
+                walk.doWalkKickRight();
+
 	elseif byte==string.byte("7") then	
 		Motion.event("sit");
 	elseif byte==string.byte("8") then	

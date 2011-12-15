@@ -1,6 +1,4 @@
--- SJ was here
 module(..., package.seeall);
-
 require('Config');
 require('Transform');
 require('vector');
@@ -17,7 +15,7 @@ yawMax = Config.head.yawMax;
 
 cameraPos = Config.head.cameraPos;
 cameraAngle = Config.head.cameraAngle;
-pitch0 = Config.head.cameraAngle[1][2];
+pitch0 = Config.walk.headPitch or 0; --Robot specific head angle bias
 
 horizonA = 1;
 horizonB = 1;
@@ -65,12 +63,11 @@ function update(sel,headAngles)
   tNeck = Transform.trans(-footX,0,bodyHeight); 
   tNeck = tNeck*Transform.rotY(bodyTilt);
   tNeck = tNeck*Transform.trans(neckX,0,neckZ);
-  tNeck = tNeck*Transform.rotZ(headAngles[1])*Transform.rotY(headAngles[2]);
 
+  --pitch0 is Robot specific head angle bias (for OP)
+  tNeck = tNeck*Transform.rotZ(headAngles[1])*Transform.rotY(headAngles[2]+pitch0);
   tHead = tNeck*Transform.trans(cameraPos[sel][1], cameraPos[sel][2], cameraPos[sel][3]);
-  --Robot specific head angle bias
-  tHead = tHead*Transform.rotY( pitch0 );
-  tHead = tHead*Transform.rotY( cameraAngle[sel][2]);
+  tHead = tHead*Transform.rotY(cameraAngle[sel][2]);
 
   -- update horizon
   pa = headAngles[2] + cameraAngle[sel][2];
@@ -103,6 +100,7 @@ function coordinatesA(c, scale)
 
   v = tHead*v;
   v = v/v[4];
+
   return v;
 end
 
@@ -138,7 +136,7 @@ function ikineCam(x, y, z, select)
   local yaw = math.atan2(y, x);
 
   local norm = math.sqrt(x^2 + y^2 + z^2);
-  local pitch = math.asin(-z/(norm + 1E-10));
+--  local pitch = math.asin(-z/(norm + 1E-10));
 
   --SJ: new IKcam that takes camera offset into account
   -------------------------------------------------------------
@@ -151,7 +149,7 @@ function ikineCam(x, y, z, select)
   local p0 = math.atan2(r,z) - math.acos(c/d);
   pitch=p0;
 
-  pitch = pitch - cameraAngle[select][2];
+  pitch = pitch - cameraAngle[select][2]- pitch0;
   yaw = math.min(math.max(yaw, yawMin), yawMax);
   pitch = math.min(math.max(pitch, pitchMin), pitchMax);
   return yaw, pitch;
@@ -165,8 +163,14 @@ function getCameraOffset()
 end
 
 function getNeckOffset()
+    --SJ: calculate tNeck this
+    --So that we can use this w/o run update
+    --(for test_vision)
+    local tNeck0 = Transform.trans(-footX,0,bodyHeight); 
+    tNeck0 = tNeck0*Transform.rotY(bodyTilt);
+    tNeck0 = tNeck0*Transform.trans(neckX,0,neckZ);
     local v=vector.new({0,0,0,1});
-    v=tNeck*v;
+    v=tNeck0*v;
     v=v/v[4];
     return v;
 end

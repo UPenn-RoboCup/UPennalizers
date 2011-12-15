@@ -39,7 +39,7 @@ servo.dirReverse={
 	}
 
 -- For old firmware
---[[
+--
 servo.steps=vector.new({
 	1024,1024,
 	1024,1024,1024,
@@ -66,9 +66,10 @@ servo.moveRange=vector.new({
 	300,300,300,
 	300,		--For aux
 	})*math.pi/180;
---]]
+--
 
 -- For new, PID, firmware
+--[[
 servo.steps=vector.new({
 	4096,4096,
 	4096,4096,4096,
@@ -93,6 +94,7 @@ servo.moveRange=vector.new({
 	360,360,360,
 	360,		--For aux
 	})*math.pi/180;
+--]]
 -- End motor definitions
 
 --Measured IMU bias parameters
@@ -124,7 +126,7 @@ head.yawMin = -90*math.pi/180;
 head.yawMax = 90*math.pi/180;
 
 head.cameraPos = {{0.034, 0.0, 0.0332}} --OP, spec value, may need to be recalibrated
-head.cameraAngle = {{0.0, 40*math.pi/180, 0.0}}; --Default value for production OP
+head.cameraAngle = {{0.0,0}}; -- We set it zero here
 head.neckZ=0.0765; --From CoM to neck joint 
 head.neckX=0.013; --From CoM to neck joint
 

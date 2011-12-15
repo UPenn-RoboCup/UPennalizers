@@ -13,6 +13,10 @@ require('vcm');
 require('mcm');
 
 
+--Testing this 
+require('Body')
+
+
 if (Config.camera.width ~= Camera.get_width()
     or Config.camera.height ~= Camera.get_height()) then
   print('Camera width/height mismatch');
@@ -148,7 +152,11 @@ function update()
   -- Add timer measurements
   count = count + 1;
 
-  HeadTransform.update(status.select, status.joint);
+-- SJ: why do we need status.joint?
+-- HeadTransform.update(status.select, status.joint);
+
+  headAngles = Body.get_head_position();
+  HeadTransform.update(status.select, headAngles);
 
   if camera.image == -2 then
     print "Re-enqueuing of a buffer error...";
