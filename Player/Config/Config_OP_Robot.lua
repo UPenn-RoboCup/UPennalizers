@@ -40,7 +40,6 @@ servo.dirReverse={
 
 -- For old firmware
 --
->>>>>>> master
 servo.steps=vector.new({
 	1024,1024,
 	1024,1024,1024,

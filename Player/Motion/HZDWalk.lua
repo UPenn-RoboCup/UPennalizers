@@ -15,9 +15,12 @@ velCurrent = vector.new({0, 0, 0});
 -- Walk Parameters
 --hardnessLeg_gnd = Config.walk.hardnessLeg;
 hardnessLeg_gnd = vector.new({1,1,1,1,1,1});
+--hardnessLeg_gnd = vector.new({.1,.1,.1,.1,.1,.1});
 hardnessLeg_gnd[5] = 0; -- Ankle pitch is free moving
 --hardnessLeg_air = Config.walk.hardnessLeg;
 hardnessLeg_air = vector.new({1,1,1,1,1,1});
+--hardnessLeg_air = vector.new({.1,.1,.1,.1,.1,.1});
+
 
 -- For Debugging
 saveCount = 0;
@@ -53,6 +56,8 @@ function update( )
     alpha = Config_OP_HZD.alpha_L;
     stance_ankle_id = 5;
     air_ankle_id = 11;
+    theta_min = Config_OP_HZD.theta_min_L;
+    theta_max = Config_OP_HZD.theta_max_L;
   else
     Body.set_rleg_hardness(hardnessLeg_gnd);
     Body.set_lleg_hardness(hardnessLeg_air);    
@@ -60,6 +65,8 @@ function update( )
     -- Read the ankle joint value
     stance_ankle_id = 11;
     air_ankle_id = 5;
+    theta_min = Config_OP_HZD.theta_min_R;
+    theta_max = Config_OP_HZD.theta_max_R;
   end
 
    
@@ -70,17 +77,20 @@ function update( )
   theta_max = -0.3527;
   theta_min = 0.2063;
 --]]
+--[[
   theta_max = -0.3458;
   theta_min = -0.2003;
+--]]
 
   s = (theta - theta_min) / (theta_max - theta_min) ;
 
-  if( s>.98 ) then
+  local hyst = 0.02;
+  if( s>(1-hyst) ) then
     switchLeg = 1;
     s = 1;
   end
-  if(s<0) then
---    supportLeg = 1 - supportLeg;
+  if(s<hyst) then
+    supportLeg = 1 - supportLeg;
     s = 0;
   end;
 
