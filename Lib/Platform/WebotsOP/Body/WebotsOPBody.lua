@@ -317,6 +317,17 @@ function get_sensor_imuGyr( )
   return gyro_proc;
 end
 
+--SJ: added this for Nao support
+--Roll, Pitch Yaw angles in degree per seconds unit 
+
+function get_sensor_imuGyrRPY( )
+  --SJ: modified the controller wrapper function
+  gyro = controller.wb_gyro_get_values(tags.gyro);
+  gyro_proc={(gyro[1]-512)/0.273, (gyro[2]-512)/0.273,(gyro[3]-512)/0.273};
+  return gyro_proc;
+end
+
+
 function get_sensor_imuAcc( )
   accel = controller.wb_accelerometer_get_values(tags.accelerometer);
   return {accel[1]-512,accel[2]-512,0};

@@ -10,6 +10,7 @@ h.user = getenv('USER');
 h.gcmTeam  = shm(sprintf('gcmTeam%d%d%s',  h.teamNumber, h.playerID, h.user));
 h.wcmRobot = shm(sprintf('wcmRobot%d%d%s', h.teamNumber, h.playerID, h.user));
 h.wcmBall  = shm(sprintf('wcmBall%d%d%s',  h.teamNumber, h.playerID, h.user));
+h.wcmGoal  = shm(sprintf('wcmGoal%d%d%s',  h.teamNumber, h.playerID, h.user));
 h.vcmImage = shm(sprintf('vcmImage%d%d%s', h.teamNumber, h.playerID, h.user));
 h.vcmBall  = shm(sprintf('vcmBall%d%d%s',  h.teamNumber, h.playerID, h.user));
 h.vcmGoal  = shm(sprintf('vcmGoal%d%d%s',  h.teamNumber, h.playerID, h.user));
@@ -41,15 +42,15 @@ h.get_labelB = @get_labelB;
             
             ballxy = h.wcmBall.get_xy();
             ballt = h.wcmBall.get_t();
-            r.ball = struct('x', ballxy(1), 'y', ballxy(2), 't', ballt );
+            ballvel = h.wcmBall.get_velocity();
+            r.ball = struct('x', ballxy(1), 'y', ballxy(2), 't', ballt, ...
+                'vx', ballvel(1), 'vy', ballvel(2) );
             
-            posts = {};
-            posts.detect = h.vcmGoal.get_detect();
-            posts.type = h.vcmGoal.get_type();
-            posts.color = h.vcmGoal.get_color();
-            posts.postBoundingBox1 = h.vcmGoal.get_postBoundingBox1();
-            posts.postBoundingBox2 = h.vcmGoal.get_postBoundingBox2();
-            r.goal = posts;
+            % TODO: implement penalty and time
+            r.penalty = 0;
+            r.attackBearing = h.wcmGoal.get_attack_bearing();
+            r.time = 0;
+            r.tReceive = 0;
             
         catch
         end

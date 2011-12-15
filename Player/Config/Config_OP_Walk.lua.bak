@@ -1,0 +1,232 @@
+module(..., package.seeall); require('vector')
+require 'unix'
+-- Walk Parameters
+
+walk = {};
+
+walk.qLArm=math.pi/180*vector.new({90,8,-40});
+walk.qRArm=math.pi/180*vector.new({90,-8,-40});
+
+walk.hardnessArm=vector.new({.3,.3,.3});
+walk.hardnessLeg=vector.new({1,1,1,1,1,1});
+
+-- Stance and velocity limit values
+walk.stanceLimitX={-0.10,0.10};
+walk.stanceLimitY={0.07,0.20};
+walk.stanceLimitA={0*math.pi/180,30*math.pi/180};
+--SJ: this makes turn faster, but we should double check stabiity
+--walk.stanceLimitA={-30*math.pi/180,30*math.pi/180};
+
+walk.velLimitX={-.04,.08};
+walk.velLimitY={-.04,.04};
+walk.velLimitA={-.4,.4};
+walk.rotlimit1=1.5;
+walk.rotlimit2=1;
+walk.velocityModX=0;
+
+--Max acceleration per step
+walk.velDelta={0.02,0.02,0.15} 
+
+-------------------------
+--Stance parameters
+-------------------------
+
+walk.bodyHeight = 0.295; --Using new corrected IK
+walk.footX= -0.020; 
+walk.footY = 0.035;
+walk.bodyTilt=20*math.pi/180; --Commanded tilt angle
+walk.bodyTiltActual=20*math.pi/180;--Actual body tilt angle considering flex
+--walk.bodyTilt=0*math.pi/180; --Commanded tilt angle
+--walk.bodyTiltActual=0*math.pi/180;--Actual body tilt angle considering flex
+
+
+--Support movement parameters
+
+walk.supportX=0;
+walk.supportXfactor0 = -0.02; --support X shift for fast walking forward
+walk.supportXfactor1 = 1.0; --support shift factor during walking backwards
+walk.supportXfactor2 = -0.02; --base support X shift during walking backwards
+walk.supportXfactor3 = 0.3; --support X shift during sidestepping
+walk.supportYfactor1 = 1.3; --support Y shift during sidestepping
+walk.headPitchFactor=0; --support X shift according to head angle
+
+--Flex compensation Parameters
+walk.hipRollCompensation = 4*math.pi/180;
+walk.hipPitchCompensation = 0*math.pi/180;
+walk.kneePitchCompensation = 0*math.pi/180;
+walk.anklePitchCompensation = 0*math.pi/180;
+walk.anklePitchComp= {0,0};
+
+walk.ankleFactor=0.5;
+
+--walk.hipPitchCompensation2 = -4*math.pi/180; --Hip pitch modulation for walk backwards
+--walk.ankleMod=vector.new({-1,0.5})/0.12 * 10*math.pi/180; --Ankle pitch modulation for walking
+--walk.ankleMod2= -1/0.12 * 15*math.pi/180; --Ankle pitch 
+walk.ankleMod=vector.new({-1,0})/0.12 * 10*math.pi/180; --Ankle pitch modulation for walking backwards
+walk.ankleMod2= 0;
+walk.hipPitchCompensation2 = 0;
+
+--Torso vertical movement (like robotis walk)
+walk.phBodyZ={0.3,0.7}
+--walk.bodyModZ={-0.005,0.002,0.005}
+walk.bodyModZ={0,0,0}-- zero movement
+
+--------------------------------------------
+--Default Gait parameters
+---------------------------------------------
+walk.tZmp = 0.165;
+walk.tStep = 0.25;
+walk.phSingle={0.1,0.9};
+walk.supportY = 0.010;
+walk.stepHeight = 0.035;
+
+--------------------------------------------------------------
+--Imu feedback parameters, alpha / gain / deadband / max
+--------------------------------------------------------------
+gyroFactor=0.273*math.pi/180 *300/1024;  --For degree per second unit
+walk.ankleImuParamX={0.9,-0.3*gyroFactor, 0, 25*math.pi/180};
+walk.kneeImuParamX={0.9,-1.2*gyroFactor, 0, 25*math.pi/180};
+walk.ankleImuParamY={0.9,-0.7*gyroFactor, 0, 25*math.pi/180};
+walk.hipImuParamY={0.9,-0.3*gyroFactor, 0, 25*math.pi/180};
+walk.armImuParamX={0.3,-10*gyroFactor, 20*math.pi/180, 45*math.pi/180};
+walk.armImuParamY={0.3,-10*gyroFactor, 20*math.pi/180, 45*math.pi/180};
+
+----------------------------------------------------------------
+--Robot-specific fine tuning parameters 
+---------------------------------------------------------------
+walk.supportCompL=vector.new({0,0,0}); 
+walk.supportCompR=vector.new({0,0,0}); 
+walk.footXComp = 0.0; 
+walk.footYComp = 0.0; 
+walk.supportYComp = 0.0;
+walk.kickXComp=0;		--X compensation for stationary kick
+walk.walkKickFrontComp=0;	--X compensation for walkkick
+walk.walkKickSideComp={0,0};	--XY compensation for walk sidekick
+
+--robotID = os.getenv('ROBOT_ID')+0;
+local robotName = unix.gethostname();
+print("Hi all, I'm "..robotName)
+local robotID = 0;
+if( robotName=='jiminy' ) then
+  robotID = 2;
+elseif( robotName=='felix' ) then
+  robotID = 8;
+elseif( robotName=='betty' ) then
+  robotID = 9;
+elseif( robotName=='linus' ) then
+  robotID = 10;
+elseif( robotName=='lucy' ) then
+  robotID = 11;
+elseif( robotName=='scarface' ) then
+  robotID = 5;
+end
+
+walk.cameraAngle={{0,40*math.pi/180,0}}; --Moved to here
+
+if robotID==21 then --HP1
+  walk.servoBias={311,-348,-3,-1509,-4,-5,7,-60,-4,1471,-48,-4}
+
+elseif robotID==22 then --HP2
+  walk.servoBias={10,-317,-1,-1488,6,-5,-3,347,-9,1441,0,-4}
+
+elseif robotID==1 then --VT OP #1
+  walk.servoBias={0,0,4,0,-5,0,0,0,0,0,0,0}
+  walk.footYComp = 0.0025;  
+  walk.footXComp = -0.005;
+  walk.cameraAngle = {{0.0, 42*math.pi/180, 0.0}};
+  walk.kickXComp = 0.010;
+--Checked 6/16 6pm --
+
+
+elseif robotID==2 then --Jiminy
+  walk.servoBias={0,0,7,0,0,0,0,0,2,0,0,0}
+  walk.footYComp = 0.0025;  
+
+  walk.supportXfactor0 = -0.02; --support X shift for fast walking forward
+  walk.supportXfactor1 = 0.5; --support shift factor during walking backwards
+  walk.supportXfactor2 = -0.01; --base support X shift during walking backwards
+
+  walk.footXComp = -0.007;
+  walk.kickXComp = 0.003;
+  walk.cameraAngle = {{0.0, 45*math.pi/180, 0.0}};
+
+  walk.walkKickSideComp={0.001,0.01};
+
+elseif robotID==3 then --VT OP #3
+  walk.servoBias={0,0,0,0,0,0,0,0,0,0,0,0}  
+  walk.footXComp = 0.009;
+
+elseif robotID==5 then --Scarface
+  walk.servoBias={0,0,0,0,0,0,0,0,0,0,0,0}  
+
+  walk.supportXfactor0 = -0.02; --support X shift for fast walking forward
+  walk.supportXfactor1 = 0.5; --support shift factor during walking backwards
+  walk.supportXfactor2 = -0.01; --base support X shift during walking backwards
+
+  walk.footXComp = -0.007;
+  walk.kickXComp = 0.005;
+  walk.cameraAngle = {{0.0, 40*math.pi/180, 0.0}}; 
+
+elseif robotID==8 then --Felix
+
+  walk.servoBias={0,-6,2,9,12,0,0,0,-6,-5,-2,-1}
+  walk.footYComp = 0.002;  
+
+  walk.supportXfactor0 = -0.02; --support X shift for fast walking forward
+  walk.supportXfactor1 = 0.5; --support shift factor during walking 
+  walk.supportXfactor2 = -0.01; --base support X shift during walking 
+  walk.supportXfactor3 = 0.3; --support X shift during sidestepping
+  walk.supportYfactor1 = 1.3; --support Y shift during sidestepping
+  walk.headPitchFactor=0; --support X shift according to head angle
+
+  walk.footXComp = -0.009;    
+  walk.kickXComp = -0.010;
+  walk.cameraAngle = {{0.0, 44*math.pi/180, 0.0}}; 
+  
+elseif robotID==9 then  --Betty 
+
+  walk.servoBias={0,0,2,-6,-1,0,0,0,-13,-1,0,0}
+  walk.footYComp = 0.002;  
+
+  walk.supportXfactor0 = -0.02; --support X shift for fast walking forward
+  walk.supportXfactor1 = 0.5; --support shift factor during walking backwards
+  walk.supportXfactor2 = -0.01; --base support X shift during walking backwards
+  walk.supportXfactor3 = 0.3; --support X shift during sidestepping
+  walk.supportYfactor1 = 1.3; --support Y shift during sidestepping
+
+  walk.footXComp = -0.006;    
+  walk.kickXComp = 0.005;
+  walk.cameraAngle = {{0.0, 43*math.pi/180, 0.0}}; --Not exact,should be calibrated
+
+elseif robotID==10 then --Linus
+
+  walk.servoBias={3,1,2,1,1,-3,-8,-3,-13,-4,1,-5}
+  walk.footYComp = 0.0025;  -- 0.04
+
+  walk.supportXfactor0 = -0.02; --support X shift for fast walking forward
+  walk.supportXfactor1 = 0.5; --support shift factor during walking backwards
+  walk.supportXfactor2 = -0.01; --base support X shift during walking backwards
+
+  walk.footXComp = 0.00;
+  walk.kickXComp = -0.004;
+
+  walk.cameraAngle = {{0.0, 43*math.pi/180, 0.0}}; 
+
+elseif robotID==11 then --Lucy
+  walk.servoBias={-3,1,3,-1,-3,4,1,-3,-9,-1,-8,-1} --4/21, measured by chris
+  walk.footYComp = 0.0020;
+
+  walk.footXComp = 0.002; 
+  walk.kickXComp = -0.004;
+  walk.cameraAngle = {{0.0, 40.6*math.pi/180, 0.0}}; 
+
+end
+
+
+
+
+
+
+
+
+

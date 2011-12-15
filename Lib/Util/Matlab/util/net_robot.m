@@ -1,4 +1,4 @@
-function h = shm_robot(teamNumber, playerID)
+function h = net_robot(teamNumber, playerID)
 % function create the same struct as the team message from
 % shared memory. for local debugging use
 
@@ -6,6 +6,7 @@ h.teamNumber = teamNumber;
 h.playerID = playerID;
 h.user = getenv('USER');
 h.robot_msg = {};
+h.team_msg = {};
 h.yuyv = [];
 h.labelA = [];
 h.labelB = [];
@@ -26,25 +27,33 @@ h.get_labelA = @get_labelA;
 h.get_labelB = @get_labelB;
 
     function scale = update( msg )
-        if (isfield(msg, 'arr'))
-            h.yuyv  = h.yuyv_arr.update_always(msg.arr);
-            h.labelA = h.labelA_arr.update_always(msg.arr);
-            h.labelB = h.labelB_arr.update(msg.arr);
-            if(~isempty(h.labelB)) % labelB is gotten in one packet
-                h.scale = 4;
+        % Check if the id field is correct before updating this robot
+        if( msg.team.player_id == h.playerID && msg.team.number == h.teamNumber )
+            if (isfield(msg, 'arr'))
+                h.yuyv  = h.yuyv_arr.update_always(msg.arr);
+                h.labelA = h.labelA_arr.update_always(msg.arr);
+                h.labelB = h.labelB_arr.update(msg.arr);
+                if(~isempty(h.labelB)) % labelB is gotten in one packet
+                    h.scale = 4;
+                else
+                    h.scale = 1;
+                end
             else
-                h.scale = 1;
+                % Update the robot
+                h.robot_msg = msg;
+                % TODO: fix based on team and player id array access
+                h.team_msg = msg.team.states;
             end
         else
-            % Update the robot
-            h.robot_msg = msg;
+            % TODO: fix based on team and player id array access
+            h.team_msg = msg.team.states;
         end
         scale = h.scale;
     end
 
     function r = get_team_struct()
         % returns the robot struct (in the same form as the team messages)
-        r = h.robot_msg;
+        r = h.team_msg;
         %{
         r = [];
         try

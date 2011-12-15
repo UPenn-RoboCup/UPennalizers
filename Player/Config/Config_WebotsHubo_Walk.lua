@@ -80,3 +80,19 @@ walk.hardnessSupport = .7;
 walk.hardnessSwing = 0.2;
 --]]
 
+
+
+
+walk.velLimitA={-.6,.6};
+walk.stanceLimitA={-10*math.pi/180,45*math.pi/180};
+walk.hipRollCompensation = 1*math.pi/180;
+
+--walk.phZmp={0.05,0.95};
+
+--Fast walking test
+gyroFactor = gyroFactor * 0.5;
+walk.tStep = 0.7;
+walk.velLimitY={-.10,.10};
+walk.supportY = -0.01;
+walk.tZmp = 0.20;
+walk.supportX = -0.01;

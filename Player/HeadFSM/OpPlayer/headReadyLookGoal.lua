@@ -5,13 +5,12 @@ require('Config')
 require('vcm')
 
 t0 = 0;
-timeout = 1.5;
+timeout = 1.5*Config.speedFactor;
 
-pitch = 0.0;
-
-yawMin = Config.head.yawMin;
 yawMax = Config.head.yawMax;
 
+dist = 3.0;
+height = 0.5;
 
 function entry()
   print(_NAME.." entry");
@@ -30,12 +29,15 @@ function update()
   local t = Body.get_time();
 
   if attackClosest then
-    yaw = wcm.get_attack_angle();
+    yaw0 = wcm.get_attack_angle();
   else
-    yaw = wcm.get_defend_angle();
+    yaw0 = wcm.get_defend_angle();
   end
 
-  yaw = math.min(math.max(yaw, yawMin), yawMax);
+  yawbias = 0;
+  yaw1 = math.min(math.max(yaw0+yawbias, yawMin), yawMax);
+  local yaw, pitch =HeadTransform.ikineCam(
+	dist*math.cos(yaw1),dist*math.sin(yaw1), height);
   
   Body.set_head_command({yaw, pitch});
 

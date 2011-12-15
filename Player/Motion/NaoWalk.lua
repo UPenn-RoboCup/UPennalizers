@@ -510,22 +510,20 @@ function update()
   gyro_pitch = -(imuGyr[2]-gyro0[2]);
 
 
-  print("Gyro:",gyro_roll,gyro_pitch);
+--  print("Gyro:",gyro_roll,gyro_pitch);
 
+  if imuOn then
+	ankleShiftX=procFunc(gyro_pitch*ankleImuParamX[2],ankleImuParamX[3],
+		ankleImuParamX[4]);
+	ankleShiftY=procFunc(gyro_roll*ankleImuParamY[2],ankleImuParamY[3],ankleImuParamY[4]);
+	kneeShiftX=procFunc(gyro_pitch*kneeImuParamX[2],kneeImuParamX[3],kneeImuParamX[4]);
+	hipShiftY=procFunc(gyro_roll*hipImuParamY[2],hipImuParamY[3],hipImuParamY[4]);
 
-
-	if imuOn then
-		ankleShiftX=procFunc(gyro_pitch*ankleImuParamX[2],ankleImuParamX[3],
-			ankleImuParamX[4]);
-		ankleShiftY=procFunc(gyro_roll*ankleImuParamY[2],ankleImuParamY[3],ankleImuParamY[4]);
-		kneeShiftX=procFunc(gyro_pitch*kneeImuParamX[2],kneeImuParamX[3],kneeImuParamX[4]);
-		hipShiftY=procFunc(gyro_roll*hipImuParamY[2],hipImuParamY[3],hipImuParamY[4]);
-
-		ankleShift[1]=ankleShift[1]+ankleImuParamX[1]*(ankleShiftX-ankleShift[1]);
-		ankleShift[2]=ankleShift[2]+ankleImuParamY[1]*(ankleShiftY-ankleShift[2]);
-		kneeShift=kneeShift+kneeImuParamX[1]*(kneeShiftX-kneeShift);
-		hipShift[2]=hipShift[2]+hipImuParamY[1]*(hipShiftY-hipShift[2]);
-	end
+	ankleShift[1]=ankleShift[1]+ankleImuParamX[1]*(ankleShiftX-ankleShift[1]);
+	ankleShift[2]=ankleShift[2]+ankleImuParamY[1]*(ankleShiftY-ankleShift[2]);
+	kneeShift=kneeShift+kneeImuParamX[1]*(kneeShiftX-kneeShift);
+	hipShift[2]=hipShift[2]+hipImuParamY[1]*(hipShiftY-hipShift[2]);
+  end
 
   if supportLeg == 0 then  -- Left support
     --Hip roll stabilization

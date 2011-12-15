@@ -42,13 +42,7 @@ tZmp = Config.walk.tZmp;
 stepHeight = Config.walk.stepHeight;
 ph1Single = Config.walk.phSingle[1];
 ph2Single = Config.walk.phSingle[2];
-if (Config.walk.phZmp) then
-  ph1Zmp=Config.walk.phZmp[1];
-  ph2Zmp=Config.walk.phZmp[2];
-else
-  ph1Zmp,ph2Zmp=ph1Single,ph2Single;
-end
-
+ph1Zmp,ph2Zmp=ph1Single,ph2Single;
 
 --Compensation parameters
 hipRollCompensation = Config.walk.hipRollCompensation;
@@ -180,18 +174,23 @@ function update()
       end
     end
 
-    if walkKickRequest == 1 then -- Feet together
+    if walkKickRequest == 1 then 
+      -- Feet together
       if supportLeg == 0 then uRight2 = util.pose_global({0,-2*footY,0}, uLeft1); 
       else uLeft2 = util.pose_global({0,2*footY,0}, uRight1); 
       end
       walkKickRequest = walkKickRequest + 1;
-    elseif walkKickRequest ==2 then -- Support step forward
+
+    elseif walkKickRequest ==2 then 
+      -- Support step forward
       if supportLeg == 0 then uRight2 = util.pose_global({walkKickVel[1],-2*footY,0}, uLeft1);
       else uLeft2 = util.pose_global({walkKickVel[1],2*footY,0}, uRight1); 
       end
       supportMod = walkKickSupportMod[1];
       walkKickRequest = walkKickRequest + 1;
-    elseif walkKickRequest ==3 then -- Kicking step forward
+
+    elseif walkKickRequest ==3 then 
+      -- Kicking step forward
       if supportLeg == 0 then uRight2 = util.pose_global({walkKickVel[2],-2*footY,0}, uLeft1);
       else uLeft2 = util.pose_global({walkKickVel[2],2*footY,0}, uRight1);--RS
       end
@@ -276,18 +275,12 @@ function motion_legs(qLegs)
   phComp = math.min(1, phSingle/.1, (1-phSingle)/.1);
 
   --Ankle stabilization using gyro feedback
-  imuGyr = Body.get_sensor_imuGyr();
+  imuGyr = Body.get_sensor_imuGyrRPY();
 
   gyro_roll=imuGyr[1];
   gyro_pitch=imuGyr[2];
 
-  --print("Gyro RPY", unpack(imuGyr))
- 
- --TODO: Nao gyro conversion should go to Body, not here
-  --[[
-    gyro_roll = -(imuGyr[1]-gyro0[1]);
-    gyro_pitch = -(imuGyr[2]-gyro0[2]);
-  --]]
+--  print("Gyro RPY", unpack(imuGyr))
 
   ankleShiftX=util.procFunc(gyro_pitch*ankleImuParamX[2],ankleImuParamX[3],ankleImuParamX[4]);
   ankleShiftY=util.procFunc(gyro_roll*ankleImuParamY[2],ankleImuParamY[3],ankleImuParamY[4]);
@@ -323,7 +316,7 @@ function motion_legs(qLegs)
 
     --Lifting toetip
     qLegs[5] = qLegs[5]  + toeTipCompensation;
-    qLegs[8] = qLegs[8] -hipRollCompensation*phComp;--Hip roll compensation
+    qLegs[8] = qLegs[8] - hipRollCompensation*phComp;--Hip roll compensation
   end
 
 --[[
@@ -423,7 +416,6 @@ function update_velocity()
      initial_step=initial_step-1;
   end
 end
-
 
 function get_velocity()
   return velCurrent;

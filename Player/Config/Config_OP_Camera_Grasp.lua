@@ -37,7 +37,7 @@ queryctrl: "Power Line Frequency" 0x980918
 --]]
 
 camera.auto_param = {};
-camera.auto_param[1] = {key='exposure, auto',          val={0}};
+camera.auto_param[1] = {key='exposure, auto',val={1}}; --1 for manual
 camera.auto_param[2] = {key='white balance temperature, auto',     val={0}};
 camera.auto_param[3] = {key='power line frequency',   val={0}};
 camera.auto_param[4] = {key='backlight compensation', val={0}};

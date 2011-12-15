@@ -13,7 +13,10 @@ function loadconfig(configName)
   end
 end
 
+--loadconfig('Config_Nao_Walk_NaoWalk')
 loadconfig('Config_Nao_Walk')
+
+
 loadconfig('Config_Nao_World')
 loadconfig('Config_Nao_Kick')
 loadconfig('Config_Nao_Vision')
@@ -29,8 +32,11 @@ dev.kinematics = 'NaoKinematics';
 dev.comm = 'NaoComm';
 dev.monitor_comm = 'NaoMonitorComm';
 dev.game_control = 'NaoGameControl';
-dev.walk = 'NaoWalk';
-dev.kick = 'NaoKick';
+--dev.walk = 'NaoWalk';
+--dev.kick = 'NaoKick';
+
+dev.walk = 'NewWalk';
+dev.kick = 'NewKick';
 
 -- Game Parameters
 

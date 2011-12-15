@@ -300,6 +300,18 @@ function calibrate(count)
 end
 
 
+--SJ: normalize gyro values here
+--Value should be Roll-pitch-yaw, in degree per seconds 
+function get_sensor_imuGyrRPY()
+  imuGyrRaw = get_sensor_imuGyr();
+  gyro_roll = -(imuGyrRaw[1]-gyro0[1]);
+  gyro_pitch = -(imuGyrRaw[2]-gyro0[2]);
+  gyrRPY = vector.new({gyro_roll, gyro_pitch, 0});
+  return gyrRPY;
+end
+
+
+
 
 -- dummy functions
 function set_syncread_enable(val)

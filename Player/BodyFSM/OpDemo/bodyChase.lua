@@ -6,14 +6,14 @@ require('walk')
 require('vector')
 
 t0 = 0;
-timeout = 20.0;
+timeout = 20.0*Config.speedFactor;
 -- maximum walk velocity
 maxStep = 0.08;
 -- ball distance threshold
-rClose = 0.25;
+rClose = 0.35;
 
 -- ball detection timeout
-tLost = 3.0;
+tLost = 3.0*Config.speedFactor;
 
 function entry()
   print("Body FSM:".._NAME.." entry");

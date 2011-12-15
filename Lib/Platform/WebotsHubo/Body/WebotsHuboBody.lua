@@ -42,7 +42,7 @@ jointReverse={
 
 
 jointBias={
-        -math.pi/2,0,
+        0,0,
 	-90*math.pi/180,0,0,0,
 	0,0,0,0,0,0,
 	0,0,0,0,0,0,
@@ -326,6 +326,16 @@ function get_sensor_imuGyr( )
   gyro_proc={-(gyro[2]-512)/0.273, (gyro[1]-512)/0.273,(gyro[3]-512)/0.273};
   return gyro_proc;
 end
+
+--Roll, Pitch, Yaw in degree per seconds unit
+function get_sensor_imuGyrRPY( )
+  gyro = controller.wb_gyro_get_values(tags.gyro);
+  --Roll Pitch Yaw
+  --SJ: Checked and fine
+  gyro_proc={-(gyro[2]-512)/0.273, (gyro[1]-512)/0.273,(gyro[3]-512)/0.273};
+  return gyro_proc;
+end
+
 
 function get_sensor_imuAcc( )
   accel = controller.wb_accelerometer_get_values(tags.accelerometer);

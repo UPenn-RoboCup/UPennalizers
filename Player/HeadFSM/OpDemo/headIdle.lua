@@ -1,9 +1,11 @@
 module(..., package.seeall);
 
 require('Body')
+require('vcm')
 
 t0 = 0;
 timeout = 1.0;
+headPitch = Config.walk.headPitch or 0;
 
 function entry()
   print(_NAME.." entry");
@@ -12,16 +14,15 @@ function entry()
 
   -- set head to default position
   local yaw = 0;
-  local pitch = -15*math.pi/180;
+  local pitch = 20*math.pi/180 - headPitch;
+
   Body.set_head_command({yaw, pitch});
+
+  -- continuously switch cameras
+  vcm.set_camera_command(-1);
 end
 
 function update()
-  local t = Body.get_time();
-
-  if (t - t0 > timeout) then
-    return "timeout";
-  end
 end
 
 function exit()
