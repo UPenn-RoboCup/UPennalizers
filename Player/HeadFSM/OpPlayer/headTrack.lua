@@ -6,13 +6,19 @@ require('Config')
 require('wcm')
 
 t0 = 0;
-timeout = 3.0*Config.speedFactor;
+timeout = 6.0* Config.speedFactor;
 
 -- ball detection timeout
-tLost = 1.5*Config.speedFactor;
+tLost = 1.5* Config.speedFactor;
 
 -- z-axis tracking position
 trackZ = Config.vision.ball_diameter; 
+
+--If ball is closer than this, never look up 
+minDist = 0.30; 
+
+
+
 
 function entry()
   print("Head SM:".._NAME.." entry");
@@ -25,10 +31,13 @@ function update()
 
   -- update head position based on ball location
   ball = wcm.get_ball();
+  ballR = math.sqrt (ball.x^2 + ball.y^2);
+
   local yaw, pitch =
 	HeadTransform.ikineCam(ball.x, ball.y, trackZ, bottom);
 
-  if math.abs(ball.y) < 0.12 and ball.x < 0.30 then
+  -- Fix head yaw while approaching (to reduce position error)
+  if math.abs(ball.y) < 0.08 and ball.x < 0.20 then
      yaw=0.0; 
   end
 
@@ -38,7 +47,8 @@ function update()
     print('Ball lost!');
     return "lost";
   end
-  if (t - t0 > timeout) then
+  if (t - t0 > timeout) and
+     ballR > minDist   then
     print('Head Track timeout')
     return "timeout";
   end
