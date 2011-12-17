@@ -193,7 +193,12 @@ function set_role(r)
     end
   end
 end
-set_role(playerID-1);
+-- Webots has id=0 map to goalie.  Real robots has id=1 map to goalie
+if (string.find(Config.platform.name,'Webots')) then
+  set_role(playerID);
+else
+  set_role(playerID-1);
+end
 
 function get_player_id()
   return playerID; 

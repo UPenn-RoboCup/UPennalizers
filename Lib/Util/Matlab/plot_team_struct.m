@@ -13,8 +13,10 @@ if nargin < 3
 end
 
 teamColors = ['b', 'r'];
+
 idColors = ['k', 'r', 'g', 'b'];
-roleColors = ['g', 'k', 'y'];
+% Role: 0:Goalie / 1:Attack / 2:Defend / 3:Support
+roleColors = ['m','g', 'k', 'y'];
 
 hold on;
 
@@ -31,8 +33,9 @@ yr = x0*sa + y0*ca + robot_struct.pose.y;
 
 if robot_struct.id == player2track
     if( robot_struct.role ~= -1 )
-        hr = fill(xr, yr, teamColors(robot_struct.teamColor+1), 'EdgeColor', roleColors(robot_struct.role), 'LineWidth', 2);
+        hr = fill(xr, yr, teamColors(robot_struct.teamColor+1), 'EdgeColor', roleColors(robot_struct.role+1), 'LineWidth', 2);
     else
+        % Role not set
         hr = fill(xr, yr, teamColors(robot_struct.teamColor+1), 'EdgeColor', 'm', 'LineWidth', 2);
     end
 else
