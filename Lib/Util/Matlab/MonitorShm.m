@@ -29,14 +29,15 @@ fprintf('Initialization time: %f\n',t);
 %% Update our plots
 while continuous
     nUpdate = nUpdate + 1;
-    
+
     %% Draw our information
+    tStart = tic;
+    show_monitor( robots, scale, team2track, player2track );
+    drawnow;
     tElapsed=toc(tStart);
-    if( tElapsed>tDisplay )
-        tStart = tic;
-        % Show the monitor
-        show_monitor( robots, scale, team2track, player2track );
-        drawnow;
+
+    if(tElapsed<tDisplay)
+        pause( tDisplay-tElapsed );
     end
-    
+
 end

@@ -7,6 +7,9 @@ function [ ] = plot_surroundings( mon_struct )
     ball = mon_struct.ball;
     if( ball.detect )
         plot(-1*ball.y, ball.x,'ro');
+        strballpos = strcat('Ball: ',num2str(-1*ball.y,'%1.2f'),',',...
+                            num2str(ball.x,'%1.2f'));
+        text(-1*ball.y, ball.x+0.3, strballpos);
     end
     % TODO: Plot the right color
     goal = mon_struct.goal;
