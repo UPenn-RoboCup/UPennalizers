@@ -11,6 +11,9 @@ t0 = Body.get_time();
 
 -- Suport the Walk API
 velCurrent = vector.new({0, 0, 0});
+stopRequest = 0;
+uLeft = vector.new({0, 0, 0});
+uRight = vector.new({0, 0, 0});
 
 -- Walk Parameters
 --hardnessLeg_gnd = Config.walk.hardnessLeg;
@@ -197,7 +200,7 @@ function exit()
 end
 
 function get_odometry(u0)
-  return vector.new({0,0,0}),0;
+  return vector.new({0,0,0}),vector.new({0,0,0});
 end
    
 function get_body_offset()
