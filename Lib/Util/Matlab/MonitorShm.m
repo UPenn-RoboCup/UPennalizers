@@ -1,6 +1,6 @@
 % Players and team to track
 nPlayers = 1;
-teamNumbers = [0 1];
+teamNumbers = 1; %[0 1];
 team2track = 1;
 player2track = 1;
 
@@ -10,7 +10,7 @@ continuous = 1;
 %% Enter loop
 figure(1);
 clf;
-tDisplay = .2; % Display every x seconds
+tDisplay = .1; % Display every x seconds
 tStart = tic;
 nUpdate = 0;
 scale = 1; % 1: labelA, 4: labelB
@@ -29,14 +29,15 @@ fprintf('Initialization time: %f\n',t);
 %% Update our plots
 while continuous
     nUpdate = nUpdate + 1;
-    
+
     %% Draw our information
+    tStart = tic;
+    show_monitor( robots, scale, team2track, player2track );
+    drawnow;
     tElapsed=toc(tStart);
-    if( tElapsed>tDisplay )
-        tStart = tic;
-        % Show the monitor
-        show_monitor( robots, scale, team2track, player2track );
-        drawnow;
+
+    if(tElapsed<tDisplay)
+        pause( tDisplay-tElapsed );
     end
-    
+
 end

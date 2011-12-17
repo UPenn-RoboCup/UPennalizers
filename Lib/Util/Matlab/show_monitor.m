@@ -1,11 +1,13 @@
 function show_monitor( robots, scale, teamNumber, playerNumber )
 
 % Robot to display
+
 r_mon = robots{playerNumber,teamNumber}.get_monitor_struct();
 if( isempty(r_mon) )
     disp('Empty monitor struct!');
     return;
 end
+
 if( scale == 1 )
     label = robots{playerNumber,teamNumber}.get_labelA();
 else
@@ -20,23 +22,30 @@ nPlayers = size(robots,1);
 cbk=[0 0 0];cr=[1 0 0];cg=[0 1 0];cb=[0 0 1];cy=[1 1 0];cw=[1 1 1];
 cmap=[cbk;cr;cy;cy;cb;cb;cb;cb;cg;cg;cg;cg;cg;cg;cg;cg;cw];
 
+
 subplot(2,2,1);
 % Process YUYV
+
 if( ~isempty(rgb) )
     imagesc( rgb );
 end
+
 
 subplot(2,2,2);
 % Process label
 if( ~isempty(label) )
     imagesc(label);
+
     xlim([0 size(label,2)]);
     ylim([0 size(label,1)]);
-    hold on;
+    
     if(r_mon.ball.detect==1)
+        hold on;
         plot_ball( r_mon.ball, scale );
+        hold off;
     end
     if( r_mon.goal.detect == 1 )
+        hold on;
         %disp('Goal detected!');
         % Determine which bounding box:
         if(r_mon.goal.v1.scale~=0)
@@ -52,11 +61,12 @@ if( ~isempty(label) )
             postStats = bboxStats( label, r_mon.goal.color, pBBoxB, scale );
             plot_goalposts( postStats, scale );
         end
-        
+        hold off;
     end
+    %}
+    colormap(cmap);
 end   
 
-colormap(cmap);
 
 subplot(2,2,3);
 % Draw the field for localization reasons
@@ -66,11 +76,13 @@ hold on;
 for t = 1:nTeams
     for p = 1:nPlayers
         if (~isempty(robots{p, t}))
-            r_team = robots{p,t}.get_team_struct();
-            plot_team_struct( r_team,playerNumber );
+            r_struct = robots{p,t}.get_team_struct();
+            plot_team_struct( r_struct );
         end
     end
 end
+hold off;
+
 
 h4 = subplot(2,2,4);
 % Assume that we can only see 3 meters left and right
@@ -81,5 +93,5 @@ ylim([-1 4]);
 hold on;
 % What to draw here?
 plot_surroundings( r_mon );
-
+hold off;
 end
