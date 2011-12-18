@@ -1,8 +1,16 @@
-function [ ] = plot_surroundings( mon_struct )
+function [ ] = plot_surroundings( handle, mon_struct )
     % NOTE: x and y are reversed because for the robot,
     % x is forward backward, but for plotting, y is up and down
     % Also, there is a negative one, since for the robot left is positive
     % TODO: check that this is right...
+    
+    cla( handle );
+    % Assume that we can only see 3 meters left and right
+    % Assume that we do not see objects very far behind us
+
+    xlim([-3 3]);
+    ylim([-1 4]);
+    hold on;
     
     ball = mon_struct.ball;
     if( ball.detect )
@@ -28,5 +36,6 @@ function [ ] = plot_surroundings( mon_struct )
         end
     end
 
+    hold off;
 end
 
