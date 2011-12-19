@@ -29,8 +29,8 @@ camera.param[7] = {key='blue_balance',  val={120}};
 camera.param[8] = {key='hue',           val={0}};
 
 
-camera.focal_length = 160; -- in pixels
-camera.focal_base = 120; -- image width used in focal length calculatio
+camera.focal_length = 120; -- in pixels
+camera.focal_base = 125.6; -- 1.0472 * 120 image width used in focal length calculatio
 --camera.focal_length = 383; -- in pixels
 --camera.focal_base = 320; -- image width used in focal length calculatio
 camera.lut_file = 'lutWebots.raw';
