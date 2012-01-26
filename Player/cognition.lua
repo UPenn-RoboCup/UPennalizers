@@ -1,8 +1,7 @@
 module(... or "", package.seeall)
 
 -- Add the required paths
---local cwd = unix.getcwd();
-local cwd = os.getenv('PWD');
+cwd = '.';
 computer = os.getenv('COMPUTER') or "";
 if (string.find(computer, "Darwin")) then
    -- MacOS X uses .dylib:                                                      
