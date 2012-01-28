@@ -58,6 +58,9 @@ walk.ankleImuParamY={0.2, -2.7*walk.gyroFactor,
         .5*math.pi/180, 5*math.pi/180};
 walk.hipImuParamY={0.1, -0.3*walk.gyroFactor,
         .5*math.pi/180, 5*math.pi/180};
+walk.armImuParamX={0.3,-10*walk.gyroFactor, 20*math.pi/180, 45*math.pi/180};
+walk.armImuParamY={0.3,-10*walk.gyroFactor, 20*math.pi/180, 45*math.pi/180};
+
 
 --------------------------------------------
 -- WalkKick parameters
