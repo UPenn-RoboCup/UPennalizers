@@ -267,7 +267,7 @@ function update()
 
   qLegs = Kinematics.inverse_legs(pLLeg, pRLeg, pTorso, supportLeg);
   motion_legs(qLegs);
-  motion_arms();
+  --motion_arms();
 end
 
 

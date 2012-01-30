@@ -14,7 +14,7 @@ function loadconfig(configName)
 end
 
 --loadconfig('Config_Nao_Walk_NaoWalk')
-loadconfig('Config_Nao_Walk')
+loadconfig('Config_Nao_New_Walk')
 
 
 loadconfig('Config_Nao_World')
