@@ -155,7 +155,8 @@ function update()
 			headangle[2]=headangle[2]+5*math.pi/180;
 
 
-                elseif byte==string.byte("7") then	Motion.event("sit");
+    elseif byte==string.byte("6") then Motion.event("dive");
+    elseif byte==string.byte("7") then	Motion.event("sit");
 		elseif byte==string.byte("8") then	
 			walk.stop();
 			Motion.event("standup");

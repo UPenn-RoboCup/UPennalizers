@@ -85,7 +85,7 @@ while (true) do
 		print("Joint angles are: ");
 		print(keyframe.showAngles());
   elseif byte==string.byte("h") then
-    print "Press \'f\' to step forward by one frame.\n Press \'r\' to progress through the keyframe; press any key to stop progression.\n Press \'p\' to print out current joint angles.\n Press \'q\' to quit testing. Press \'h\' to see these directions again."
+    print "Press \'f\' to step forward by one frame.\n Press \'r\' to progress through the keyframe; press any key to stop progression.\n Press \'p\' to print out current joint angles.\n Press \'q\' to quit testing. Press \'h\' to see these directions again.";
 	elseif byte == string.byte("q") then
 		print("\tQuitting...");
 		break;
