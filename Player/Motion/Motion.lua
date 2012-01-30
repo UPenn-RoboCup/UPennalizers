@@ -13,7 +13,6 @@ require('nullstate')
 require('walk')
 require('sit')
 require('standstill') -- This makes torso straight (for webots robostadium)
-require('dive')
 
 require('falling')
 require('standup')
@@ -28,7 +27,6 @@ sm:add_state(standup);
 sm:add_state(falling);
 sm:add_state(kick);
 sm:add_state(standstill);
-sm:add_state(dive);
 
 
 sm:set_transition(sit, 'done', relax);
@@ -55,7 +53,6 @@ sm:set_transition(standstill, 'walk', stance);
 
 -- falling behaviours
 sm:set_transition(walk, 'fall', falling);
-sm:set_transition(dive, 'fall', falling);
 sm:set_transition(falling, 'done', standup);
 sm:set_transition(standup, 'done', stance);
 sm:set_transition(standup, 'fail', standup);
@@ -63,12 +60,6 @@ sm:set_transition(standup, 'fail', standup);
 -- kick behaviours
 sm:set_transition(walk, 'kick', kick);
 sm:set_transition(kick, 'done', walk);
-
---dive behaviours
-sm:set_transition(stance, 'dive', dive);
-sm:set_transition(walk, 'dive', dive);
-sm:set_transition(dive, 'done', standup);
-
 
 -- set state debug handle to shared memory settor
 sm:set_state_debug_handle(gcm.set_fsm_motion_state);
