@@ -30,3 +30,4 @@ WebotsController/controller_wrap.c
 # Temp and Swap files
 *~
 *.swp
+.DS_Store
