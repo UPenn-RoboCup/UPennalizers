@@ -17,10 +17,6 @@ keyframe.load_motion_file(cwd.."/"..Config.km.standup_front,
                           "standupFromFront");
 keyframe.load_motion_file(cwd.."/"..Config.km.standup_back,
                           "standupFromBack");
-if (Config.platform.name == 'OP') then
-  keyframe.load_motion_file(cwd.."/"..Config.km.standup_back2,
-                          "standupFromBack2");
-end
 
 use_rollback_getup = Config.use_rollback_getup or 0;
 batt_max = Config.batt_max or 10;
