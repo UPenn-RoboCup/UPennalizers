@@ -62,12 +62,12 @@ fsm = {};
 --SJ: loading FSM config  kills the variable fsm, so should be called first
 loadconfig('FSM/Config_OP_FSM')
 fsm.game = 'RoboCup';
-fsm.head = {'SimplePlayer'};
-fsm.body = {'SimplePlayer'};
+fsm.head = {'GeneralPlayer'};
+fsm.body = {'GeneralPlayer'};
 
 --Behavior flags, should be defined in FSM Configs but can be overrided here
 fsm.kickoff_wait_enable = 0;
-fsm.playMode = 3; --1 for demo, 2 for orbit, 3 for direct approach
+fsm.playMode = 1; --1 for demo, 2 for orbit, 3 for direct approach
 fsm.forcePlayer = 0; --1 for attacker, 2 for defender, 3 for goalie 
 fsm.enable_walkkick = 0; --Testing
 fsm.enable_sidekick = 0;
