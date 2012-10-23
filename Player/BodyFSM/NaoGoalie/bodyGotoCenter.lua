@@ -58,8 +58,8 @@ function update()
   centerRelative = util.pose_relative(centerPosition, {pose.x, pose.y, pose.a});
   rCenterRelative = math.sqrt(centerRelative[1]^2 + centerRelative[2]^2);
 
-  vx = maxStep * centerRelative[1]/rCenterRelative;
-  vy = maxStep * centerRelative[2]/rCenterRelative;
+  vx = maxStep * centerRelative[1]/(rCenterRelative+0.1);
+  vy = maxStep * centerRelative[2]/(rCenterRelative+0.1);
   if id == 1 then
     va = .2 * centerRelative[3];
   else

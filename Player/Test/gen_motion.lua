@@ -1,14 +1,10 @@
 module(... or "", package.seeall)
 
-require('unix')
 require('os')
 
 webots = false;
 
--- mv up to Player directory
-unix.chdir('..');
-
-local cwd = unix.getcwd();
+local cwd = '../.' 
 -- the webots sim is run from the WebotsController dir (not Player)
 if string.find(cwd, "WebotsController") then
   webots = true;
@@ -35,6 +31,7 @@ package.path = cwd.."/World/?.lua;"..package.path;
 package.path = cwd.."/BodyFSM/?.lua;"..package.path;
 package.path = cwd.."/HeadFSM/?.lua;"..package.path;
 
+require('unix')
 require('Config');
 require('Body')
 require('vector')
@@ -43,6 +40,7 @@ require('util')
 
 getch.enableblock(1);
 
+local str = getch.get();
 -- initialize 
 jp = Body.get_sensor_position();
 Body.set_actuator_command(jp);
@@ -111,7 +109,7 @@ function inc_res()
 end
 
 function dec_res()
-  print(string.format('dencreasing resolution from %0.4f to %0.4f rad', resolution, resolution-dresolution));
+  print(string.format('decreasing resolution from %0.4f to %0.4f rad', resolution, resolution-dresolution));
   resolution = resolution - dresolution;
 end
 
@@ -123,7 +121,7 @@ function toggle_hardness()
   else
     s = 'on';
   end
-
+  
   local j = Body.get_sensor_position();
   Body.set_actuator_command(j);
   
@@ -221,7 +219,19 @@ end
 
 function save_frame()
   print('Appending frame...');
+
+  local str = ""
+  local input = ""
+  print("Enter duration: ")
+  while(true) do
+    input = getch.get()
+    if(input == '\n') then
+      break;
+    end
+    str = str..input
+  end
   frames[#frames+1] = {};
+  frames[#frames]["Duration"] = str
   local j = Body.get_sensor_position();
   for k,v in pairs(j) do
     frames[#frames][k] = v;
@@ -258,12 +268,13 @@ function format_keyframe()
       f:write(frames[i][j],",");
     end
     f:write("\n    },\n");
-    f:write("duration = 1.0; \n  },\n");
+    f:write("duration = "..frames[i]["Duration"].."; \n  },\n");
   end
   f:write("};\n\nreturn mot;")
   f:close();
   print("Saved as "..filename)
 end
+
 
 function exit()
   format_keyframe();

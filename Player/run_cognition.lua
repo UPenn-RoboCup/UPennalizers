@@ -13,8 +13,9 @@ while (true) do
   cognition.update();
 
   tloop = unix.time() - tstart;
-  if (tloop < 0.025) then
-    unix.usleep((.025 - tloop)*(1E6));
+
+  if (tloop < tperiod) then
+    unix.usleep((tperiod - tloop)*(1E6));
   end
 end
 

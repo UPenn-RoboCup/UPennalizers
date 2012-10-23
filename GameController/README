@@ -1,8 +1,0 @@
-The RoboCup competition uses a computer referee to communicate with the robot
-players. The computer referee runs the 'Game Controller' that sends out state
-information about the game: penalties, scores, etc. This directory contains a
-copy of the latest version of the game controller for convience. We make no
-gaurentee that these are the latest version of the Game Controllers provided by
-the RoboCup organization. They are the latest version that has been tested with
-our code. 
-

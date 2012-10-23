@@ -1,6 +1,14 @@
 module(..., package.seeall);
 
 require('vector');
+require('util')
+
+enableVelocity = Config.vision.enable_velocity_detection or 0;
+--SJ: We can use the ball model (x,y,dx,dy) 
+--and update the model using current estimate of velocity
+--TODO!
+
+mod_angle = util.mod_angle;
 
 local mt = {};
 
@@ -73,14 +81,6 @@ function odometry(t, dx, dy, da, drErr, daErr)
   daErr = daErr or 0.10 * math.abs(da);
   t.rVar = t.rVar + drErr;
   t.aVar = t.aVar + daErr;
-end
-
-function mod_angle(a)
-  a = a % (2*math.pi);
-  if (a >= math.pi) then
-    a = a - 2*math.pi;
-  end
-  return a;
 end
 
 mt.__index = {};

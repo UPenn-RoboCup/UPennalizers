@@ -39,6 +39,19 @@ static int lua_dynamixel_instruction_read_data(lua_State *L) {
   return lua_pushpacket(L, p);
 }
 
+//ADDED for bulk read
+static int lua_dynamixel_instruction_bulk_read_data(lua_State *L) {
+  uchar id_cm730 = luaL_checkint(L, 1);
+  size_t nstr;
+  const char *str = luaL_checklstring(L, 2, &nstr);
+  uchar addr = luaL_checkint(L, 3);
+  uchar len = luaL_checkint(L, 4);
+  DynamixelPacket *p = dynamixel_instruction_bulk_read_data
+    (id_cm730, (uchar *) str, addr, len, nstr);
+  return lua_pushpacket(L, p);
+}
+
+
 static int lua_dynamixel_instruction_write_data(lua_State *L) {
   uchar id = luaL_checkint(L, 1);
   uchar addr = luaL_checkint(L, 2);
@@ -133,6 +146,7 @@ static const struct luaL_reg dynamixelpacket_functions[] = {
   {"write_word", lua_dynamixel_instruction_write_word},
   {"sync_write", lua_dynamixel_instruction_sync_write},
   {"read_data", lua_dynamixel_instruction_read_data},
+  {"bulk_read_data", lua_dynamixel_instruction_bulk_read_data},
   {"word_to_byte", lua_dynamixel_word_to_byte},
   {"byte_to_word", lua_dynamixel_byte_to_word},
   {NULL, NULL}

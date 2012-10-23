@@ -1,0 +1,167 @@
+#include "dynamixel.h"
+#include <stdlib.h>
+
+DynamixelPacket pktInstruction, pktInput;
+
+uchar dynamixel_checksum(DynamixelPacket *pkt) {
+  uchar checksum = 0;
+  uchar *byte = (uchar *) pkt;
+  int i;
+  for (i = 2; i < pkt->length+3; i++) {
+    checksum += byte[i];
+  }
+  checksum ^= 0xFF; // xor
+  return checksum;
+}
+
+// Process incoming characters using finite state machine
+// and return well-formed packet or NULL
+DynamixelPacket *dynamixel_input(uchar c, int reset) {
+  DynamixelPacket *pkt = &pktInput;
+  static int nparameter = 0;
+  static enum {STATE_HEADER1,
+               STATE_HEADER2,
+               STATE_ID,
+               STATE_LEN,
+               STATE_INSTRUCTION,
+               STATE_PARAMETER,
+               STATE_CHECKSUM} state = STATE_HEADER1;
+  if (reset) {
+    state = STATE_HEADER1;
+  }
+
+  switch (state) {
+  case STATE_HEADER1:
+    if (c == DYNAMIXEL_PACKET_HEADER) {
+      state = STATE_HEADER2;
+      pkt->header1 = c;
+    }
+    break;
+  case STATE_HEADER2:
+    if (c == DYNAMIXEL_PACKET_HEADER) {
+      state = STATE_ID;
+      pkt->header2 = c;
+    }
+    else {
+      state = STATE_HEADER1;
+    }
+    break;
+  case STATE_ID:
+      state = STATE_LEN;
+      pkt->id = c;
+      break;
+  case STATE_LEN:
+    state = STATE_INSTRUCTION;
+    pkt->length = c;
+    break;
+  case STATE_INSTRUCTION:
+    state = STATE_PARAMETER;
+    pkt->instruction = c;
+    nparameter = 0;
+    break;
+  case STATE_PARAMETER:
+    if (nparameter < pkt->length-2) {
+      pkt->parameter[nparameter] = c;
+      nparameter++;
+      break;
+    }
+    else {
+      state = STATE_CHECKSUM;
+      // fall through to STATE_CHECKSUM
+    }
+  case STATE_CHECKSUM:
+    state = STATE_HEADER1;
+    if (c == dynamixel_checksum(pkt)) {
+      return pkt;
+    }
+  }
+  return NULL;
+}
+
+// Generates instruction packet
+DynamixelPacket *dynamixel_instruction(uchar id,
+				      uchar inst,
+				      uchar *parameter,
+				      uchar nparameter) {
+  DynamixelPacket *pkt = &pktInstruction;
+  int i;
+  pkt->header1 = DYNAMIXEL_PACKET_HEADER;
+  pkt->header2 = DYNAMIXEL_PACKET_HEADER;
+  pkt->id = id;
+  pkt->length = nparameter + 2;
+  for (i = 0; i < nparameter; i++) {
+    pkt->parameter[i] = parameter[i];
+  }
+  pkt->checksum = dynamixel_checksum(pkt);
+  // Place checksum after parameters:
+  pkt->parameter[nparameter+1] = pkt->checksum;
+  return pkt;
+}
+
+DynamixelPacket *dynamixel_instruction_read_data(uchar id,
+						 uchar address, uchar n) {
+  uchar inst = INST_READ;
+  uchar nparameter = 2;
+  uchar parameter[nparameter];
+  parameter[0] = address;
+  parameter[1] = n;
+  return dynamixel_instruction(id, inst, parameter, nparameter);
+}
+
+DynamixelPacket *dynamixel_instruction_write_data(uchar id,
+						  uchar address,
+						  uchar data[], uchar n) {
+  uchar inst = INST_WRITE;
+  uchar nparameter = n+1;
+  uchar parameter[nparameter];
+  int i;
+  parameter[0] = address;
+  for (i = 0; i < n; i++) {
+    parameter[i] = data[i];
+  }
+  return dynamixel_instruction(id, inst, parameter, nparameter);
+}
+
+DynamixelPacket *dynamixel_instruction_reg_write(uchar id,
+						 uchar address,
+						 uchar data[], uchar n) {
+  uchar inst = INST_REG_WRITE;
+  uchar nparameter = n+1;
+  uchar parameter[nparameter];
+  int i;
+  parameter[0] = address;
+  for (i = 0; i < n; i++) {
+    parameter[i] = data[i];
+  }
+  return dynamixel_instruction(id, inst, parameter, nparameter);
+}
+
+DynamixelPacket *dynamixel_instruction_action() {
+  uchar id = DYNAMIXEL_BROADCAST_ID;
+  uchar inst = INST_ACTION;
+  return dynamixel_instruction(id, inst, NULL, 0);
+}
+
+DynamixelPacket *dynamixel_instruction_ping(int id) {
+  uchar inst = INST_PING;
+  return dynamixel_instruction(id, inst, NULL, 0);
+}
+
+DynamixelPacket *dynamixel_instruction_reset(int id) {
+  uchar inst = INST_RESET;
+  return dynamixel_instruction(id, inst, NULL, 0);
+}
+
+DynamixelPacket *dynamixel_instruction_sync_write(uchar address,
+						  uchar data[], uchar n) {
+  uchar id = DYNAMIXEL_BROADCAST_ID;
+  uchar inst = INST_SYNC_WRITE;
+  uchar nparameter = n+1;
+  uchar parameter[nparameter];
+  int i;
+  parameter[0] = address;
+  for (i = 0; i < n; i++) {
+    parameter[i] = data[i];
+  }
+  return dynamixel_instruction(id, inst, parameter, nparameter);
+}

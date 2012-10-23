@@ -1,0 +1,13 @@
+# How to build:
+mkdir build
+cd build
+
+# Cross-compile for Nao Atom:
+cmake -DCMAKE_TOOLCHAIN_FILE=ctc-robocup-1.4.25.1/toolchain-atom.cmake ..
+
+#Check of options:
+ccmake .
+# You will be presented with a menu, press 'c' to configure and
+#   then 'g' to generate the makefile
+make
+

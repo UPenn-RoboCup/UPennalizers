@@ -46,6 +46,20 @@ function get_image()
   return ImageProc.rgb_to_yuyv(carray.pointer(image), width, height);
 end
 
+function get_labelA( lut )
+  --rgb2label
+  return ImageProc.rgb_to_label(carray.pointer(image), lut, width, height);
+end
+
+function get_labelA_obs( lut )
+  --rgb2label
+  return ImageProc.rgb_to_label_obs(carray.pointer(image), lut, width, height);
+end
+
+function get_lut_update(mask, lut)
+  return ImageProc.rgb_mask_to_lut(carray.pointer(image), mask, lut, width, height);
+end
+
 function get_camera_status()
   status = {};
   status.select = 0;

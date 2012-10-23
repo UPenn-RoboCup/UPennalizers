@@ -11,6 +11,8 @@ require('headScan')
 require('headTrack')
 require('headLookGoal')
 require('headSweep')
+require('headKick')
+require('headKickFollow')
 
 sm = fsm.new(headIdle);
 sm:add_state(headStart);
@@ -20,6 +22,8 @@ sm:add_state(headScan);
 sm:add_state(headTrack);
 sm:add_state(headLookGoal);
 sm:add_state(headSweep);
+sm:add_state(headKick);
+sm:add_state(headKickFollow);
 
 sm:set_transition(headStart, 'done', headTrack);
 
@@ -32,6 +36,10 @@ sm:set_transition(headSweep, 'done', headTrack);
 
 sm:set_transition(headScan, 'ball', headTrack);
 sm:set_transition(headScan, 'timeout', headScan);
+
+--Added for GeneralPlayer Body FSM
+sm:set_transition(headKickFollow, 'lost', headScan);
+sm:set_transition(headKickFollow, 'ball', headTrack);
 
 -- set state debug handle to shared memory settor
 sm:set_state_debug_handle(gcm.set_fsm_head_state);

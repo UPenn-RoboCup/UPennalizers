@@ -18,7 +18,10 @@ function entry()
     direction = -1;
   end
 
-  -- continuously switch cameras
+  --continuously switch cameras
+  --  vcm.set_camera_command(-1);
+
+  -- use top camera only
   vcm.set_camera_command(-1);
 end
 

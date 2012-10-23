@@ -184,3 +184,32 @@ darwinop_kinematics_inverse_legs(
   qLLeg.insert(qLLeg.end(), qRLeg.begin(), qRLeg.end());
   return qLLeg;
 }
+
+std::vector<double> darwinop_kinematics_inverse_arm(
+			    const double *dArm
+			    )
+{
+
+  std::vector<double> qArm(3,-999); // Init the 3 angles with value 0
+  // Law of cosines to find end effector distance from shoulder
+  double c_sq = pow(dArm[0],2)+pow(dArm[1],2)+pow(dArm[2],2);
+  double c = sqrt( c_sq );
+  if( c>lowerArmLength+upperArmLength )
+    return qArm;
+  double tmp = (pow(upperArmLength,2)+pow(lowerArmLength,2)-c_sq) / (2*upperArmLength*lowerArmLength);
+  if( tmp>1 ) // Impossible configuration
+    return qArm;
+  qArm[2] = acos( tmp );
+  // Angle of desired point with the y-axis
+  qArm[1] = acos( dArm[1] / c );
+  // How much rotation about the y-axis (in the xz plane
+  qArm[0] = atan2( dArm[2], dArm[0] ) - qArm[2];
+
+  // Condition for OP default joint position
+  qArm[2] = qArm[2] - PI;
+  qArm[1] = qArm[1] - PI/2;
+  qArm[0] = qArm[0] + PI;
+
+  return qArm;
+
+}

@@ -1,0 +1,20 @@
+# Makefile used to build libraries
+include ../../../Makefile.inc
+
+TARGETS = all clean
+.PHONY: $(TARGETS)
+
+all: NaoKinematics
+
+%.o: %.cpp
+	$(CXX) $(CXXFLAGS) $(INCLUDES) -o $@ -c $<
+%.o: %.cc
+	$(CXX) $(CXXFLAGS) $(INCLUDES) -o $@ -c $<
+%.o: %.c
+	$(CC) $(CXXFLAGS) $(INCLUDES) -o $@ -c $<
+
+NaoKinematics: luaNaoKinematics.o naoKinematics.o Transform.o
+	$(CXX) -o $@.$(SHLIBEXT) $(LIBOPTS) $^ $(LIBRT)
+
+clean:
+	rm -f *.$(SHLIBEXT) *.o

@@ -142,6 +142,17 @@ static int inverse_legs(lua_State *L) {
   return 1;
 }
 
+static int inverse_arm(lua_State *L) {
+  std::vector<double> qArm;
+  std::vector<double> dArm = lua_checkvector(L, 1);
+  qArm = darwinop_kinematics_inverse_arm(&dArm[0]);
+  if(qArm[0]==-999)
+    lua_pushnil(L);    
+  else
+    lua_pushvector(L, qArm);
+  return 1;
+}
+
 static const struct luaL_reg kinematics_lib [] = {
   {"forward_head", forward_head},
   {"forward_larm", forward_larm},
@@ -154,6 +165,7 @@ static const struct luaL_reg kinematics_lib [] = {
   {"torso_rleg", torso_rleg},
   {"inverse_leg", inverse_leg},
   {"inverse_legs", inverse_legs},
+  {"inverse_arm", inverse_arm},
 
   {NULL, NULL}
 };

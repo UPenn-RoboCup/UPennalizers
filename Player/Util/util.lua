@@ -3,7 +3,7 @@ module(..., package.seeall);
 require('shm');
 require('carray');
 require('vector');
-
+require('unix')
 
 function ptable(t)
   -- print a table key, value pairs
@@ -11,6 +11,7 @@ function ptable(t)
 end
 
 function mod_angle(a)
+  if a==nil then return nil end
   -- Reduce angle to [-pi, pi)
   a = a % (2*math.pi);
   if (a >= math.pi) then
@@ -41,12 +42,43 @@ function min(t)
   return tmin, imin;
 end
 
+function max(t)
+  -- find the maximum element in the array table
+  -- returns the min value and its index
+  local imax = 0;
+  local tmax = -math.huge;
+  for i = 1,#t do
+    if (t[i] > tmax) then
+      tmax = t[i];
+      imax = i;
+    end
+  end
+  return tmax, imax;
+end
+
 function se2_interpolate(t, u1, u2)
   -- helps smooth out the motions using a weighted average
   return vector.new{u1[1]+t*(u2[1]-u1[1]),
                     u1[2]+t*(u2[2]-u1[2]),
                     u1[3]+t*mod_angle(u2[3]-u1[3])};
 end
+
+function se3_interpolate(t, u1, u2, u3)
+  --Interpolation between 3 xya values
+  if t<0.5 then
+    tt=t*2;
+    return vector.new{u1[1]+tt*(u2[1]-u1[1]),
+                    u1[2]+tt*(u2[2]-u1[2]),
+                    u1[3]+tt*mod_angle(u2[3]-u1[3])};
+  else
+    tt=t*2-1;
+    return vector.new{u2[1]+tt*(u3[1]-u2[1]),
+                    u2[2]+tt*(u3[2]-u2[2]),
+                    u2[3]+tt*mod_angle(u3[3]-u2[3])};
+  end
+end
+
+
 
 function procFunc(a,deadband,maxvalue)
   --Piecewise linear function for IMU feedback
@@ -117,7 +149,7 @@ function init_shm_segment(fenv, name, shared, shsize)
     local shmPointerName = shtable..'Ptr';
     fenv[shmPointerName] = {};
     local shmPointer = fenv[shmPointerName];
-    
+
     for k,v in pairs(shared[shtable]) do
       shmPointer[k] = carray.cast(shmHandle:pointer(k));
       if (type(v) == 'string') then
@@ -128,6 +160,12 @@ function init_shm_segment(fenv, name, shared, shsize)
             if (bytes == nil) then
               return '';
             else
+	      for i=1,#bytes do
+	        if not (bytes[i]>0) then --Testing NaN
+		  print("NaN Detected at string!");
+	          return;
+		end
+	      end
               return string.char(unpack(bytes));
             end
           end
@@ -274,3 +312,8 @@ function bezier( alpha, s )
   return value;
   end
 
+function get_wireless_ip()
+  ifconfig = io.popen('/sbin/ifconfig wlan0 | grep "inet " | cut -d" " -f10-11');
+  ip = ifconfig:read();
+  return ip;
+end

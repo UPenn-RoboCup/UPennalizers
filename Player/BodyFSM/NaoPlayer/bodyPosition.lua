@@ -12,7 +12,7 @@ require('UltraSound')
 t0 = 0;
 timeout = 20.0;
 
-maxStep = 0.06;
+maxStep = 0.05;
 
 rClose = 0.35;
 
@@ -64,6 +64,7 @@ function update()
     -- attack
     homePosition = ballGlobal;
   end
+  print(homePosition[1]..','..homePosition[2]..','..homePosition[3]);
 
   -- do not go into own penalty box
   if (gcm.get_team_color() == 1) then
@@ -77,9 +78,9 @@ function update()
   homeRelative = util.pose_relative(homePosition, {pose.x, pose.y, pose.a});
   rHomeRelative = math.sqrt(homeRelative[1]^2 + homeRelative[2]^2);
 
-  vx = maxStep*homeRelative[1]/rHomeRelative;
-  vy = maxStep*homeRelative[2]/rHomeRelative;
-  va = .5*math.atan2(ball.y, ball.x + 0.05);
+  vx = maxStep*homeRelative[1]/(rHomeRelative + 0.1);
+  vy = maxStep*homeRelative[2]/(rHomeRelative + 0.1);
+  va = .5*math.atan2(ball.y, math.max(ball.x + 0.05,0.05));
 
   walk.set_velocity(vx, vy, va);
   ballR = math.sqrt(ball.x^2 + ball.y^2);

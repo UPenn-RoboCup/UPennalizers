@@ -16,6 +16,7 @@ extern "C" {
 #define INST_ACTION (5)
 #define INST_RESET (6)
 #define INST_SYNC_WRITE (131)
+#define INST_BULK_READ (146)
 
 #define ERRBIT_VOLTAGE          (1)
 #define ERRBIT_ANGLE            (2)
@@ -55,6 +56,11 @@ typedef struct DynamixelPacket {
   DynamixelPacket *dynamixel_instruction_sync_write(uchar address,
 						    uchar len,
 						    uchar data[], uchar n);
+
+
+  //added for bulk read
+  DynamixelPacket *dynamixel_instruction_bulk_read_data(
+	uchar id_cm730, uchar id[], uchar address, uchar len, uchar n);
   
 
   int dynamixel_input(DynamixelPacket *pkt, uchar c, int n);

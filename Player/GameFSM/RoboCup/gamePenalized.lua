@@ -23,20 +23,19 @@ end
 
 function update()
   local state = gcm.get_game_state();
-
-  if (state == 0) then
-    return 'initial';
-  elseif (state == 1) then
-    return 'ready';
-  elseif (state == 2) then
-    return 'set';
-  elseif (state == 4) then
-    return 'finished';
-  end
-
   -- check for penalty 
   if not gcm.in_penalty() then
-    return 'playing';
+    if (state == 0) then
+      return 'initial';
+    elseif (state == 1) then
+      return 'ready';
+    elseif (state == 2) then
+      return 'set';
+    elseif (state == 3) then
+      return 'playing';
+    elseif (state == 4) then
+      return 'finished';
+    end
   end
 end
 

@@ -28,6 +28,7 @@ package.path = cwd.."/Config/?.lua;"..package.path;
 package.path = cwd.."/Lib/?.lua;"..package.path;
 package.path = cwd.."/Dev/?.lua;"..package.path;
 package.path = cwd.."/Motion/?.lua;"..package.path;
+package.path = cwd.."/Motion/walk/?.lua;"..package.path;
 package.path = cwd.."/Vision/?.lua;"..package.path;
 package.path = cwd.."/World/?.lua;"..package.path;
 package.path = cwd.."/BodyFSM/?.lua;"..package.path;
@@ -44,7 +45,7 @@ require('kick')
 require('Speak')
 --require('World')
 --require('Team')
-require('battery')
+--require('battery')
 Vision = require 'vcm' -- Steve
 Speak.talk("Starting test parameters.")
 
@@ -59,6 +60,8 @@ walk.stop();
 getch.enableblock(1);
 targetvel=vector.new({0,0,0});
 headangle=vector.new({0,0});
+
+walkKick=true;
 
 --Adding head movement && vision...--
 Body.set_head_hardness({0.4,0.4});
@@ -134,7 +137,7 @@ function update()
   t=unix.time();
   Motion.update();
   Body.set_head_hardness(0.2);
-  battery.monitor();
+  --battery.monitor();
 
   local str=getch.get();
   if #str>0 then
@@ -199,10 +202,22 @@ function update()
 			Config.walk.bodyHeight = Config.walk.bodyHeight - .001;
 		elseif byte== string.byte('Y') then
 			Config.walk.bodyHeight = Config.walk.bodyHeight + .001;
-		elseif byte==string.byte("1") then	
-			walk.doWalkKickLeft();
-		elseif byte==string.byte("2") then	
-		  walk.doWalkKickRight();	
+    elseif byte==string.byte('\\') then
+      walkKick=not walkKick;
+    elseif byte==string.byte("1") then
+      if walkKick then	
+        walk.doWalkKickLeft();
+      else 
+        kick.set_kick("KickForwardLeft");	
+        Motion.event("kick");
+      end
+    elseif byte==string.byte("2") then
+      if walkKick then
+        walk.doWalkKickRight();
+      else
+        kick.set_kick("kickForwardRight");
+        Motion.event("kick");
+      end
 		--turn assorted stability checks on/off--
 		elseif byte==string.byte("3") then
 		  Config.walk.imuOn = not Config.walk.imuOn;
@@ -226,13 +241,10 @@ function update()
 		print(string.format("Head angle: %d, %d",
 			headangle[1]*180/math.pi,
 			headangle[2]*180/math.pi));
-		print(string.format("Walk settings:\n tStep: %.2f\t phSingle: {%.2f, %.2f}\t stepHeight: %.3f\n supportX: %.3f\t supportY: %.3f\t Ankle Pitch (rad): {%.2f, %.2f}", Config.walk.tStep, Config.walk.phSingle[1], Config.walk.phSingle[2], Config.walk.stepHeight, 
-Config.walk.supportX, Config.walk.supportY, Config.walk.anklePitchComp[1]*180/math.pi, Config.walk.anklePitchComp[2]*180/math.pi));
-    print(string.format("Foot sensor threshold: %.3f\t Delay length multiplier: %.2f", Config.walk.fsr_threshold, Config.walk.tDelayBalance));  
-    print("IMU feedback is on: ",Config.walk.imuOn,"\nJoint encoder feedback is on: ",Config.walk.jointFeedbackOn,"\nFoot sensor feedback is on: ",Config.walk.fsrOn);  		
+		print(string.format("Walk settings:\n tStep: %.2f\t phSingle: {%.2f, %.2f}\t stepHeight: %.3f\n supportX: %.3f\t supportY: %.3f\t", Config.walk.tStep, Config.walk.phSingle[1], Config.walk.phSingle[2], Config.walk.stepHeight, 
+Config.walk.supportX, Config.walk.supportY));
  
 
-  end
-
+end
 end
 

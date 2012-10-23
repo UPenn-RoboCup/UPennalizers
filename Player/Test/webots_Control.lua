@@ -1,18 +1,12 @@
 module(... or '', package.seeall)
 
-require('unix')
-
 webots = false;
 darwin = false;
 
-unix.chdir('~/Player');
-
-local cwd = unix.getcwd();
-
--- the webots sim is run from the WebotsController dir (not Player)
-if string.find(cwd, 'WebotsController') then webots = true;
-  cwd = cwd..'/Player'
-  package.path = cwd..'/?.lua;'..package.path;
+-- Get Platform for package path
+cwd = os.getenv('PWD');
+local platform = os.getenv('PLATFORM') or ''; 
+if (string.find(platform,'webots')) then cwd = cwd .. '/Player';
 end
 
 computer = os.getenv('COMPUTER') or '';
@@ -23,6 +17,7 @@ else
   package.cpath = cwd..'/Lib/?.so;'..package.cpath;
 end
 
+package.path = cwd..'/?.lua;'..package.path;
 package.path = cwd..'/Util/?.lua;'..package.path;
 package.path = cwd..'/Config/?.lua;'..package.path;
 package.path = cwd..'/Lib/?.lua;'..package.path;
@@ -39,7 +34,8 @@ require('controller');
 require('Speak')
 require('Body')
 require('Motion')
-
+require('unix')
+require('cognition')
 Motion.entry();
 
 --{x,y,z}
@@ -47,8 +43,12 @@ targetvel=vector.new({0,0,0});
 --{yaw,pitch}
 headangle=vector.new({0,0});
 
-if( Config.platform.name=='darwinop' ) then
+if( Config.platform.name=='OP' ) then
   darwin = true;
+end
+
+if(string.find(Config.platform.name,"Webots")) then
+	webots = true;
 end
 
 --Adding head movement && vision...--
@@ -199,7 +199,6 @@ end
 
 -- if using Webots simulator just run update
 if (webots)then
-  require('cognition');
   cognition.entry();
 
   -- set game state to Playing

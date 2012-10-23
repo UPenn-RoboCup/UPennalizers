@@ -29,7 +29,7 @@ function entry()
   t0 = Body.get_time();
 
   -- only use bottom camera
-  vcm.set_camera_command(1);
+  --vcm.set_camera_command(1);
 end
 
 function update()

@@ -1,1 +1,0 @@
-/usr/include/lua5.1/lauxlib.h

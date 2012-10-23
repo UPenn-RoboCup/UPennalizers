@@ -38,7 +38,7 @@ obstacles = vector.zeros(2);
 free = vector.zeros(2);
 distance = vector.zeros(2);
 
-obsThresh = .03*numSavedValues/5;--.03;
+obsThresh = .02*numSavedValues/5;--.03;
 freeThresh = .1*numSavedValues/5;--.15;
 disThresh = .6;
 
@@ -48,8 +48,8 @@ function entry()
   print("UltraSound entry");
 end
 
-obsThres = 0.55;
-clearThres = 0.80;
+obsThres = 0.28;
+clearThres = 0.50;
 
 leftObsCount = 0;
 rightObsCount = 0;
@@ -59,8 +59,11 @@ rightZeroCount = 0;
 
 zeroCountThres = 10;
 
+--Renamed the config variable here
+enable_obstacle_detection=Config.fsm.enable_obstacle_detection or 0;
+
 function update()
-  if Config.BodyFSM.enable_obstacle_detection == 1 then
+  if enable_obstacle_detection == 1 then
     count = count + 1;
 
     if (count % updateFreq == 0) then
@@ -123,7 +126,7 @@ function check_obstacle()
 end
 
 function update2()
-  if Config.BodyFSM.enable_obstacle_detection == 1 then
+  if enable_obstacle_detection == 1 then
     count = count + 1;
 
     if (count % updateFreq == 0) then
@@ -204,7 +207,7 @@ function checkObstacle()
   -- checks for obstacle IN FRONT of robot.  
   -- TODO implement for obstacle IN THE PATH of robot
 
-  if Config.BodyFSM.enable_obstacle_detection == 1 then
+  if enable_obstacle_detection == 1 then
 
     -- goalie does not need to worry about obstacles
     --[[

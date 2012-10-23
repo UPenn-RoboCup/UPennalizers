@@ -14,7 +14,7 @@ maxStep = 0.04;
 
 maxPosition = 0.55;
 
-ballNear = 0.85;
+ballNear = 0.5;
 
 rClose = 0.40;
 
@@ -63,8 +63,8 @@ function update()
   homeRelative = util.pose_relative(homePosition, {pose.x, pose.y, pose.a});
   rhomeRelative = math.sqrt(homeRelative[1]^2 + homeRelative[2]^2);
 
-  vx = maxStep*homeRelative[1]/rhomeRelative;
-  vy = maxStep*homeRelative[2]/rhomeRelative;
+  vx = maxStep*homeRelative[1]/(rhomeRelative+0.1);
+  vy = maxStep*homeRelative[2]/(rhomeRelative+0.1);
   
   walk.set_velocity(vx, vy, va);
 

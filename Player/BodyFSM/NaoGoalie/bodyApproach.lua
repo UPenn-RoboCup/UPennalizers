@@ -21,7 +21,6 @@ tLost = 3.0;
 xKick = 0.22;
 xTarget = 0.16;
 
-
 yKickMin = 0.02;
 yKickMax = 0.05;
 
@@ -29,7 +28,7 @@ yKickMax = 0.05;
 rFar = 1.0;
 
 -- alignment
-thAlign = 30.0*math.pi/180.0;
+thAlign = 60.0*math.pi/180.0;--30.0*math.pi/180.0;
 
 
 function entry()
@@ -72,7 +71,7 @@ function update()
   if (math.abs(attackBearing) > thAlign) then
     return 'ballAlign';
   end
-  if ((ball.x < xKick) and (math.abs(ball.y) < yKickMax) and
+  if ((ball.x < xKick) and (ball.x > 0) and (math.abs(ball.y) < yKickMax) and
       (math.abs(ball.y) > yKickMin)) then
     return "kick";
   end

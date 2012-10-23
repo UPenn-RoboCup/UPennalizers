@@ -5,7 +5,7 @@ require('Body')
 t0 = 0;
 
 -- scan period
-tscan = 5.0;
+tscan = 10.0;
 timeout = 2*tscan;
 
 pitch0 = 0.24;
@@ -35,7 +35,7 @@ function update()
 
   -- update head position
   -- continuously scanning left-right and up-down
-  local ph = 2*math.pi*(t-t0)/tscan;
+  local ph = math.pi*(t-t0)/tscan;
 
   local yaw = yawMag*direction*math.sin(ph);
   local pitch = pitch0 + pitchMag*math.cos(ph);

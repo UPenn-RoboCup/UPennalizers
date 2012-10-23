@@ -26,11 +26,13 @@ sm:set_transition(gameReady, "initial", gameInitial);
 sm:set_transition(gameReady, "set", gameSet);
 sm:set_transition(gameReady, "playing", gamePlaying);
 sm:set_transition(gameReady, "finished", gameFinished);
+sm:set_transition(gameReady, "penalized", gamePenalized);
 
 sm:set_transition(gameSet, "initial", gameInitial);
 sm:set_transition(gameSet, "ready", gameReady);
 sm:set_transition(gameSet, "playing", gamePlaying);
 sm:set_transition(gameSet, "finished", gameFinished);
+sm:set_transition(gameSet, "penalized", gamePenalized);
 
 sm:set_transition(gamePlaying, "initial", gameInitial);
 sm:set_transition(gamePlaying, "ready", gameReady);

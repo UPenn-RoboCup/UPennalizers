@@ -14,6 +14,12 @@
 *.o
 *.so
 *.dylib
+*.hex
+*.bin
+*.elf
+*.d
+*.signature
+WebotsProj/controllers/ballGPS/ballGPS
 
 # generic log files
 *.log
@@ -21,13 +27,48 @@
 # Player copy of the compiled libraries
 Player/Lib/*
 
+#player.lua link in Player
+Player/player.lua
+Player/Player
+
 # Config link file
 Config.lua
 
 # auto-generated webots controller wrapper
+WebotsController/
 WebotsController/controller_wrap.c
+
+#controller links
+WebotsProj/controllers/nao_soccer_supervisor/
+WebotsProj/controllers/nsl_soccer_supervisor/
 
 # Temp and Swap files
 *~
 *.swp
 .DS_Store
+
+# Build file with CMAKE
+build
+
+# Webot World File temp
+*.project
+
+# svn 
+.svn
+
+# for files in nao bu default
+.bash_history
+.bash_profile
+.gitconfig
+.config/
+.ssh/
+.vim/
+.viminfo
+naoqi/
+remotes/
+
+# ball logs
+Player/Data/*.txt
+
+# screen log
+*screenlog*

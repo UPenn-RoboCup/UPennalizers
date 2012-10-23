@@ -2,18 +2,18 @@ module(... or "", package.seeall)
 
 -- this module is used to facilitate interactive debuging
 
-cwd = os.getenv('PWD');
-computer = os.getenv('COMPUTER') or "";
-if (string.find(computer, "Darwin")) then
-   -- MacOS X uses .dylib:
-   package.cpath = cwd.."/Lib/?.dylib;"..package.cpath;
-else
-   package.cpath = cwd.."/Lib/?.so;"..package.cpath;
-end
+cwd = '.';
+
+uname = io.popen('uname -s')
+system = uname:read();
+
+computer = os.getenv('COMPUTER') or system;
+package.cpath = cwd.."/Lib/?.so;"..package.cpath;
 
 package.path = cwd.."/Util/?.lua;"..package.path;
 package.path = cwd.."/Config/?.lua;"..package.path;
 package.path = cwd.."/Lib/?.lua;"..package.path;
+package.path = cwd.."/Lib/Util/?.lua;"..package.path;
 package.path = cwd.."/Dev/?.lua;"..package.path;
 package.path = cwd.."/Motion/?.lua;"..package.path;
 package.path = cwd.."/Motion/keyframes/?.lua;"..package.path;

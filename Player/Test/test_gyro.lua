@@ -45,7 +45,7 @@ require('kick')
 require('Speak')
 --require('World')
 --require('Team')
-require('battery')
+--require('battery')
 Vision = require 'vcm' -- Steve
 Speak.talk("Starting test gyro.")
 
@@ -66,8 +66,9 @@ Body.set_head_hardness({0.4,0.4});
 
 Motion.fall_check=0; --auto getup disabled
 
+instructions = " Key commands \n 7:sit down 8:stand up 9:walk\n i/j/l/,/h/; :control walk velocity\n k : walk in place\n [, ', / :Reverse x, y, / directions\n 1/2/3/4 :kick\n w/a/s/d/x :control head\n y/u/o/p :alter alpha\t q/e/r/t :alter gain\t c/v/b/n :alter deadband\t Letter to decrease, Shift+letter to increase"
 -- main loop
-print(" Key commands \n 7:sit down 8:stand up 9:walk\n i/j/l/,/h/; :control walk velocity\n k : walk in place\n [, ', / :Reverse x, y, / directions\n 1/2/3/4 :kick\n w/a/s/d/x :control head\n y/u/o/p :alter alpha\t q/e/r/t :alter gain\t c/v/b/n :alter deadband\t Letter to decrease, Shift+letter to increase");
+print(instructions);
 local tUpdate = unix.time();
 local count=0;
 local countInterval=1000;
@@ -180,7 +181,7 @@ function update()
 --]]
   Motion.update();
   Body.set_head_hardness(0.2);
-  battery.monitor();
+  --battery.monitor();
  -- Body.set_head_command({0,0*math.pi/180});
 
   local str=getch.get();
@@ -219,19 +220,13 @@ function update()
 		elseif byte==string.byte("x") then	
 			headangle[2]=headangle[2]+5*math.pi/180;
 		
-
+    elseif byte==string.byte("`") then
+      print(instructions);
+      
 		elseif byte==string.byte("1") then	
-			kick.set_kick("kickForwardLeft");
-			Motion.event("kick");
+			walk.doWalkKickLeft();
 		elseif byte==string.byte("2") then	
-			kick.set_kick("kickForwardRight");
-			Motion.event("kick");
-		elseif byte==string.byte("3") then	
-			kick.set_kick("kickSideLeft");
-			Motion.event("kick");
-		elseif byte==string.byte("4") then	
-			kick.set_kick("kickSideRight");
-			Motion.event("kick");
+			walk.doWalkKickRight();
 
 		elseif byte==string.byte("7") then	Motion.event("sit");
 		elseif byte==string.byte("8") then	

@@ -7,6 +7,7 @@ require('os')
 platform = {};
 platform.name = 'WebotsNao'
 
+
 function loadconfig(configName)
   local localConfig=require(configName);
   for k,v in pairs(localConfig) do
@@ -14,26 +15,34 @@ function loadconfig(configName)
   end
 end
 
-loadconfig('Config_Nao_World')
-loadconfig('Config_WebotsNao_Walk')
-loadconfig('Config_WebotsNao_Kick')
-loadconfig('Config_WebotsNao_Vision')
+listen_monitor = 1
+
+webots = 1
+param = {}
+param.world = 'World/Config_Nao_World'
+param.walk = 'Walk/Config_WebotsNao_Walk' 
+param.kick = 'Kick/Config_WebotsNao_Kick'
+param.vision = 'Vision/Config_WebotsNao_Vision'
+param.camera = 'Vision/Config_WebotsNao_Camera'
+param.fsm = 'FSM/Config_WebotsNao_FSM'
+
+loadconfig(param.world)
+loadconfig(param.walk)
+loadconfig(param.kick)
+loadconfig(param.vision)
 
 --Location Specific Camera Parameters--
-loadconfig('Config_WebotsNao_Camera')
+loadconfig(param.camera)
 
 -- Device Interface Libraries
 dev = {};
 dev.body = 'NaoWebotsBody'; 
 dev.camera = 'NaoWebotsCam';
 dev.kinematics = 'NaoWebotsKinematics';
-dev.comm = 'WebotsNaoComm';
-dev.monitor_comm = 'NaoMonitorComm';
-dev.game_control = 'WebotsNaoGameControl';
---dev.walk = 'NaoWalk';
---dev.kick = 'NaoKick';
-dev.walk = 'NewWalk';
-dev.kick = 'NewKick';
+dev.game_control='WebotsGameControl';
+dev.team= 'TeamSPL';
+dev.kick = 'BasicKick';
+dev.walk = 'Walk/NaoV4Walk';
 
 -- Game Parameters
 
@@ -42,31 +51,30 @@ game.teamNumber = (os.getenv('TEAM_ID') or 0) + 0;
 -- webots player ids begin at 0 but we use 1 as the first id
 game.playerID = (os.getenv('PLAYER_ID') or 0) + 1;
 game.robotID = game.playerID;
-game.teamColor = 1;
+game.role = game.playerID-1; -- default role, 0 for goalie 
 game.nPlayers = 4;
 
+--To handle non-gamecontroller-based team handling for webots
+if game.teamNumber==0 then game.teamColor = 0; --Blue team
+else game.teamColor = 1; --Red team
+end
 
--- FSM Parameters
-
-fsm = {};
+fsm={}
+loadconfig(param.fsm)
 fsm.game = 'RoboCup';
 if (game.playerID == 1) then
   fsm.body = {'NaoGoalie'};
   fsm.head = {'NaoGoalie'};
 else
-  fsm.body = {'NaoPlayer'};
+  fsm.body = {'NaoKickLogic'};
   fsm.head = {'NaoPlayer'};
 end
 
---fsm.body = {'OpPlayerNSL'};
-
 -- Team Parameters
-
 team = {};
 team.msgTimeout = 5.0;
 team.nonAttackerPenalty = 6.0; -- eta sec
 team.nonDefenderPenalty = 0.5; -- dist from goal
-
 
 --Head Parameters
 
@@ -93,22 +101,20 @@ km.standup_front = 'km_WebotsNao_StandupFromFront.lua';
 km.standup_back = 'km_WebotsNao_StandupFromBack.lua';
 
 
--- sitting parameters
+km.standup_front = 'km_WebotsNao_StandupFromFront.lua';
+km.standup_back = 'km_WebotsNao_StandupFromBack.lua';
+km.time_to_stand = 30; -- average time it takes to stand up in seconds
 
-sit = {};
-sit.bodyHeight = 0.225;
-sit.supportX = 0;
-sit.dpLimit = vector.new({.1,.01,.03,.1,.3,.1});
 
--- standing parameters
 
-stance = {};
-stance.dpLimit = vector.new({.04, .03, .04, .05, .4, .1});
+--Sit/stand stance parameters
+stance={};
+stance.bodyHeightSit = 0.225;
+stance.supportXSit = 0;
+stance.dpLimitSit=vector.new({.1,.01,.03,.1,.3,.1});
+stance.bodyHeightDive= 0.25;
+stance.bodyTiltStance=0*math.pi/180; --bodyInitial bodyTilt, 0 for webots
+stance.dpLimitStance = vector.new({.04, .03, .04, .05, .4, .1});
 stance.delay = 80; --amount of time to stand still after standing to regain balance.
 
--- enable obstacle detection
-BodyFSM = {}
-BodyFSM.enable_obstacle_detection = 1;
-
---Skip all checks in vision for 160*120 image 
-webots_vision = 1; 
+world.enable_sound_localization = 0;

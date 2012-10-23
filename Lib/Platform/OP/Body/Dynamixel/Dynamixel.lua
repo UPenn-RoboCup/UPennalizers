@@ -256,6 +256,19 @@ function read_data(id, addr, len, twait)
    end
 end
 
+function bulk_read_data(id_cm730, ids, addr, len, twait)
+   twait = twait or 0.100;
+   len  = len or 2;
+   local inst = DynamixelPacket.bulk_read_data(
+	id_cm730,string.char(unpack(ids)), addr, len, #ids);
+   unix.read(fd); -- clear old status packets
+   unix.write(fd, inst)
+   local status = get_status(twait);
+   if (status) then
+      return status.parameter;
+   end
+end
+
 function sync_write_byte(ids, addr, data)
    local nid = #ids;
    local len = 1;

@@ -1,1 +1,0 @@
-/usr/include/luaconf.h

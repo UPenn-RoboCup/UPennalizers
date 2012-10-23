@@ -1,0 +1,382 @@
+module(..., package.seeall);
+
+require('vector')
+require('kinematics')
+require('Body')
+require('shm');
+require('util')
+
+-- walk parameters
+active = false;
+stopRequest = false;
+
+tDelta = Body.tDelta;
+--tStep = 0.4185;
+tStep = 0.5185;
+tZmp = 0.17;
+tSensorDelay = 0.035;
+t0 = 0;
+iStep0 = -1;
+iStep = 0;
+supportLeg = 0;
+
+bodyHeight = 0.31;
+stepHeight = 0.016;
+footY = 0.0475;
+supportX = 0.015;
+supportY = 0.0;
+hipRollCompensation = 3*math.pi/180;
+
+--[[ TODO: fix webots check in walk
+if (Body.host == "webots") then
+  -- Webots parameters
+  supportY = 0.030;
+  hipRollCompensation = 0;
+  tSensorDelay = 0.10;
+end
+--]]
+
+--Single support phases
+ph1Single = 0.16;
+ph2Single = 0.84;
+
+--ZMP shift phases
+ph1Zmp = ph1Single;
+ph2Zmp = ph2Single;
+
+uTorso = vector.new({supportX, 0, 0});
+uLeft = vector.new({0, footY, 0});
+uRight = vector.new({0, -footY, 0});
+
+pLLeg = vector.new({0, footY, 0, 0,0,0});
+pRLeg = vector.new({0, -footY, 0, 0,0,0});
+pTorso = vector.new({supportX, 0, bodyHeight, 0,0,0});
+
+velCurrent = vector.new({0, 0, 0});
+
+uTorsoShift = vector.new({0, 0, 0});
+aShiftFilterX = 1 - math.exp(-tDelta/0.2);
+aShiftFilterY = 1 - math.exp(-tDelta/0.4);
+torsoSensorGainX = 0.5;
+torsoSensorGainY = 0.5;
+torsoImuGainX = 0.0;
+torsoImuGainY = 0.0;
+
+--ZMP exponential coefficients:
+aXP = 0;
+aXN = 0;
+aYP = 0;
+aYN = 0;
+
+function zmp_solve(zs, z1, z2, x1, x2)
+--[[
+  Solves ZMP equation:
+  x(t) = z(t) + aP*exp(t/tZmp) + aN*exp(-t/tZmp) - tZmp*mi*sinh((t-Ti)/tZmp)
+  where the ZMP point is piecewise linear:
+  z(0) = z1, z(T1 < t < T2) = zs, z(tStep) = z2
+--]]
+  local T1 = tStep*ph1Zmp;
+  local T2 = tStep*ph2Zmp;
+  local m1 = (zs-z1)/T1;
+  local m2 = -(zs-z2)/(tStep-T2);
+
+  local c1 = x1-z1+tZmp*m1*math.sinh(-T1/tZmp);
+  local c2 = x2-z2+tZmp*m2*math.sinh((tStep-T2)/tZmp);
+  local expTStep = math.exp(tStep/tZmp);
+  local aP = (c2 - c1/expTStep)/(expTStep-1/expTStep);
+  local aN = (c1*expTStep - c2)/(expTStep-1/expTStep);
+  return aP, aN;
+end
+
+function zmp_com(ph)
+  local com = vector.new({0, 0, 0});
+  expT = math.exp(tStep*ph/tZmp);
+  com[1] = uSupport[1] + aXP*expT + aXN/expT;
+  com[2] = uSupport[2] + aYP*expT + aYN/expT;
+  if (ph < ph1Zmp) then
+    com[1] = com[1] + m1X*tStep*(ph-ph1Zmp)
+      -tZmp*m1X*math.sinh(tStep*(ph-ph1Zmp)/tZmp);
+    com[2] = com[2] + m1Y*tStep*(ph-ph1Zmp)
+      -tZmp*m1Y*math.sinh(tStep*(ph-ph1Zmp)/tZmp);
+  elseif (ph > ph2Zmp) then
+    com[1] = com[1] + m2X*tStep*(ph-ph2Zmp)
+      -tZmp*m2X*math.sinh(tStep*(ph-ph2Zmp)/tZmp);
+    com[2] = com[2] + m2Y*tStep*(ph-ph2Zmp)
+      -tZmp*m2Y*math.sinh(tStep*(ph-ph2Zmp)/tZmp);
+  end
+  com[3] = .5*(uLeft[3] + uRight[3]);
+  return com;
+end
+
+function foot_phase(ph)
+  -- Computes relative x,z motion of foot during single support phase
+  -- phSingle = 0: x=0, z=0, phSingle = 1: x=1,z=0
+  phSingle = math.min(math.max(ph-ph1Single, 0)/(ph2Single-ph1Single),1);
+  local phSingleSkew = phSingle^0.8 - 0.17*phSingle*(1-phSingle);
+  local xf = .5*(1-math.cos(math.pi*phSingleSkew));
+  local zf = .5*(1-math.cos(2*math.pi*phSingleSkew));
+  return xf, zf;
+end
+
+function entry()
+   local qSensor = Body.get_sensor_position();
+   local dpLeft = kinematics.lleg_torso(vector.slice(qSensor,7,12));
+   local dpRight = kinematics.rleg_torso(vector.slice(qSensor,13,18));
+   uLeft = pose_global({dpLeft[1], dpLeft[2], dpLeft[6]}, uTorso);
+   uLeft1 = uLeft;
+   uLeft2 = uLeft;
+   uRight = pose_global({dpRight[1], dpRight[2], dpRight[6]}, uTorso);
+   uRight1 = uRight;
+   uRight2 = uRight;
+   uTorso1 = uTorso;
+   uTorso2 = uTorso;
+
+   pLLeg = vector.new{uLeft[1], uLeft[2], 0, 0, 0, uLeft[3]};
+   pRLeg = vector.new{uRight[1], uRight[2], 0, 0, 0, uRight[3]};
+   pTorso = vector.new{uTorso[1], uTorso[2], bodyHeight, 0, 0, uTorso[3]};
+   
+   local q = kinematics.inverse_legs(pLLeg, pRLeg, pTorso, 0);
+   Body.set_actuator_command(q, 7);
+   -- Left arm
+   Body.set_actuator_command(
+      math.pi/180*vector.new({105, 12, -85, -30}), 3);
+   -- Right arm
+   Body.set_actuator_command(
+      math.pi/180*vector.new({105, -12, 85, 30}), 19);
+
+   --active = true;
+   iStep0 = -1;
+   t0 = Body.get_time();
+end
+
+function update()
+  if (not active) then return end
+
+  t = Body.get_time();
+  iStep, ph = math.modf((t-t0)/tStep);
+  if (iStep > iStep0) then
+    -- New step
+    iStep0 = iStep;
+    supportLeg = iStep % 2; -- 0 for left support, 1 for right support
+
+    if (stopRequest) then
+			if(double_support()) then
+       stopRequest = false;
+       active = false;
+			 return;
+			end
+    end
+
+    uLeft1 = uLeft2;
+    uRight1 = uRight2;
+    uTorso1 = uTorso2;
+
+    if supportLeg == 0 then
+      -- Left support
+      uRight2 = step_right_destination(velCurrent, uLeft1, uRight1);
+      uSupport = pose_global({supportX, supportY, 0}, uLeft);
+
+      Body.set_actuator_hardness(.7*vector.ones(6), 7);
+      Body.set_actuator_hardness(.5*vector.ones(6), 13);
+    else
+      -- Right support
+      uLeft2 = step_left_destination(velCurrent, uLeft1, uRight1);
+      uSupport = pose_global({supportX, -supportY, 0}, uRight);
+
+      Body.set_actuator_hardness(.5*vector.ones(6), 7);
+      Body.set_actuator_hardness(.7*vector.ones(6), 13);
+    end
+    uTorso2 = step_torso(uLeft2, uRight2);
+
+    --Compute ZMP coefficients
+    m1X = (uSupport[1]-uTorso1[1])/(tStep*ph1Zmp);
+    m2X = (uTorso2[1]-uSupport[1])/(tStep*(1-ph2Zmp));
+    m1Y = (uSupport[2]-uTorso1[2])/(tStep*ph1Zmp);
+    m2Y = (uTorso2[2]-uSupport[2])/(tStep*(1-ph2Zmp));
+    aXP, aXN = zmp_solve(uSupport[1], uTorso1[1], uTorso2[1],
+      uTorso1[1], uTorso2[1]);
+    aYP, aYN = zmp_solve(uSupport[2], uTorso1[2], uTorso2[2],
+      uTorso1[2], uTorso2[2]);
+  end
+
+  xFoot, zFoot = foot_phase(ph);
+  qLHipRollCompensation = 0;
+  qRHipRollCompensation = 0;
+
+  if supportLeg == 0 then
+  -- Left support
+    uRight = se2_interpolate(xFoot, uRight1, uRight2);
+
+    pLLeg[3] = 0;
+    pRLeg[3] = stepHeight*zFoot;
+
+    if (phSingle > 0) and (phSingle < 1) then
+      qLHipRollCompensation = hipRollCompensation*
+        math.min(1, phSingle/.1, (1-phSingle)/.1);
+    end
+
+    pTorsoSensor = kinematics.torso_lleg(
+                      vector.slice(Body.get_sensor_position(),7,12));
+    pTorsoSensor[2] = pTorsoSensor[2] + .085*pTorsoSensor[4];
+    uTorsoSensor = pose_global(
+                {pTorsoSensor[1], pTorsoSensor[2], pTorsoSensor[6]},
+                uLeft);
+  else
+  -- Right support
+    uLeft = se2_interpolate(xFoot, uLeft1, uLeft2);
+
+    pLLeg[3] = stepHeight*zFoot;
+    pRLeg[3] = 0;
+    
+    if (phSingle > 0) and (phSingle < 1) then
+      qRHipRollCompensation = -hipRollCompensation*
+        math.min(1, phSingle/.1, (1-phSingle)/.1);
+    end
+
+    pTorsoSensor = kinematics.torso_rleg(
+                      vector.slice(Body.get_sensor_position(),13,18));
+    pTorsoSensor[2] = pTorsoSensor[2] + .085*pTorsoSensor[4];
+    uTorsoSensor = pose_global(
+                     {pTorsoSensor[1], pTorsoSensor[2], pTorsoSensor[6]},
+                     uRight);
+  end
+
+  imuAngle = Body.get_sensor_imuAngle();
+  uTheoretic = uTorsoShift + zmp_com(ph - tSensorDelay/tStep);
+  uError = uTorsoSensor - uTheoretic;
+  uTorsoShift[1] = uTorsoShift[1] +
+    aShiftFilterX*(torsoSensorGainX*uError[1] -- + torsoImuGainX*imuAngle[2]
+                   - uTorsoShift[1]);
+  uTorsoShift[2] = uTorsoShift[2] +
+    aShiftFilterY*(torsoSensorGainY*uError[2] -- - torsoImuGainY*imuAngle[1]
+                   - uTorsoShift[2]);
+--  print("feedback:", ph, uError);
+
+  --Exponential low-pass filter torso angle measurements
+--print(string.format("sensorAngle: %.3f: %.3f %.3f", ph, sensorAngleX, sensorAngleY));
+
+  uTorso = zmp_com(ph);
+  uTorso[1] = uTorso[1] + uTorsoShift[1];
+  uTorso[2] = uTorso[2] + uTorsoShift[2];
+
+--print(string.format("phase: %.3f: %.3f", ph, uTorso[2]));
+
+  pLLeg[1], pLLeg[2], pLLeg[6] = uLeft[1], uLeft[2], uLeft[3];
+  pRLeg[1], pRLeg[2], pRLeg[6] = uRight[1], uRight[2], uRight[3];
+  pTorso[1], pTorso[2], pTorso[6] = uTorso[1], uTorso[2], uTorso[3];
+
+  pTorso[4] = -torsoImuGainX*imuAngle[1];
+  pTorso[5] = -torsoImuGainY*imuAngle[2];
+
+--  print("ph:", ph, pTorso[1]-pLLeg[1], pTorso[1]-pRLeg[1]);
+  q = kinematics.inverse_legs(pLLeg, pRLeg, pTorso, supportLeg);
+  
+  q[2] = q[2] + qLHipRollCompensation;
+  q[8] = q[8] + qRHipRollCompensation;
+
+--Broken hip roll simulation
+--  q[2] = q[2] - 4*math.pi/180;
+--  q[4] = q[4] + 5*math.pi/180;
+
+  Body.set_actuator_command(q, 7);
+
+end
+
+function exit()
+end
+
+
+function pose_global(pRelative, pose)
+  local ca = math.cos(pose[3]);
+  local sa = math.sin(pose[3]);
+  return vector.new{pose[1] + ca*pRelative[1] - sa*pRelative[2],
+          pose[2] + sa*pRelative[1] + ca*pRelative[2],
+	  pose[3] + pRelative[3]};
+end
+
+function pose_relative(pGlobal, pose)
+  local ca = math.cos(pose[3]);
+  local sa = math.sin(pose[3]);
+  local px = pGlobal[1]-pose[1];
+  local py = pGlobal[2]-pose[2];
+  local pa = pGlobal[3]-pose[3];
+  return vector.new{ca*px + sa*py, -sa*px + ca*py, mod_angle(pa)};
+end
+
+function se2_interpolate(t, u1, u2)
+  return vector.new{u1[1]+t*(u2[1]-u1[1]),
+          u1[2]+t*(u2[2]-u1[2]),
+          u1[3]+t*mod_angle(u2[3]-u1[3])};
+end
+
+function step_left_destination(vel, uLeft, uRight)
+  local u0 = se2_interpolate(.5, uLeft, uRight);
+  -- Determine nominal midpoint position 1.5 steps in future
+  local u1 = pose_global(vel, u0);
+  local u2 = pose_global(.5*vel, u1);
+  local uLeftPredict = pose_global({0, footY, 0}, u2);
+  local uLeftRight = pose_relative(uLeftPredict, uRight);
+  -- Do not pidgeon toe, cross feet:
+  uLeftRight[1] = math.min(math.max(uLeftRight[1], -0.10), 0.10);
+  uLeftRight[2] = math.min(math.max(uLeftRight[2], 0.09), 0.20);
+  uLeftRight[3] = math.min(math.max(uLeftRight[3], 0), 40*math.pi/180);
+  return pose_global(uLeftRight, uRight);
+end
+
+function step_right_destination(vel, uLeft, uRight)
+  local u0 = se2_interpolate(.5, uLeft, uRight);
+  -- Determine nominal midpoint position 1.5 steps in future
+  local u1 = pose_global(vel, u0);
+  local u2 = pose_global(.5*vel, u1);
+  local uRightPredict = pose_global({0, -footY, 0}, u2);
+  local uRightLeft = pose_relative(uRightPredict, uLeft);
+  -- Do not pidgeon toe, cross feet:
+  uRightLeft[1] = math.min(math.max(uRightLeft[1], -0.10), 0.10);
+  uRightLeft[2] = math.min(math.max(uRightLeft[2], -0.20), -0.09);
+  uRightLeft[3] = math.min(math.max(uRightLeft[3], -40*math.pi/180), 0);
+  return pose_global(uRightLeft, uLeft);
+end
+
+function step_torso(uLeft, uRight)
+  local u0 = se2_interpolate(.5, uLeft, uRight);
+  local uLeftSupport = pose_global({supportX, supportY, 0}, uLeft);
+  local uRightSupport = pose_global({supportX, -supportY, 0}, uRight);
+  return se2_interpolate(.5, uLeftSupport, uRightSupport);
+end
+
+function set_velocity(vx, vy, vz)
+   velCurrent[1] = math.min(math.max(vx, -.05), .05);
+   --velCurrent[2] = math.min(math.max(vy, -.04), .04);
+   --velCurrent[3] = math.min(math.max(vz, -.3), .3);
+   velCurrent[2] = math.min(math.max(vy, -.03), .03);
+   velCurrent[3] = math.min(math.max(vz, -.2), .2);
+end
+
+function double_support()
+	return (ph < .1);
+end
+
+function start()
+  active = true;
+  stopRequest = false;
+end
+
+function stop()
+  stopRequest = true;
+end
+
+function get_odometry(u0)
+  if (not u0) then
+    u0 = vector.new({0, 0, 0});
+  end
+  local uFoot = se2_interpolate(.5, uLeft, uRight);
+  return pose_relative(uFoot, u0), uFoot;
+end
+
+function get_body_offset()
+  local uFoot = se2_interpolate(.5, uLeft, uRight);
+  return pose_relative(uTorso, uFoot);
+end
+
+
+

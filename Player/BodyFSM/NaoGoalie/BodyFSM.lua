@@ -45,6 +45,7 @@ sm:set_transition(bodyApproach, 'ballFar', bodyPosition);
 sm:set_transition(bodyApproach, 'ballLost', bodyPosition);
 sm:set_transition(bodyApproach, 'timeout', bodyPosition);
 sm:set_transition(bodyApproach, 'kick', bodyKick);
+sm:set_transition(bodyApproach, 'ballAlign', bodyOrbit);
 
 sm:set_transition(bodyChase, 'ballClose', bodyOrbit);
 sm:set_transition(bodyChase, 'ballFar', bodyPosition);

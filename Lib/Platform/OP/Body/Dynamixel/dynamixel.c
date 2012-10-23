@@ -126,3 +126,21 @@ DynamixelPacket *dynamixel_instruction_sync_write(uchar address,
   }
   return dynamixel_instruction(id, inst, parameter, nparameter);
 }
+
+
+DynamixelPacket *dynamixel_instruction_bulk_read_data(
+	uchar id_cm730, uchar id[], uchar address, uchar len, uchar n){
+
+  uchar inst = INST_BULK_READ;
+  uchar nparameter = n*3+1;
+  uchar parameter[nparameter];
+  int i;
+  parameter[0] = address;
+  for (i = 0; i < n; i++) {
+    parameter[3*i+1] = len;
+    parameter[3*i+2] = id[i];
+    parameter[3*i+3] = address;
+  }
+
+  return dynamixel_instruction(id_cm730, inst, parameter, nparameter);
+}

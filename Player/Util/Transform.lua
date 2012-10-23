@@ -4,6 +4,21 @@ require('vector');
 
 mt = {};
 
+function inv(a)
+  local t = {};
+  local r = {};
+  local p = {};
+  r[1] = vector.new({a[1][1],a[2][1],a[3][1]});
+  r[2] = vector.new({a[1][2],a[2][2],a[3][2]});
+  r[3] = vector.new({a[1][3],a[2][3],a[3][3]});
+  p = vector.new({a[1][4],a[2][4],a[3][4]});
+  t[1] = vector.new({r[1][1],r[1][2],r[1][3],-(r[1][1]*p[1]+r[1][2]*p[2]+r[1][3]*p[3])});
+  t[2] = vector.new({r[2][1],r[2][2],r[2][3],-(r[2][1]*p[1]+r[2][2]*p[2]+r[2][3]*p[3])});
+  t[3] = vector.new({r[3][1],r[3][2],r[3][3],-(r[3][1]*p[1]+r[3][2]*p[2]+r[3][3]*p[3])});
+  t[4] = vector.new({0,0,0,1});
+  return setmetatable(t,mt);
+end
+
 function eye()
   local t = {};
   t[1] = vector.new({1, 0, 0, 0});

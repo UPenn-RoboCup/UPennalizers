@@ -79,8 +79,8 @@ function update()
   homeRelative = util.pose_relative(home, {pose.x, pose.y, pose.a});
   rhome = math.sqrt(homeRelative[1]^2 + homeRelative[2]^2);
 
-  vx = maxStep * homeRelative[1]/rhome;
-  vy = maxStep * homeRelative[2]/rhome;
+  vx = maxStep * homeRelative[1]/(rhome + 0.1);
+  vy = maxStep * homeRelative[2]/(rhome + 0.1);
   va = .2 * math.atan2(homeRelative[2], homeRelative[1]);
 
   -- close and oriented then stop walking

@@ -1,0 +1,20 @@
+# Makefile used to build libraries
+include ../../../Makefile.inc
+
+TARGETS = all clean
+.PHONY: $(TARGETS)
+
+all: NaoGameControlReceiver
+
+%.o: %.cpp
+	$(CXX) $(CXXFLAGS) $(INCLUDES) -o $@ -c $<
+%.o: %.cc
+	$(CXX) $(CXXFLAGS) $(INCLUDES) -o $@ -c $<
+%.o: %.c
+	$(CC) $(CXXFLAGS) $(INCLUDES) -o $@ -c $<
+
+NaoGameControlReceiver: luaNaoGameControlReceiver.o timeScalar.o
+	$(CXX) -o $@.$(SHLIBEXT) $(LIBOPTS) $^ $(LIBRT)
+
+clean:
+	rm -f *.$(SHLIBEXT) *.o

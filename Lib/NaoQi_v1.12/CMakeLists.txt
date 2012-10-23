@@ -14,19 +14,15 @@
 
 cmake_minimum_required(VERSION 2.6.4 FATAL_ERROR)
 
-find_package(qibuild)
-include(qibuild/compat/compat)
-#use(NAOQI-PLUGINS-TOOLS)
-
-include_directories( /usr/local/include )
-link_directories( /usr/local/lib )
+include_directories( ../Lua/src )
+link_directories( ../Lua/src/build )
 
 # pre 1.12 way
 #create_module(dcmlua)
 # post 1.12
 project(dcmlua)
 
-SET ( dcmlua_SRCS
+add_library ( dcmlua SHARED
     src/dcmprocess.cpp
     src/dcmprocess.h
 
@@ -45,17 +41,18 @@ SET ( dcmlua_SRCS
 # pre 1.12
 #configure_src_module( dcmlua ${dcmlua_SRCS} )
 # post 1.12
-qi_create_lib( dcmlua ${dcmlua_SRCS} SHARED SUBFOLDER naoqi )
+#qi_create_lib( dcmlua ${dcmlua_SRCS} SHARED SUBFOLDER naoqi )
 
 #add_library( lua STATIC IMPORTED )
 #set_property( TARGET lua PROPERTY IMPORTED_LOCATION /usr/local/lib/liblua.a )
-target_link_libraries( dcmlua lua )
+#target_link_libraries( dcmlua lua )
 target_link_libraries( dcmlua almemoryfastaccess )
 
+set_target_properties(dcmlua PROPERTIES PREFIX "")
 # pre 1.12
 #use_lib( dcmlua ALCOMMON )
 # post 1.12
-qi_use_lib( dcmlua ALCOMMON )
+#qi_use_lib( dcmlua ALCOMMON )
 # TODO: might need this:
 #qi_use_lib( dcmlua ALMEMORYFASTACCESS )
 

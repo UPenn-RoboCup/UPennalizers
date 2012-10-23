@@ -23,7 +23,7 @@ function entry()
   attackClosest = math.abs(attackAngle) < math.abs(defendAngle);
 
   -- only use top camera
-  vcm.set_camera_command(0);
+  vcm.set_camera_command(-1);
 end
 
 function update()

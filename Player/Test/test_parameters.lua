@@ -44,7 +44,7 @@ require('kick')
 require('Speak')
 --require('World')
 --require('Team')
-require('battery')
+--require('battery')
 Vision = require 'vcm' -- Steve
 Speak.talk("Starting test parameters.")
 
@@ -59,6 +59,8 @@ walk.stop();
 getch.enableblock(1);
 targetvel=vector.new({0,0,0});
 headangle=vector.new({0,0});
+
+walkKick=true;
 
 --Adding head movement && vision...--
 Body.set_head_hardness({0.4,0.4});
@@ -131,57 +133,10 @@ function update()
     end
   end
 
-  
-	--[[ 
-  if count<100 then return;
-  elseif count==100 then
-        gyro0={0,0};
-        gyrocount=0;
-	gyroMax={0,0};
-	gyroMin={1E6,1E6};
-	gyroThreshold = 500;
-	Speak.talk("Calibrating gyro")
-	return;
-  elseif count>100 and count<200  then
-	imuGyr = Body.get_sensor_imuGyr();
-   	gyro0[1],gyro0[2]=gyro0[1]+imuGyr[1],gyro0[2]+imuGyr[2];
-   	gyroMax[1],gyroMax[2]=math.max(gyroMax[1],math.abs(imuGyr[1])),
-		math.max(gyroMax[2],math.abs(imuGyr[2]));
-   	gyroMin[1],gyroMin[2]=math.min(gyroMin[1],math.abs(imuGyr[1])),
-		math.min(gyroMin[2],math.abs(imuGyr[2]));
-	gyrocount=gyrocount+1;
-	return;
-  elseif count==200 then
-       print("Gyro max",unpack(gyroMax))
-       print("Gyro min",unpack(gyroMin))
-       gyroMag= (gyroMax[1]-gyroMin[1])^2 + (gyroMax[2]-gyroMin[2])^2;
-       print("Gyro mag",gyroMag);
-       if gyroMag>gyroThreshold then
-           Speak.talk("Gyro recalibrating")
-	   count=99;
-	   return;
-       else	
-	   gyro0[1]=gyro0[1]/gyrocount;
-	   gyro0[2]=gyro0[2]/gyrocount;
-	   print("Calibration done, ",unpack(gyro0));
-	   Speak.talk("Calibration done")
-  	   walk.gyro0=gyro0;
-  	   kick.gyro0=gyro0;
-       end
-  end
-  --]]
-
   t=unix.time();
---[[
-  World.update();
-  if count % 20 == 0 then
-    Team.update();
-  end
---]]
   Motion.update();
   Body.set_head_hardness(0.2);
-  battery.monitor();
- -- Body.set_head_command({0,0*math.pi/180});
+  --battery.monitor();
 
   local str=getch.get();
   if #str>0 then
@@ -246,13 +201,22 @@ function update()
 			Config.walk.bodyHeight = Config.walk.bodyHeight - .001;
 		elseif byte== string.byte('Y') then
 			Config.walk.bodyHeight = Config.walk.bodyHeight + .001;
-		elseif byte==string.byte("1") then	
-			kick.set_kick("kickForwardLeft");
-			Motion.event("kick");
-		elseif byte==string.byte("2") then	
-			kick.set_kick("kickForwardRight");
-			Motion.event("kick");
-			
+    elseif byte==string.byte('\\') then
+      walkKick=not walkKick;
+    elseif byte==string.byte("1") then
+      if walkKick then	
+        walk.doWalkKickLeft();
+      else 
+        kick.set_kick("KickForwardLeft");	
+        Motion.event("kick");
+      end
+    elseif byte==string.byte("2") then
+      if walkKick then
+        walk.doWalkKickRight();
+      else
+        kick.set_kick("kickForwardRight");
+        Motion.event("kick");
+      end
 		--turn assorted stability checks on/off--
 		elseif byte==string.byte("3") then
 		  Config.walk.imuOn = not Config.walk.imuOn;
@@ -261,39 +225,6 @@ function update()
 		elseif byte==string.byte("5") then
 			Config.walk.fsrOn = not Config.walk.fsrOn;
 
---]]
-
----[[
---Ankle Biasing Code--
-		elseif byte==string.byte("_") then	
-			Config.walk.anklePitchComp[1]=
-			Config.walk.anklePitchComp[1]+0.01*math.pi/180;
-			print("Ankle pitch comp:",
-			  Config.walk.anklePitchComp[1]*180/math.pi,
-			  Config.walk.anklePitchComp[2]*180/math.pi);
-
-		elseif byte==string.byte("-") then	
-			Config.walk.anklePitchComp[1]=
-			Config.walk.anklePitchComp[1]-0.01*math.pi/180;
-			print("Ankle pitch comp:",
-			  Config.walk.anklePitchComp[1]*180/math.pi,
-			  Config.walk.anklePitchComp[2]*180/math.pi);
-
-		elseif byte==string.byte("+") then	
-			Config.walk.anklePitchComp[2]=
-			Config.walk.anklePitchComp[2]+0.01*math.pi/180;
-			print("Ankle pitch comp:",
-			  Config.walk.anklePitchComp[1]*180/math.pi,
-			  Config.walk.anklePitchComp[2]*180/math.pi);
-
-		elseif byte==string.byte("=") then	
-			Config.walk.anklePitchComp[2]=
-			Config.walk.anklePitchComp[2]-0.01*math.pi/180;
-			print("Ankle pitch comp:",
-			  Config.walk.anklePitchComp[1]*180/math.pi,
-			  Config.walk.anklePitchComp[2]*180/math.pi);
-
---]]
 		elseif byte==string.byte("7") then	Motion.event("sit");
 		elseif byte==string.byte("8") then	
 			walk.stop();
@@ -309,13 +240,10 @@ function update()
 		print(string.format("Head angle: %d, %d",
 			headangle[1]*180/math.pi,
 			headangle[2]*180/math.pi));
-		print(string.format("Walk settings:\n tStep: %.2f\t phSingle: {%.2f, %.2f}\t stepHeight: %.3f\n supportX: %.3f\t supportY: %.3f\t Ankle Pitch (rad): {%.2f, %.2f}", Config.walk.tStep, Config.walk.phSingle[1], Config.walk.phSingle[2], Config.walk.stepHeight, 
-Config.walk.supportX, Config.walk.supportY, Config.walk.anklePitchComp[1]*180/math.pi, Config.walk.anklePitchComp[2]*180/math.pi));
-    print(string.format("Foot sensor threshold: %.3f\t Delay length multiplier: %.2f", Config.walk.fsr_threshold, Config.walk.tDelayBalance));  
-    print("IMU feedback is on: ",Config.walk.imuOn,"\nJoint encoder feedback is on: ",Config.walk.jointFeedbackOn,"\nFoot sensor feedback is on: ",Config.walk.fsrOn);  		
+		print(string.format("Walk settings:\n tStep: %.2f\t phSingle: {%.2f, %.2f}\t stepHeight: %.3f\n supportX: %.3f\t supportY: %.3f\t", Config.walk.tStep, Config.walk.phSingle[1], Config.walk.phSingle[2], Config.walk.stepHeight, 
+Config.walk.supportX, Config.walk.supportY));
  
 
-  end
-
+end
 end
 

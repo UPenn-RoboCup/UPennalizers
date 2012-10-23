@@ -11,7 +11,7 @@ timeout = 30.0;
 
 maxStep = 0.06;
 
-rOrbit = 0.27;
+rOrbit = 0.25;--.27
 
 rFar = 0.45;
 
@@ -55,7 +55,7 @@ function update()
   vx = 0;
   
   vy = maxStep*math.sin(aStep);
-  va = 0.75*ballA;
+  va = 0.6*ballA;
 
   walk.set_velocity(vx, vy, va);
 
@@ -69,6 +69,7 @@ function update()
     return 'ballFar';
   end
   if (math.abs(attackBearing) < thAlign) then
+    print(math.abs(attackBearing));
     return 'done';
   end
   

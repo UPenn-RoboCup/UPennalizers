@@ -5,7 +5,7 @@ require('Body')
 t0 = 0;
 
 -- scan period
-tscan = 5.0;
+tscan = Config.fsm.headScan.tScan;
 timeout = 2*tscan;
 
 pitch0 = 0.24;

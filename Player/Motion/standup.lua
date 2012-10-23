@@ -5,6 +5,7 @@ require('keyframe')
 require('unix')
 require('Config');
 require('walk');
+require('wcm')
 
 local cwd = unix.getcwd();
 if string.find(cwd, "WebotsController") then
@@ -16,6 +17,13 @@ keyframe.load_motion_file(cwd.."/"..Config.km.standup_front,
                           "standupFromFront");
 keyframe.load_motion_file(cwd.."/"..Config.km.standup_back,
                           "standupFromBack");
+if (Config.platform.name == 'OP') then
+  keyframe.load_motion_file(cwd.."/"..Config.km.standup_back2,
+                          "standupFromBack2");
+end
+
+use_rollback_getup = Config.use_rollback_getup or 0;
+batt_max = Config.batt_max or 10;
 
 function entry()
   print(_NAME.." entry");
@@ -28,8 +36,19 @@ function entry()
     print("standupFromFront");
     keyframe.do_motion("standupFromFront");
   else
-    print("standupFromBack");
-    keyframe.do_motion("standupFromBack");
+    pose = wcm.get_pose();
+    batt_level=Body.get_battery_level();
+
+    if math.abs(pose.x) < 2.0 and
+       use_rollback_getup > 0 and
+       batt_level*10>batt_max then
+
+      print("standupFromBack");
+      keyframe.do_motion("standupFromBack2");
+    else
+      print("standupFromBack");
+      keyframe.do_motion("standupFromBack");
+    end
   end
 end
 

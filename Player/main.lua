@@ -10,7 +10,8 @@ end
 local computer = os.getenv('COMPUTER') or '';
 if (string.find(computer, 'Darwin')) then
   -- MacOS X uses .dylib:
-  package.cpath = cwd .. '/Lib/?.dylib;' .. package.cpath;
+--  package.cpath = cwd .. '/Lib/?.dylib;' .. package.cpath;
+  package.cpath = cwd .. '/Lib/?.so;' .. package.cpath;
 else
   package.cpath = cwd .. '/Lib/?.so;' .. package.cpath;
 end
@@ -22,6 +23,7 @@ package.path = cwd .. '/Lib/?.lua;' .. package.path;
 package.path = cwd .. '/Dev/?.lua;' .. package.path;
 package.path = cwd .. '/Motion/?.lua;' .. package.path;
 package.path = cwd .. '/Motion/keyframes/?.lua;' .. package.path;
+package.path = cwd .. '/Motion/Walk/?.lua;' .. package.path;
 package.path = cwd .. '/Vision/?.lua;' .. package.path;
 package.path = cwd .. '/World/?.lua;' .. package.path;
 
@@ -38,15 +40,23 @@ require('getch')
 require('Body')
 require('Motion')
 
+gcm.say_id();
+
 Motion.entry();
 
 darwin = false;
 webots = false;
 
-
 -- Enable OP specific 
 if(Config.platform.name == 'OP') then
   darwin = true;
+  --SJ: OP specific initialization posing (to prevent twisting)
+  Body.set_body_hardness(0.3);
+  Body.set_actuator_command(Config.stance.initangle)
+  unix.usleep(1E6*0.5);
+  Body.set_body_hardness(0);
+  Body.set_lleg_hardness({0.2,0.6,0,0,0,0});
+  Body.set_rleg_hardness({0.2,0.6,0,0,0,0});
 end
 
 -- Enable Webots specific
@@ -61,10 +71,8 @@ if( webots or darwin) then
   ready = true;
 end
 
-
 smindex = 0;
 initToggle = true;
-
 
 -- main loop
 count = 0;
@@ -73,6 +81,9 @@ tUpdate = unix.time();
 
 function update()
   count = count + 1;
+  --Update battery info
+  wcm.set_robot_battery_level(Body.get_battery_level());
+  vcm.set_camera_teambroadcast(1); --Turn on wireless team broadcast
 
   if (not init)  then
     if (calibrating) then
@@ -81,7 +92,6 @@ function update()
         calibrating = false;
         ready = true;
       end
-      
     elseif (ready) then
       -- initialize state machines
       package.path = cwd..'/BodyFSM/'..Config.fsm.body[smindex+1]..'/?.lua;'..package.path;
@@ -94,7 +104,7 @@ function update()
       BodyFSM.entry();
       HeadFSM.entry();
       GameFSM.entry();
-      
+
       if( webots ) then
         --BodyFSM.sm:add_event('button');
         GameFSM.sm:set_state('gamePlaying');
@@ -103,7 +113,8 @@ function update()
       init = true;
     else
       if (count % 20 == 0) then
-        if (Body.get_change_state() == 1) then
+--      if (Body.get_change_state() == 1) then
+	  if true then
           Speak.talk('Calibrating');
           calibrating = true;
         elseif (Body.get_change_role() == 1) then
@@ -127,7 +138,6 @@ function update()
     GameFSM.update();
     BodyFSM.update();
     HeadFSM.update();
-
     Motion.update();
     Body.update();
   end
