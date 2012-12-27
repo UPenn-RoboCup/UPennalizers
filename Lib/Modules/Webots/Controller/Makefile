@@ -28,4 +28,4 @@ controller: controller_wrap.o
 	$(LD) -o $@.$(SHLIBEXT) $(LIBOPTS) $^ -L$(WEBOTS_LIB_DIR) -lController 
 
 clean:
-	rm -f controller.$(SHLIBEXT) *.o *.so
+	rm -f controller.$(SHLIBEXT) *.o *.so controller_wrap.c

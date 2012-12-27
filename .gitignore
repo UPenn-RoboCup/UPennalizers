@@ -52,7 +52,7 @@ build
 
 # Webot World File temp
 *.project
-
+*.wbproj
 # svn 
 .svn
 

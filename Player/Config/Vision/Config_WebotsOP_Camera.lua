@@ -4,10 +4,10 @@ module(..., package.seeall);
 camera = {};
 camera.ncamera = 1;
 camera.switchFreq = 0; --unused for OP
---camera.width = 320; 
---camera.height = 240;
-camera.width = 160; 
-camera.height = 120;
+camera.width = 320; 
+camera.height = 240;
+--camera.width = 160; 
+--camera.height = 120;
 
 camera.x_center = camera.width/2;
 camera.y_center = camera.height/2;

@@ -8,5 +8,5 @@ teamID = os.getenv('TEAM_ID') + 0;
 
 --Default
 print("\nStarting Webots Lua controller...");
---dofile("Player/Test/test_main_webots.lua");
-dofile("Player/main.lua");
+dofile("Player/Test/test_main_webots.lua");
+--dofile("Player/main.lua");
