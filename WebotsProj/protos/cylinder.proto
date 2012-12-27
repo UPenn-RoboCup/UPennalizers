@@ -1,0 +1,34 @@
+PROTO cylinder [
+  field SFVec3f translation 0 0 0
+  field SFColor obstColor 0 0 0 
+  field SFBool bottom TRUE
+  field SFFloat height 0.6     # (-inf,inf)
+  field SFFloat radius 0.1     # (-inf,inf)
+  field SFBool side TRUE
+  field SFBool top TRUE
+  field SFBool locked FALSE
+]
+{
+  Solid {
+    translation IS translation
+	name "obstacle"
+    children [
+      DEF CYLINDER_SHAPE Shape {
+        appearance Appearance {
+          material Material {
+            diffuseColor IS obstColor
+          }
+        }
+        geometry Cylinder {
+          height IS height
+          radius IS radius
+		  bottom IS bottom
+		  top IS top
+		  side IS side
+        }
+      }
+    ]
+	boundingObject USE CYLINDER_SHAPE
+    locked IS locked
+  }
+}

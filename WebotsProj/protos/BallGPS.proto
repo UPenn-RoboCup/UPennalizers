@@ -1,0 +1,62 @@
+# The Ball's size, mass and color correspond to the soccer ball used in the Robocup SPL
+# You can change the centerOfMass to [0 0 0] to avoid the random rolling effect
+# Author: Yvan Bourquin - www.cyberbotics.com
+# May 12, 2011: Added damping
+
+PROTO BallGPS [
+  field SFVec3f translation 0 0.0325 0
+  field SFRotation rotation 0 1 0 0
+  field SFColor color 1.0 0.54 0.08
+  field SFFloat radius 0.0325
+  field SFFloat mass 0.055
+  field SFVec3f centerOfMass 0 -0.0001 0
+  field SFFloat linearDamping 0.17
+  field SFFloat angularDamping 0.33
+  field SFString contactMaterial "default"
+  field SFString controller "ballGPS"
+  field SFString controllerArgs ""
+  field SFInt32  channel 0
+]
+{
+  Robot {
+    translation IS translation
+    rotation IS rotation
+    controller IS controller
+    controllerArgs IS controllerArgs
+    name "ballGPS"
+    children [
+      GPS {
+        name "GPS"
+      }
+      DEF EMITTER Emitter {
+        name "emitter"
+        channel IS channel
+      }
+      DEF BALL_SHAPE Shape {
+        appearance Appearance {
+          material Material {
+            ambientIntensity 0.4
+            diffuseColor IS color
+            shininess 0.8
+            specularColor 1 1 1
+          }
+        }
+        geometry Sphere {
+          radius IS radius
+          subdivision 2
+        }
+      }
+    ]
+    contactMaterial IS contactMaterial
+    boundingObject USE BALL_SHAPE
+    physics Physics {
+      density -1
+      mass IS mass
+      centerOfMass IS centerOfMass
+      damping Damping {
+        linear IS linearDamping
+        angular IS angularDamping
+      }
+    }
+  }
+}

@@ -1,0 +1,67 @@
+# The Goal proto correspond to the goals used in the Robocup 2008
+# Standard Platform League, Nao division.
+# The color of the goal and the support polygons can be modified.
+#
+# Author: 15 FEB 2008: Çetin Meriçli <cetin.mericli@boun.edu.tr>
+# on behalf of SPL TC and OC <spl_tech@tzi.de>,<spl_orga@tzi.de>
+# Modified: 12 JUNE 2008: added a bounding object for the net
+# Modified: 29 OCTOBER 2009: Reviewed by Yvan Bourquin - www.cyberbotics.com
+#  -merged various IndexFaceSet for better performance
+#  -fixed unwanted black color in support triangles
+# Modified: 22 APRIL 2010: by Yvan Bourquin - www.cyberbotics.com
+#  -modified to hold net 350 mm back from posts (according to SPL 2010 specs)
+#  -removed unused Shapes/Materials in boundingObject
+
+PROTO Obstacle [
+  field SFVec3f translation 0 0 0
+  field SFRotation rotation 0 1 0 0
+  field SFFloat postRadius 0.10
+  field SFColor postColor1 0 0 0 
+  field SFBool locked TRUE
+]
+{
+Solid {
+  translation IS translation
+  rotation IS rotation
+  children [
+    DEF LOW_POST_TRANS Transform {
+      translation 0 0.45 0
+      children [
+        Shape {
+          appearance DEF POST_APP1 Appearance {
+            material Material {
+              diffuseColor IS postColor1
+              specularColor IS postColor1
+            }
+          }
+          geometry Cylinder {
+            bottom FALSE
+            height 0.90
+            radius IS postRadius
+          }
+        }
+      ]
+    }
+   ]
+   boundingObject Group {
+    children [
+      USE LOW_POST_TRANS
+      Transform {
+        translation 0 0.45 0
+        children [
+          DEF POLE1 Box {
+            size 0.10 0.90 0.10
+          }
+        ]
+      }
+    ]
+  }
+
+  physics Physics {
+  density -1
+  mass 5.0
+  }
+
+  locked IS locked
+}
+}

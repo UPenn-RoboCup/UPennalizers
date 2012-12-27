@@ -1,0 +1,140 @@
+# The Goal proto correspond to the goals used in the Robocup 2008
+# Standard Platform League, Nao division.
+# The color of the goal and the support polygons can be modified.
+#
+# Author: 15 FEB 2008: Çetin Meriçli <cetin.mericli@boun.edu.tr>
+# on behalf of SPL TC and OC <spl_tech@tzi.de>,<spl_orga@tzi.de>
+# Modified: 12 JUNE 2008: added a bounding object for the net
+# Modified: 29 OCTOBER 2009: Reviewed by Yvan Bourquin - www.cyberbotics.com
+#  -merged various IndexFaceSet for better performance
+#  -fixed unwanted black color in support triangles
+# Modified: 22 APRIL 2010: by Yvan Bourquin - www.cyberbotics.com
+#  -modified to hold net 350 mm back from posts (according to SPL 2010 specs)
+#  -removed unused Shapes/Materials in boundingObject
+#
+#  NSL goal: 80 by 150 (inner size)
+#
+#
+
+
+PROTO KidGoal [
+  field SFVec3f translation 0 0 0
+  field SFRotation rotation 0 1 0 0
+  field SFFloat postRadius 0.05
+  field SFColor postColor 1 1 1
+#  field SFColor netColor 1 1 1
+  field SFColor supportColor 1 1 1
+  field SFBool locked TRUE
+]
+{
+Solid {
+  translation IS translation
+  rotation IS rotation
+  children [
+    DEF HORIZONTAL_POST_TRANS Transform {
+      translation 0 0.850 0
+      rotation 1 0 0 1.5708
+      children [
+        Shape {
+          appearance DEF POST_APP Appearance {
+            material Material {
+              diffuseColor IS postColor
+              specularColor IS postColor
+            }
+          }
+          geometry Cylinder {
+            bottom FALSE
+            height 1.6
+            radius IS postRadius
+            top FALSE
+          }
+        }
+      ]
+    }
+    DEF RIGHT_POST_TRANS Transform {
+      translation 0 0.45 -0.80
+      children [
+        Shape {
+          appearance USE POST_APP
+          geometry Cylinder {
+            bottom FALSE
+            height 0.9
+            radius IS postRadius
+          }
+        }
+      ]
+    }
+    DEF LEFT_POST_TRANS Transform {
+      translation 0 0.45 0.80
+      children [
+        Shape {
+          appearance USE POST_APP
+          geometry Cylinder {
+            bottom FALSE
+            height 0.9
+            radius IS postRadius
+          }
+        }
+      ]
+    }
+
+    Shape {
+      appearance Appearance {
+        material Material {
+          diffuseColor IS supportColor
+        }
+      }
+      geometry IndexedFaceSet {
+        coord Coordinate {
+          point [
+            0.05  0.4 -0.8
+            0.05  0   -0.8          
+            0.45  0   -0.8
+            0.05  0.4  0.8
+            0.05  0    0.8
+            0.45  0    0.8
+          ]
+        }
+        coordIndex [
+          0, 1, 2, -1,
+          2, 1, 0, -1,
+          3, 4, 5, -1,
+          5, 4, 3, -1
+        ]
+      }
+    }
+
+  ]
+  boundingObject Group {
+    children [
+      USE HORIZONTAL_POST_TRANS
+      USE RIGHT_POST_TRANS
+      USE LEFT_POST_TRANS
+      Transform {
+        translation 0.2 0.4 -0.8
+        children [
+          DEF GOAL_SIDE_BOX Box {
+            size 0.4 0.8 0.03
+          }
+        ]
+      }
+      Transform {
+        translation 0.2 0.4 0.8
+        children [
+          USE GOAL_SIDE_BOX
+        ]
+      }
+      Transform {
+        translation 0.4 0.4 0
+        rotation 0 0 1 0
+        children [
+          Box {
+            size 0.2 0.8 1.4
+          }
+        ]
+      }
+    ]
+  }
+  locked IS locked
+}
+}

@@ -1,0 +1,70 @@
+#VRML_SIM V6.0 utf8
+WorldInfo {
+  info [
+    "Simulation of the Robocup Standard Platform League"
+    "Authors: Olivier Michel, Yvan Bourquin, Fabien Rohrer"
+    "Webpage: http://www.robotstadium.org"
+  ]
+  title "Robotstadium"
+  displayRefresh 2
+  basicTimeStep 40
+}
+Viewpoint {
+  orientation -0.6 -0.8 -0.2 0.98
+  position -0.06 1.4 2
+}
+Background {
+  skyColor [
+    0.678431 0.847059 0.901961
+  ]
+}
+DirectionalLight {
+  ambientIntensity 1.6
+  direction -0.5 -2 -0.5
+  intensity 0.3
+  castShadows FALSE
+}
+DirectionalLight {
+  ambientIntensity 1.6
+  direction 0.5 -0.5 0.5
+  intensity 0.5
+  castShadows FALSE
+}
+SoccerField {
+}
+Walls {
+}
+DEF YELLOW_GOAL KidGoal {
+  translation 3 0 0
+  postColor 0.992157 0.854902 0.219608
+}
+DEF BLUE_GOAL KidGoal {
+  translation -3 0 0
+  rotation 0 1 0 3.14159
+  postColor 0.152941 0.505882 0.733333
+}
+DEF YELLOW_LANDMARK Landmark {
+  translation 0 0 -2.4
+  postColor1 0.992157 0.854902 0.219608
+  postColor2 0.152941 0.505882 0.733333
+}
+DEF BLUE_LANDMARK Landmark {
+  translation 0 0 2.4
+  postColor1 0.152941 0.505882 0.733333
+  postColor2 0.992157 0.854902 0.219608
+}
+DEF BALL Ball {
+  translation 0 0.0323921 0
+}
+DEF PLAYER_1_1 DARwInOP {
+  translation 1.5 0.3 0.8
+  rotation 0 1 0 -1.56
+  controller "darwin-op_team_0"
+  controllerArgs "0 0"
+  plasticColor 1 0 0
+  cameraWindowPosition 0.125 0
+  waistBand TRUE
+  waistBandColor 1 0 0
+  cameraWidth 320
+  cameraHeight 240
+}
