@@ -60,10 +60,10 @@ if (string.find(Config.platform.name,'Webots')) then
   webots = true;
 end
 
-if Config.vision.enable_freespace_detection == 1 then 
-  require('OccupancyMap')
-  OccupancyMap.entry();
-end
+--if Config.vision.enable_freespace_detection == 1 then 
+--  require('OccupancyMap')
+--  OccupancyMap.entry();
+--end
 
 -- initialize state machines
 HeadFSM.entry();
@@ -247,9 +247,9 @@ function update()
   end
 
 	-- Update Occupancy Map
-  if Config.vision.enable_freespace_detection == 1 then
-    OccupancyMap.update();
-  end
+--  if Config.vision.enable_freespace_detection == 1 then
+--    OccupancyMap.update();
+--  end
    
   -- Update the relevant engines
   Body.update();

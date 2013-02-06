@@ -72,3 +72,5 @@ Player/Data/*.txt
 
 # screen log
 *screenlog*
+
+controller_wrap.c

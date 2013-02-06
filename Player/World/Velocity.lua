@@ -170,7 +170,7 @@ function update_noball()
   noball_count=noball_count+1;
   --Reset velocity if ball was not seen 
   if noball_count==noball_threshold then
-    print("Velocity resetted")
+    --print("Velocity resetted")
     vx=0;vy=0;
     ballR_cue=vector.zeros(ballR_cue_length);
     min_ballR_old = 0;
