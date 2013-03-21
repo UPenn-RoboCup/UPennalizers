@@ -20,6 +20,11 @@ require('Body')
 obs_challenge_enable = Config.obs_challenge or 0;
 enable_lut_for_obstacle = Config.vision.enable_lut_for_obstacle or 0;
 
+if false then
+  require 'cjpeg'
+  local simple_ipc = require 'simple_ipc'
+  local img_channel = simple_ipc.setup_publisher('img');
+end
 
 if use_gps_only==0 then
   require('Camera');
@@ -226,6 +231,11 @@ function update()
                                           camera.height);
   end
 
+  if false then
+    local comp_img = cjpeg.compress(Camera.image, camera.width, camera.height, 4);
+    img_channel:send( comp_img );
+    print('sending msg...',#comp_img)
+  end
   -- determine total number of pixels of each color/label
   colorCount = ImageProc.color_count(labelA.data, labelA.npixel);
 
