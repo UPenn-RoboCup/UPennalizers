@@ -21,9 +21,14 @@ obs_challenge_enable = Config.obs_challenge or 0;
 enable_lut_for_obstacle = Config.vision.enable_lut_for_obstacle or 0;
 
 if false then
+
+if Config.game.playerID==1 and Config.game.teamNumber==1 then
+  ffi = require 'ffi'
   require 'cjpeg'
-  local simple_ipc = require 'simple_ipc'
-  local img_channel = simple_ipc.setup_publisher('img');
+  simple_ipc = require 'simple_ipc'
+  img_channel = simple_ipc.setup_publisher('img');
+end
+
 end
 
 if use_gps_only==0 then
@@ -232,13 +237,16 @@ function update()
   end
 
   if false then
---  if Config.game.playerID==4 and Config.game.teamNumber==1 then
+  if Config.game.playerID==1 and Config.game.teamNumber==1 then
     local comp_img = cjpeg.compress(
     carray.pointer(Camera.image), 
     camera.width, camera.height, 3);
-    img_channel:send( 'a'..comp_img );
+    img_channel:send( 'i'..comp_img );
     print('sending msg...',#comp_img)
+    local la = ffi.string(labelA.data,labelA.npixel);
+    img_channel:send( 'a'..la );    
   end
+end
   -- determine total number of pixels of each color/label
   colorCount = ImageProc.color_count(labelA.data, labelA.npixel);
 
