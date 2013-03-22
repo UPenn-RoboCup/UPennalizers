@@ -81,7 +81,7 @@ function update()
   t = Body.get_time();
   for id = 1,4 do
 
-    if not states[id] then
+    if not states[id] or not states[id].ball.x then
       -- no message from player have been received
       eta[id] = math.huge;
       ddefend[id] = math.huge;
