@@ -232,8 +232,11 @@ function update()
   end
 
   if false then
-    local comp_img = cjpeg.compress(Camera.image, camera.width, camera.height, 4);
-    img_channel:send( comp_img );
+--  if Config.game.playerID==4 and Config.game.teamNumber==1 then
+    local comp_img = cjpeg.compress(
+    carray.pointer(Camera.image), 
+    camera.width, camera.height, 3);
+    img_channel:send( 'a'..comp_img );
     print('sending msg...',#comp_img)
   end
   -- determine total number of pixels of each color/label
