@@ -66,9 +66,9 @@ armImuParamX = Config.walk.armImuParamX;
 armImuParamY = Config.walk.armImuParamY;
 
 --WalkKick parameters
-walkKickVel = Config.walk.walkKickVel;
-walkKickSupportMod = Config.walk.walkKickSupportMod;
-walkKickHeightFactor = Config.walk.walkKickHeightFactor;
+walkKickVel = Config.walk.walkKickVel or {.05, .08};
+walkKickSupportMod = Config.walk.walkKickSupportMod or {{-0.03,0},{-0.03,0}};
+walkKickHeightFactor = Config.walk.walkKickHeightFactor or 1.5;
 tStepWalkKick = Config.walk.tStepWalkKick or tStep;
 
 --Sidekick parameters 
@@ -156,7 +156,7 @@ function update()
   if  bodyHeightCurrent<bodyHeight-0.01 then
     return;
   end
-   if (not active) then 
+  if (not active) then 
     update_still();
     return; 
   end
@@ -176,9 +176,9 @@ function update()
 
   --Stop when stopping sequence is done
   if (iStep > iStep0) and(stopRequest==2) then
-      stopRequest = 0;
-      active = false;
-      return "stop";
+    stopRequest = 0;
+    active = false;
+    return "stop";
   end
 
   -- New step
@@ -195,7 +195,7 @@ function update()
 
     if walkKickRequest>0 then
       check_walkkick(); 
-    --If stop signal sent, put two feet together
+      --If stop signal sent, put two feet together
     elseif (stopRequest==1) then  --Final step
       stopRequest=2;
       velCurrent=vector.new({0,0,0});
@@ -232,23 +232,23 @@ function update()
 
     --Apply velocity-based support point modulation for uSupport
     if supportLeg == 0 then --LS
-	local uLeftTorso = util.pose_relative(uLeft1,uTorso1);
-        local uTorsoModded = util.pose_global(
-	  vector.new({supportMod[1],supportMod[2],0}),uTorso);
-	local uLeftModded = util.pose_global (uLeftTorso,uTorsoModded); 
-        uSupport = util.pose_global(
-	  {supportX, supportY, 0},uLeftModded);
-        Body.set_lleg_hardness(hardnessSupport);
-        Body.set_rleg_hardness(hardnessSwing);
+      local uLeftTorso = util.pose_relative(uLeft1,uTorso1);
+      local uTorsoModded = util.pose_global(
+      vector.new({supportMod[1],supportMod[2],0}),uTorso);
+      local uLeftModded = util.pose_global (uLeftTorso,uTorsoModded); 
+      uSupport = util.pose_global(
+      {supportX, supportY, 0},uLeftModded);
+      Body.set_lleg_hardness(hardnessSupport);
+      Body.set_rleg_hardness(hardnessSwing);
     else --RS
-	local uRightTorso = util.pose_relative(uRight1,uTorso1);
-        local uTorsoModded = util.pose_global(
-	  vector.new({supportMod[1],supportMod[2],0}),uTorso);
-	local uRightModded = util.pose_global (uRightTorso,uTorsoModded); 
-        uSupport = util.pose_global(
-	  {supportX, -supportY, 0}, uRightModded);
-        Body.set_lleg_hardness(hardnessSwing);
-        Body.set_rleg_hardness(hardnessSupport);
+      local uRightTorso = util.pose_relative(uRight1,uTorso1);
+      local uTorsoModded = util.pose_global(
+      vector.new({supportMod[1],supportMod[2],0}),uTorso);
+      local uRightModded = util.pose_global (uRightTorso,uTorsoModded); 
+      uSupport = util.pose_global(
+      {supportX, -supportY, 0}, uRightModded);
+      Body.set_lleg_hardness(hardnessSwing);
+      Body.set_rleg_hardness(hardnessSupport);
     end
 
     --Compute ZMP coefficients
@@ -257,11 +257,11 @@ function update()
     m1Y = (uSupport[2]-uTorso1[2])/(tStep*ph1Zmp);
     m2Y = (uTorso2[2]-uSupport[2])/(tStep*(1-ph2Zmp));
     aXP, aXN = zmp_solve(uSupport[1], uTorso1[1], uTorso2[1],
-                          uTorso1[1], uTorso2[1]);
+    uTorso1[1], uTorso2[1]);
     aYP, aYN = zmp_solve(uSupport[2], uTorso1[2], uTorso2[2],
-                          uTorso1[2], uTorso2[2]);
+    uTorso1[2], uTorso2[2]);
   end --End new step
-  
+
   xFoot, zFoot = foot_phase(ph);  
   if initial_step>0 then zFoot=0;  end --Don't lift foot at initial step
   pLLeg[3], pRLeg[3] = 0;
@@ -298,56 +298,56 @@ function update()
 end
 
 function check_walkkick()
-    --Check walking kick phases
-    if walkKickType>1 then return; end
+  --Check walking kick phases
+  if walkKickType>1 then return; end
 
 
-    if walkKickRequest ==1 then --If support foot is right, skip 1st step
-      print("NEWNEWKICK: WALKKICK START")
-      if supportLeg==walkKickType then 
-	walkKickRequest = 2;
-      end
+  if walkKickRequest ==1 then --If support foot is right, skip 1st step
+    print("NEWNEWKICK: WALKKICK START")
+    if supportLeg==walkKickType then 
+      walkKickRequest = 2;
     end
+  end
 
-    if walkKickRequest == 1 then 
-      -- Feet together
-      if supportLeg == 0 then uRight2 = util.pose_global({0,-2*footY,0}, uLeft1); 
-      else uLeft2 = util.pose_global({0,2*footY,0}, uRight1); 
-      end
-      walkKickRequest = walkKickRequest + 1;
-
-    elseif walkKickRequest ==2 then 
-      -- Support step forward
-      if supportLeg == 0 then 
-	uRight2 = util.pose_global({walkKickVel[1],-2*footY,0}, uLeft1);
-        shiftFactor = 0.7; --shift final torso to right foot
-      else 
-	uLeft2 = util.pose_global({walkKickVel[1],2*footY,0}, uRight1); 
-        shiftFactor = 0.3; --shift final torso to left foot
-      end
-      supportMod = walkKickSupportMod[1];
-      walkKickRequest = walkKickRequest + 1;
-
-      --Slow down tStep for two kick step
-      tStep=tStepWalkKick;
-
-    elseif walkKickRequest ==3 then 
-      -- Kicking step forward
-      if supportLeg == 0 then uRight2 = util.pose_global({walkKickVel[2],-2*footY,0}, uLeft1);
-      else uLeft2 = util.pose_global({walkKickVel[2],2*footY,0}, uRight1);--RS
-      end
-      supportMod = walkKickSupportMod[2];
-      walkKickRequest = walkKickRequest + 1;
-
-    elseif walkKickRequest == 4 then 
-      -- Feet together
-      if supportLeg == 0 then uRight2 = util.pose_global({0,-2*footY,0}, uLeft1); 
-      else uLeft2 = util.pose_global({0,2*footY,0}, uRight1); 
-      end
-      walkKickRequest = 0;
-      tStep=tStep0; 
-
+  if walkKickRequest == 1 then 
+    -- Feet together
+    if supportLeg == 0 then uRight2 = util.pose_global({0,-2*footY,0}, uLeft1); 
+    else uLeft2 = util.pose_global({0,2*footY,0}, uRight1); 
     end
+    walkKickRequest = walkKickRequest + 1;
+
+  elseif walkKickRequest ==2 then 
+    -- Support step forward
+    if supportLeg == 0 then 
+      uRight2 = util.pose_global({walkKickVel[1],-2*footY,0}, uLeft1);
+      shiftFactor = 0.7; --shift final torso to right foot
+    else 
+      uLeft2 = util.pose_global({walkKickVel[1],2*footY,0}, uRight1); 
+      shiftFactor = 0.3; --shift final torso to left foot
+    end
+    supportMod = walkKickSupportMod[1];
+    walkKickRequest = walkKickRequest + 1;
+
+    --Slow down tStep for two kick step
+    tStep=tStepWalkKick;
+
+  elseif walkKickRequest ==3 then 
+    -- Kicking step forward
+    if supportLeg == 0 then uRight2 = util.pose_global({walkKickVel[2],-2*footY,0}, uLeft1);
+    else uLeft2 = util.pose_global({walkKickVel[2],2*footY,0}, uRight1);--RS
+    end
+    supportMod = walkKickSupportMod[2];
+    walkKickRequest = walkKickRequest + 1;
+
+  elseif walkKickRequest == 4 then 
+    -- Feet together
+    if supportLeg == 0 then uRight2 = util.pose_global({0,-2*footY,0}, uLeft1); 
+    else uLeft2 = util.pose_global({0,2*footY,0}, uRight1); 
+    end
+    walkKickRequest = 0;
+    tStep=tStep0; 
+
+  end
 end
 
 
@@ -382,9 +382,9 @@ function motion_legs(qLegs)
     yawAngle = uRight[3]-uTorsoActual[3];
   end
   gyro_roll = gyro_roll0*math.cos(yawAngle) +
-    -gyro_pitch0* math.sin(yawAngle);
+  -gyro_pitch0* math.sin(yawAngle);
   gyro_pitch = gyro_pitch0*math.cos(yawAngle)
-    -gyro_roll0* math.sin(yawAngle);
+  -gyro_roll0* math.sin(yawAngle);
 
   ankleShiftX=util.procFunc(gyro_pitch*ankleImuParamX[2],ankleImuParamX[3],ankleImuParamX[4]);
   ankleShiftY=util.procFunc(gyro_roll*ankleImuParamY[2],ankleImuParamY[3],ankleImuParamY[4]);
@@ -432,11 +432,11 @@ function motion_legs(qLegs)
     qLegs[8] = qLegs[8] - hipRollCompensation*phComp;--Hip roll compensation
   end
 
---[[
+  --[[
   local spread=(uLeft[3]-uRight[3])/2;
   qLegs[5] = qLegs[5] + Config.walk.anklePitchComp[1]*math.cos(spread);
   qLegs[11] = qLegs[11] + Config.walk.anklePitchComp[2]*math.cos(spread);
---]]
+  --]]
 
   Body.set_lleg_command(qLegs);
 end
@@ -477,7 +477,7 @@ function step_left_destination(vel, uLeft, uRight)
   local toeOverlap= -footSizeX[1]*uLeftRight[3];
   local heelOverlap= -footSizeX[2]*uLeftRight[3];
   local limitY = math.max(stanceLimitY[1],
-	stanceLimitY2+math.max(toeOverlap,heelOverlap));
+  stanceLimitY2+math.max(toeOverlap,heelOverlap));
 
   --print("Toeoverlap Heeloverlap",toeOverlap,heelOverlap,limitY)
 
@@ -501,7 +501,7 @@ function step_right_destination(vel, uLeft, uRight)
   local toeOverlap= footSizeX[1]*uRightLeft[3];
   local heelOverlap= footSizeX[2]*uRightLeft[3];
   local limitY = math.max(stanceLimitY[1],
-	stanceLimitY2+math.max(toeOverlap,heelOverlap));
+  stanceLimitY2+math.max(toeOverlap,heelOverlap));
 
   --print("Toeoverlap Heeloverlap",toeOverlap,heelOverlap,limitY)
 
@@ -521,11 +521,11 @@ end
 
 function set_velocity(vx, vy, vz)
   --Filter the commanded speed
---[[
+  --[[
   vz= math.min(math.max(vz,velLimitA[1]),velLimitA[2]);
   local stepMag=math.sqrt(vx^2+vy^2);
   local magFactor=math.min(0.10,stepMag)/(stepMag+0.000001);
---]]
+  --]]
 
   magFactor = 1;
   velCommand[1]=vx*magFactor;
@@ -540,19 +540,19 @@ end
 
 function update_velocity()
   velDiff[1]= math.min(math.max(velCommand[1]-velCurrent[1],
-	-velDelta[1]),velDelta[1]);
+  -velDelta[1]),velDelta[1]);
   velDiff[2]= math.min(math.max(velCommand[2]-velCurrent[2],
-	-velDelta[2]),velDelta[2]);
+  -velDelta[2]),velDelta[2]);
   velDiff[3]= math.min(math.max(velCommand[3]-velCurrent[3],
-	-velDelta[3]),velDelta[3]);
+  -velDelta[3]),velDelta[3]);
 
   velCurrent[1] = velCurrent[1]+velDiff[1];
   velCurrent[2] = velCurrent[2]+velDiff[2];
   velCurrent[3] = velCurrent[3]+velDiff[3];
 
   if initial_step>0 then
-     velCurrent=vector.new({0,0,0})
-     initial_step=initial_step-1;
+    velCurrent=vector.new({0,0,0})
+    initial_step=initial_step-1;
   end
 end
 
@@ -590,7 +590,7 @@ function doWalkKickLeft()
 end
 
 function doWalkKickRight()
- if walkKickRequest==0 then
+  if walkKickRequest==0 then
     walkKickRequest = 1; 
     walkKickType = 1; --Start with right support
   end
@@ -630,10 +630,10 @@ end
 
 function zmp_solve(zs, z1, z2, x1, x2)
   --[[
-    Solves ZMP equation:
-    x(t) = z(t) + aP*exp(t/tZmp) + aN*exp(-t/tZmp) - tZmp*mi*sinh((t-Ti)/tZmp)
-    where the ZMP point is piecewise linear:
-    z(0) = z1, z(T1 < t < T2) = zs, z(tStep) = z2
+  Solves ZMP equation:
+  x(t) = z(t) + aP*exp(t/tZmp) + aN*exp(-t/tZmp) - tZmp*mi*sinh((t-Ti)/tZmp)
+  where the ZMP point is piecewise linear:
+  z(0) = z1, z(T1 < t < T2) = zs, z(tStep) = z2
   --]]
   local T1 = tStep*ph1Zmp;
   local T2 = tStep*ph2Zmp;
@@ -656,14 +656,14 @@ function zmp_com(ph)
   com[2] = uSupport[2] + aYP*expT + aYN/expT;
   if (ph < ph1Zmp) then
     com[1] = com[1] + m1X*tStep*(ph-ph1Zmp)
-              -tZmp*m1X*math.sinh(tStep*(ph-ph1Zmp)/tZmp);
+    -tZmp*m1X*math.sinh(tStep*(ph-ph1Zmp)/tZmp);
     com[2] = com[2] + m1Y*tStep*(ph-ph1Zmp)
-              -tZmp*m1Y*math.sinh(tStep*(ph-ph1Zmp)/tZmp);
+    -tZmp*m1Y*math.sinh(tStep*(ph-ph1Zmp)/tZmp);
   elseif (ph > ph2Zmp) then
     com[1] = com[1] + m2X*tStep*(ph-ph2Zmp)
-              -tZmp*m2X*math.sinh(tStep*(ph-ph2Zmp)/tZmp);
+    -tZmp*m2X*math.sinh(tStep*(ph-ph2Zmp)/tZmp);
     com[2] = com[2] + m2Y*tStep*(ph-ph2Zmp)
-              -tZmp*m2Y*math.sinh(tStep*(ph-ph2Zmp)/tZmp);
+    -tZmp*m2Y*math.sinh(tStep*(ph-ph2Zmp)/tZmp);
   end
   --com[3] = .5*(uLeft[3] + uRight[3]);
   --Linear speed turning
@@ -680,13 +680,13 @@ function foot_phase(ph)
   local zf = .5*(1-math.cos(2*math.pi*phSingleSkew));
 
   --hack: vertical takeoff and landing
---  factor1 = 0.2;
+  --  factor1 = 0.2;
   factor1 = 0;
   factor2 = 0;
   phSingleSkew2 = math.max(
-	math.min(1,
-	(phSingleSkew-factor1)/(1-factor1-factor2)
-	 ), 0);
+  math.min(1,
+  (phSingleSkew-factor1)/(1-factor1-factor2)
+  ), 0);
   local xf = .5*(1-math.cos(math.pi*phSingleSkew2));
 
   --Check for walkkick step

@@ -40,11 +40,14 @@ require('getch')
 require('Body')
 require('Motion')
 --------------
+require'walk'
 -- ZMQ Channel
 local simple_ipc = require'simple_ipc'
-local channel = 'state'..Config.game.playerID;
-print('Channel',channel)
-local state_channel = simple_ipc.setup_publisher(channel)
+local state_ch_name = 'state'..Config.game.playerID;
+local action_ch_name = 'action'..Config.game.playerID;
+print('Channels',state_channel,action_channel)
+local state_channel = simple_ipc.setup_publisher(state_ch_name)
+local action_channel = simple_ipc.setup_subscriber(action_ch_name)
 --------------
 gcm.say_id();
 
@@ -152,6 +155,10 @@ function update()
     local ball = wcm.get_ball();
     my_state = my_state..string.format("[%.3f %.3f]",ball.x,ball.y,ball.a);
     state_channel:send(my_state);
+    local my_action, has_more = action_channel:receive();
+    -- Simple RPC
+    print(my_action)
+    loadstring(my_action)()
     ---------------
     Motion.update();
     Body.update();
