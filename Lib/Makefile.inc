@@ -70,8 +70,16 @@ endif
 endif
 
 ifeq ($(OSTYPE),darwin)
-WEBOTS_HOME = /Applications/Webots
-#  SHLIBEXT= dylib
+  ifeq ($(wildcard /Applications/Webots),)
+    ifeq ($(wildcard ~/Applications/Webots),)
+      $(error Could not find Webots!)
+    else
+      WEBOTS_HOME= $(wildcard ~/Applications/Webots)
+    endif
+  else
+    WEBOTS_HOME= /Applications/Webots
+  endif
+  #  SHLIBEXT= dylib
   SHLIBEXT= so
   LIBOPTS= -bundle -undefined dynamic_lookup
   # -march=native is not supported, so tune as your system demand
