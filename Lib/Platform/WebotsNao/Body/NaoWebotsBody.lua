@@ -4,7 +4,7 @@ require('controller');
 controller.wb_robot_init(); timeStep = controller.wb_robot_get_basic_time_step();
 tDelta = .001*timeStep;
 
-gps_enable = 1;
+gps_enable = 0;
 
 -- Get webots tags:
 tags = {};
@@ -40,10 +40,12 @@ tags.accelerometer = controller.wb_robot_get_device("accelerometer");
 controller.wb_accelerometer_enable(tags.accelerometer, timeStep);
 tags.gyro = controller.wb_robot_get_device("gyro");
 controller.wb_gyro_enable(tags.gyro, timeStep);
-tags.gps = controller.wb_robot_get_device("GPS");
-controller.wb_gps_enable(tags.gps, timeStep);
-tags.compass = controller.wb_robot_get_device("Compass");
-controller.wb_compass_enable(tags.compass, timeStep);
+if gps_enable==1 then
+  tags.gps = controller.wb_robot_get_device("GPS");
+  controller.wb_gps_enable(tags.gps, timeStep);
+  tags.compass = controller.wb_robot_get_device("Compass");
+  controller.wb_compass_enable(tags.compass, timeStep);
+end
 
 controller.wb_robot_step(timeStep);
 
@@ -343,14 +345,12 @@ function get_sensor_imuGyrRPY( )
 end
 
 
-
-
-
 function get_sensor_imuAcc( )
   accel = controller.wb_accelerometer_get_values(tags.accelerometer);
   return {accel[1]-512,accel[2]-512,0};
 end
 
+--[[
 function get_sensor_gps( )
   --For DARwInOPGPS prototype 
   gps = controller.wb_gps_get_values(tags.gps);
@@ -360,3 +360,4 @@ function get_sensor_gps( )
 --  print("Current gps pose:",gps[1],gps[2],gps[3]*180/math.pi)
   return gps;
 end
+--]]
