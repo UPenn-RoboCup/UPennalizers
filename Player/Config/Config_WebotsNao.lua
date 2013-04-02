@@ -19,7 +19,7 @@ listen_monitor = 1
 
 webots = 1
 param = {}
-param.world = 'World/Config_Nao_World'
+param.world = 'World/Config_WebotsNao_World'
 param.walk = 'Walk/Config_WebotsNao_Walk' 
 param.kick = 'Kick/Config_WebotsNao_Kick'
 param.vision = 'Vision/Config_WebotsNao_Vision'
