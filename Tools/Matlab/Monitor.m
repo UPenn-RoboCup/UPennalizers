@@ -1,9 +1,9 @@
-function MonitorShm(team,player)
+function Monitor(team,player)
 %-----------------------------------------------------
 %
-%  Usage: MonitorShm(1,2)       : single monitor
-%         MonitorShm(1,[2 3 4]) : team monitor
-%  	  		MonitorShm(1)         : team auto-detect
+%  Usage: Monitor(1,2)       : single monitor
+%         Monitor(1,[2 3 4]) : team monitor
+%  	  		Monitor(1)         : team auto-detect
 %
 %-----------------------------------------------------
 
