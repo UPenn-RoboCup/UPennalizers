@@ -1,0 +1,18 @@
+2014.7.13-17.04.30: GC2 1.2
+2014.7.13-17.04.30: League = SPL
+2014.7.13-17.04.30: Play-off = false
+2014.7.13-17.04.30: Auto color change = false
+2014.7.13-17.04.30: Using broadcast address 192.168.1.255
+2014.7.13-17.04.30: UPennalizers vs Invisibles
+2014.7.13-17.05.02: Ready
+2014.7.13-17.05.48: Set
+2014.7.13-17.06.06: Playing
+2014.7.13-17.11.46: Finished
+2014.7.13-17.16.46: 2nd Half
+2014.7.13-17.28.39: Ready
+2014.7.13-17.28.59: Set
+2014.7.13-17.29.45: Playing
+2014.7.13-17.31.46: Finished
+2014.7.13-17.39.05: Undo 6 States to Playing
+2014.7.13-17.42.03: Finished
+2014.7.13-17.43.23: Shutdown GameController

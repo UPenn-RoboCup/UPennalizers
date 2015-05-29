@@ -1,0 +1,6 @@
+2014.7.15-17.09.02: GC2 1.2
+2014.7.15-17.09.02: League = SPL
+2014.7.15-17.09.02: Play-off = true
+2014.7.15-17.09.02: Auto color change = false
+2014.7.15-17.09.02: Using broadcast address 192.168.1.255
+2014.7.15-17.09.02: UPennalizers vs Invisibles

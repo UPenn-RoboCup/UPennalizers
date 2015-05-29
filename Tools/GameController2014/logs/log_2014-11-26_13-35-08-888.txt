@@ -1,0 +1,28 @@
+2014.11.26-13.35.08: GC2 1.2
+2014.11.26-13.35.08: League = SPL
+2014.11.26-13.35.08: Play-off = false
+2014.11.26-13.35.08: Auto color change = false
+2014.11.26-13.35.08: Using broadcast address 192.168.1.255
+2014.11.26-13.35.08: UPennalizers vs Invisibles
+2014.11.26-13.36.28: Ready
+2014.11.26-13.37.13: Set
+2014.11.26-13.38.06: Playing
+2014.11.26-13.39.45: Goal for Blue
+2014.11.26-13.39.45: Ready
+2014.11.26-13.40.22: Set
+2014.11.26-13.41.28: Playing
+2014.11.26-13.45.53: Finished
+2014.11.26-13.49.18: 2nd Half
+2014.11.26-13.57.36: Ready
+2014.11.26-13.58.22: Set
+2014.11.26-13.58.56: Playing
+2014.11.26-13.59.50: Player Pushing Blue 1
+2014.11.26-14.00.38: Ball Holding Blue 3
+2014.11.26-14.00.42: Unpenalised Blue 1
+2014.11.26-14.01.41: Unpenalised Blue 3
+2014.11.26-14.01.46: Leaving the Field Blue 1
+2014.11.26-14.02.40: Unpenalised Blue 1
+2014.11.26-14.04.57: Leaving the Field Blue 1
+2014.11.26-14.08.25: Finished
+2014.11.26-14.08.45: Penalty Shoot-out
+2014.11.26-14.09.56: Shutdown GameController

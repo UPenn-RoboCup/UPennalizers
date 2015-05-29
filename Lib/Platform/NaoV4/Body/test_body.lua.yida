@@ -1,0 +1,26 @@
+local cwd = os.getenv('PWD')
+package.cpath = cwd..'/../../../Modules/Util/Shm/?.so;'..package.cpath
+package.cpath = cwd..'/../../../Modules/Util/CArray/?.so;'..package.cpath
+package.cpath = cwd..'/../../../Modules/Util/Unix/?.so;'..package.cpath
+
+package.path = cwd..'/../../../../Player/Util/?.lua;'..package.path
+local Body = require 'NaoBody'
+require 'dcm'
+
+for k, v in pairs(dcm) do
+  if k:find('led') then
+    print(k, v)
+  end
+end
+
+color = {0, 1, 0}
+
+dcm.set_actuator_ledChest(color)     
+dcm.set_actuator_ledEarsRight({1,0,1,0,0,0,0,0,0,0})  
+
+--dcm.set_actuator_ledFootRight(color) 
+dcm.set_actuator_ledFaceRight({0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0}) 
+dcm.set_actuator_ledFaceLeft({0,0,0,0,0,0,0,0,1,1,1,1,1,1,1,1,0,0,0,0,0,0,0,0}) 
+--dcm.set_actuator_ledFaceLeft(color)  
+--dcm.set_actuator_ledEarsRight(color) 
+--dcm.set_actuator_ledFootLeft(color)  

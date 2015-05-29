@@ -1,0 +1,6 @@
+Webots uses a pointer to BGRA data.  As a hack, we compile this program
+differently for webots data.  Default, this is off, so be sure to know
+your data source.
+
+CArray is required for pure lua.  In the future, we may change the input
+api.  The outpu api should remain a string.

@@ -1,0 +1,16 @@
+2014.7.15-21.04.25: GC2 1.2
+2014.7.15-21.04.25: League = SPL
+2014.7.15-21.04.25: Play-off = true
+2014.7.15-21.04.25: Auto color change = false
+2014.7.15-21.04.25: Using broadcast address 192.168.1.255
+2014.7.15-21.04.25: Invisibles vs Nao-Team HTWK
+2014.7.15-21.04.30: Ready
+2014.7.15-21.04.31: Set
+2014.7.15-21.04.45: Playing
+2014.7.15-21.05.03: Finished
+2014.7.15-21.05.14: 2nd Half
+2014.7.15-21.05.27: Ready
+2014.7.15-21.05.29: Set
+2014.7.15-21.05.35: Playing
+2014.7.15-21.06.01: Finished
+2014.7.15-21.06.23: Shutdown GameController

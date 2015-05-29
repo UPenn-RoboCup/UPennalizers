@@ -1,0 +1,11 @@
+2014.7.13-18.29.17: GC2 1.2
+2014.7.13-18.29.17: League = SPL
+2014.7.13-18.29.17: Play-off = false
+2014.7.13-18.29.17: Auto color change = false
+2014.7.13-18.29.17: Using broadcast address 192.168.1.255
+2014.7.13-18.29.17: UPennalizers vs Invisibles
+2014.7.13-18.31.30: Ready
+2014.7.13-18.31.33: Set
+2014.7.13-18.31.45: Playing
+2014.7.13-18.32.00: Finished
+2014.7.13-18.37.00: 2nd Half

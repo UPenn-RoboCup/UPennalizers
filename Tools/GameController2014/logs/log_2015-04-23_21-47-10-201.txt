@@ -1,0 +1,20 @@
+2015.4.23-21.47.10: GC2 1.2
+2015.4.23-21.47.10: League = SPL
+2015.4.23-21.47.10: Play-off = false
+2015.4.23-21.47.10: Auto color change = false
+2015.4.23-21.47.10: Using broadcast address 192.168.1.255
+2015.4.23-21.47.10: UPennalizers vs Invisibles
+2015.4.23-21.50.55: Ready
+2015.4.23-21.51.40: Set
+2015.4.23-21.52.32: Playing
+2015.4.23-21.52.50: Player Pushing Blue 1
+2015.4.23-21.55.28: Finished
+2015.4.23-22.00.28: 2nd Half
+2015.4.23-22.06.22: Ready
+2015.4.23-22.06.30: Player Pushing Blue 1
+2015.4.23-22.07.07: Set
+2015.4.23-22.07.34: Playing
+2015.4.23-22.11.04: Player Pushing Blue 3
+2015.4.23-22.11.36: Undo 1 States to Playing
+2015.4.23-22.12.57: Leaving the Field Blue 3
+2015.4.23-22.19.47: Shutdown GameController

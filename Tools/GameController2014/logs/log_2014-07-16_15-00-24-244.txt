@@ -1,0 +1,12 @@
+2014.7.16-15.00.24: GC2 1.2
+2014.7.16-15.00.24: League = SPL
+2014.7.16-15.00.24: Play-off = false
+2014.7.16-15.00.24: Auto color change = false
+2014.7.16-15.00.24: Using broadcast address 192.168.1.255
+2014.7.16-15.00.24: UPennalizers vs Invisibles
+2014.7.16-15.00.44: Ready
+2014.7.16-15.01.15: Set
+2014.7.16-15.02.57: Playing
+2014.7.16-15.07.39: Finished
+2014.7.16-15.12.39: 2nd Half
+2014.7.16-15.14.11: Shutdown GameController

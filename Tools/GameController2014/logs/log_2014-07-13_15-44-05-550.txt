@@ -1,0 +1,13 @@
+2014.7.13-15.44.05: GC2 1.2
+2014.7.13-15.44.05: League = SPL
+2014.7.13-15.44.05: Play-off = false
+2014.7.13-15.44.05: Auto color change = false
+2014.7.13-15.44.05: Using broadcast address 192.168.1.255
+2014.7.13-15.44.05: Nao Devils Dortmund vs Invisibles
+2014.7.13-15.44.16: Ready
+2014.7.13-15.44.22: Set
+2014.7.13-15.44.38: Playing
+2014.7.13-15.44.45: Fallen Robot Blue 4
+2014.7.13-15.44.55: Finished
+2014.7.13-15.45.00: Unpenalised Blue 4
+2014.7.13-15.46.20: Shutdown GameController

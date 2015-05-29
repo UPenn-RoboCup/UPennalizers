@@ -1,0 +1,14 @@
+2015.1.27-20.33.43: GC2 1.2
+2015.1.27-20.33.43: League = SPL
+2015.1.27-20.33.43: Play-off = false
+2015.1.27-20.33.43: Auto color change = false
+2015.1.27-20.33.43: Using broadcast address 255.255.255.255
+2015.1.27-20.33.43: Invisibles vs UPennalizers
+2015.1.27-20.33.58: Ready
+2015.1.27-20.34.20: Set
+2015.1.27-20.34.24: Undo 2 States to Invisibles vs UPennalizers
+2015.1.27-20.34.32: Ready
+2015.1.27-20.35.17: Set
+2015.1.27-20.35.36: Undo 2 States to Invisibles vs UPennalizers
+2015.1.27-20.35.43: Ready
+2015.1.27-20.35.48: Shutdown GameController

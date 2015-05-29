@@ -1,0 +1,23 @@
+2014.7.15-14.47.57: GC2 1.2
+2014.7.15-14.47.57: League = SPL
+2014.7.15-14.47.57: Play-off = true
+2014.7.15-14.47.57: Auto color change = false
+2014.7.15-14.47.57: Using broadcast address 192.168.1.255
+2014.7.15-14.47.57: Invisibles vs UPennalizers
+2014.7.15-14.50.42: Ready
+2014.7.15-14.51.27: Set
+2014.7.15-14.52.21: Playing
+2014.7.15-14.56.22: Finished
+2014.7.15-15.01.22: 2nd Half
+2014.7.15-15.56.52: Ready
+2014.7.15-15.57.37: Set
+2014.7.15-15.58.20: Playing
+2014.7.15-16.01.14: Player Pushing Red 1
+2014.7.15-16.01.40: Player Pushing Red 2
+2014.7.15-16.01.50: Undo 1 States to Player Pushing Red 1
+2014.7.15-16.02.08: Unpenalised Red 1
+2014.7.15-16.03.10: Player Pushing Red 3
+2014.7.15-16.03.13: Undo 1 States to Unpenalised Red 1
+2014.7.15-16.03.31: Unpenalised Red 1
+2014.7.15-16.03.49: Finished
+2014.7.15-16.06.19: Penalty Shoot-out

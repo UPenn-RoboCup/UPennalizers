@@ -1,0 +1,37 @@
+TORCH:
+git clone -b build-fixes https://github.com/smcgill3/torch7
+make prep
+make -j4
+make install
+
+
+BOOST:
+wget http://iweb.dl.sourceforge.net/project/boost/boost/1.56.0/boost_1_56_0.tar.bz2
+tar xzf boost_1_56_0.tar.bz2
+For MAC: It is convenient to install in /usr/local/Cellar/
+cd boost_1_56_0
+./bootstrap.sh --prefix=./
+./b2
+After installation is done:
+ln -s /usr/local/Cellar/boost_1_56_0/boost /usr/local/include/boost
+
+
+Lua 5.1.5: For MAC:
+
+curl -R -O http://www.lua.org/ftp/lua-5.1.5.tar.gz
+tar -zxf lua-5.1.5.tar.gz
+mv lua-5.1.5/* $LUA
+make -C $LUA macosx test
+make -C $LUA install
+ln -s "$LUA/etc/lua.hpp" "/usr/local/include/lua.hpp" && echo "lua.hpp lin    k made"
+ln -s "$LUA/src/lua" "/usr/local/bin/lua" && echo "lua link made"
+
+for f in lapi.h ldebug.h lgc.h lmem.h lparser.h ltable.h luaconf.h lvm.h l    auxlib.h ldo.h llex.h lobject.h lstate.h ltm.h lualib.h lzio.h lcode.h lfunc    .h llimits.h lopcodes.h lstring.h lua.h lundump.h
+do
+  ln -s "$LUA/src/$f" "/usr/local/include/$f" && echo "$f link made"
+done
+
+
+OPEN_BLAS:
+git clone https://github.com/xianyi/OpenBLAS.git /usr/
+PREFIX=/usr/local make -C $OPENBLAS

@@ -1,0 +1,12 @@
+2015.1.22-21.06.37: GC2 1.2
+2015.1.22-21.06.37: League = SPL
+2015.1.22-21.06.37: Play-off = true
+2015.1.22-21.06.37: Auto color change = false
+2015.1.22-21.06.37: Using broadcast address 192.168.1.255
+2015.1.22-21.06.37: UPennalizers vs Invisibles
+2015.1.22-21.10.12: Ready
+2015.1.22-21.10.58: Set
+2015.1.22-21.11.49: Playing
+2015.1.22-21.14.06: Player Pushing Blue 5
+2015.1.22-21.16.19: Finished
+2015.1.22-21.17.43: Shutdown GameController

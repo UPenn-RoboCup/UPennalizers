@@ -1,0 +1,16 @@
+2015.4.29-20.32.49: GC2 1.2
+2015.4.29-20.32.49: League = SPL
+2015.4.29-20.32.49: Play-off = false
+2015.4.29-20.32.49: Auto color change = false
+2015.4.29-20.32.49: Using broadcast address 192.168.1.255
+2015.4.29-20.32.49: Invisibles vs UPennalizers
+2015.4.29-20.32.58: Ready
+2015.4.29-20.33.00: Set
+2015.4.29-20.33.44: Playing
+2015.4.29-20.33.51: Leaving the Field Red 2
+2015.4.29-20.39.48: Undo 1 States to Playing
+2015.4.29-20.39.48: Undo 1 States to Set
+2015.4.29-20.39.48: Undo 1 States to Ready
+2015.4.29-20.39.49: Undo 1 States to Invisibles vs UPennalizers
+2015.4.29-20.40.05: Ready
+2015.4.29-20.40.09: Shutdown GameController

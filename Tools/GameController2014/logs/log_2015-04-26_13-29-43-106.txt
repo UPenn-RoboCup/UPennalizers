@@ -1,0 +1,26 @@
+2015.4.26-13.29.43: GC2 1.2
+2015.4.26-13.29.43: League = SPL
+2015.4.26-13.29.43: Play-off = false
+2015.4.26-13.29.43: Auto color change = false
+2015.4.26-13.29.43: Using broadcast address 192.168.1.255
+2015.4.26-13.29.43: UPennalizers vs Invisibles
+2015.4.26-13.30.52: Ready
+2015.4.26-13.30.57: Set
+2015.4.26-13.31.02: Finished
+2015.4.26-13.36.02: 2nd Half
+2015.4.26-13.44.34: Ready
+2015.4.26-13.44.37: Set
+2015.4.26-13.44.41: Fallen Robot Blue 3
+2015.4.26-13.45.27: Playing
+2015.4.26-13.45.28: Unpenalised Blue 3
+2015.4.26-13.45.34: Leaving the Field Blue 3
+2015.4.26-13.45.39: Finished
+2015.4.26-13.56.27: Unpenalised Blue 3
+2015.4.26-14.14.45: Undo 1 States to Finished
+2015.4.26-14.14.45: Undo 1 States to Leaving the Field Blue 3
+2015.4.26-14.14.45: Undo 1 States to Unpenalised Blue 3
+2015.4.26-14.14.46: Undo 1 States to Playing
+2015.4.26-14.14.46: Undo 1 States to Fallen Robot Blue 3
+2015.4.26-14.14.52: Playing
+2015.4.26-14.14.57: Finished
+2015.4.26-14.15.07: Shutdown GameController

@@ -1,0 +1,20 @@
+# Makefile used to build libraries
+include ../../../Makefile.am
+
+TARGETS = all clean
+.PHONY: $(TARGETS)
+
+all: coachcomm 
+
+%.o: %.cpp
+	$(CXX) $(CXXFLAGS) $(INCLUDES) -o $@ -c $<
+%.o: %.cc
+	$(CXX) $(CXXFLAGS) $(INCLUDES) -o $@ -c $<
+%.o: %.c
+	$(CC) $(CXXFLAGS) $(INCLUDES) -o $@ -c $<
+
+coachcomm: lua_CoachComm.o 
+	$(LD) $(LDFLAGS) -o CoachComm.$(SHLIBEXT) $(LIBOPTS) $^ $(LIB_DIR)
+
+clean:
+	rm -f *.$(SHLIBEXT) *.o

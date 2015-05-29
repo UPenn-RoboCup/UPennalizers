@@ -1,0 +1,14 @@
+2014.7.16-13.34.48: GC2 1.2
+2014.7.16-13.34.48: League = SPL
+2014.7.16-13.34.48: Play-off = false
+2014.7.16-13.34.48: Auto color change = false
+2014.7.16-13.34.48: Using broadcast address 192.168.1.255
+2014.7.16-13.34.48: UPennalizers vs Invisibles
+2014.7.16-13.35.48: Ready
+2014.7.16-13.36.33: Set
+2014.7.16-13.36.56: Playing
+2014.7.16-13.40.03: Fallen Robot Blue 4
+2014.7.16-13.40.07: Undo 1 States to Playing
+2014.7.16-13.41.52: Finished
+2014.7.16-13.46.52: 2nd Half
+2014.7.16-13.56.41: Shutdown GameController
