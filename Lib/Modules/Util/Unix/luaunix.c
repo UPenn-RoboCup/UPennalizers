@@ -236,7 +236,7 @@ static int lua_fork(lua_State *L) {
 }
 
 
-static const struct luaL_reg unix_lib [] = {
+static const luaL_Reg unix_lib [] = {
   {"usleep", lua_usleep},
   {"sleep", lua_sleep},
   {"gethostname", lua_gethostname},
@@ -274,7 +274,11 @@ static const const_info unix_constants[] = {
 };
 
 int luaopen_unix (lua_State *L) {
+#if LUA_VERSION_NUM == 502
+  luaL_newlib(L, unix_lib);
+#else
   luaL_register(L, "unix", unix_lib);
+#endif
 
   lua_install_constants(L, unix_constants);
   return 1;

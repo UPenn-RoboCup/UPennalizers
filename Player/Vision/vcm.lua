@@ -9,19 +9,15 @@ if (string.find(Config.platform.name,'Webots')) then
   webots = true;
 end
 
+enable_robot_detection = Config.vision.enable_robot_detection or 0;
+enable_freespace_detection = Config.vision.enable_freespace_detection or 0;
+
 -- shared properties
 shared = {};
 shsize = {};
 
-processed_img_width = Config.camera.width;
-processed_img_height = Config.camera.height;
-if( webots ) then
-  processed_img_width = processed_img_width;
-  processed_img_height = processed_img_height;
-else
-  processed_img_width = processed_img_width / 2;
-  processed_img_height = processed_img_height / 2;
-end
+local cw, ch = Config.camera.width, Config.camera.height
+
 
 shared.camera = {};
 shared.camera.select = vector.zeros(1);
@@ -40,167 +36,242 @@ shared.camera.yuyvType = vector.zeros(1);
 shared.camera.broadcast = vector.zeros(1);
 shared.camera.teambroadcast = vector.zeros(1);
 
-shared.image = {};
-shared.image.select = vector.zeros(1);
-shared.image.count = vector.zeros(1);
-shared.image.time = vector.zeros(1);
-shared.image.headAngles = vector.zeros(2);
-shared.image.fps = vector.zeros(1);
-shared.image.horizonA = vector.zeros(1);
-shared.image.horizonB = vector.zeros(1);
-shared.image.horizonDir = vector.zeros(4); -- Angle of horizon line rotation
+shared.camera.reload_LUT = vector.zeros(1);
+shared.camera.learned_new_lut = vector.zeros(1);
+shared.camera.lut_filename = '';
+
+local images = {}
+local image = {}
+image.select = vector.zeros(1);
+image.count = vector.zeros(1);
+image.time = vector.zeros(1);
+image.headAngles = vector.zeros(2);
+image.fps = vector.zeros(1);
+image.horizonA = vector.zeros(1);
+image.horizonB = vector.zeros(1);
+image.horizonDir = vector.zeros(4); -- Angle of horizon line rotation
 
 -- 2 bytes per pixel (32 bits describes 2 pixels)
-shared.image.yuyv = 2*Config.camera.width*Config.camera.height; 
---Downsampled yuyv
-shared.image.yuyv2 = 2*Config.camera.width*Config.camera.height/2/2; 
---Downsampled yuyv 2
-shared.image.yuyv3 = 2*Config.camera.width*Config.camera.height/4/4; 
+local img_width, img_height
+if type(cw)=='number' then
+  image.yuyv = 2*cw*ch; 
+  image.yuyv2 = 2*cw*ch/2/2;
+  img_width = cw
+  img_height = ch
+else
+  -- assume table with each element for the camera
+  image.yuyv = 2*cw[1]*ch[1];
+  image.yuyv2 = 2*cw[1]*ch[1]/2/2;
+  img_width = cw[1]
+  img_height = ch[1]
+end
+--print('im1',img_width,img_height)
 
-shared.image.width = vector.zeros(1);
-shared.image.height = vector.zeros(1);
-shared.image.scaleB = vector.zeros(1);
+local sA, sB = Config.vision.scaleA, Config.vision.scaleB
+if type(sA)=='number' then
+  image.labelA = (img_width/sA)*(img_height/sA);
+  image.labelB = image.labelA / (sB*sB)
+else
+  -- assume table with each element for the camera
+  image.labelA = (img_width/sA[1])*(img_height/sA[1]);
+  image.labelB = image.labelA / (sB[1]*sB[1])
+end
 
-shared.image.labelA = (processed_img_width)*(processed_img_height);
-shared.image.labelB = ((processed_img_width)/Config.vision.scaleB)*((processed_img_height)/Config.vision.scaleB);
---shared.image.labelA_obs = (processed_img_width)*(processed_img_height);
---shared.image.labelB_obs = ((processed_img_width)/Config.vision.scaleB)*((processed_img_height)/Config.vision.scaleB);
 
--- calculate image shm size
-shsize.image = (shared.image.yuyv + shared.image.yuyv2+ 
-	shared.image.yuyv3+shared.image.labelA + shared.image.labelB 
---  +shared.image.labelA_obs + shared.image.labelB_obs
-  ) + 2^16;
+image.width = vector.zeros(1);
+image.height = vector.zeros(1);
+image.scaleB = vector.zeros(1);
 
 --Image field-of-view information
-shared.image.fovTL=vector.zeros(2);
-shared.image.fovTR=vector.zeros(2);
-shared.image.fovBL=vector.zeros(2);
-shared.image.fovBR=vector.zeros(2);
-shared.image.fovC=vector.zeros(2);
+image.fovTL=vector.zeros(2);
+image.fovTR=vector.zeros(2);
+image.fovBL=vector.zeros(2);
+image.fovBR=vector.zeros(2);
+image.fovC=vector.zeros(2);
 
-shared.image.learn_lut = vector.zeros(1);
+images[1] = image
 
-shared.ball = {};
-shared.ball.detect = vector.zeros(1);
-shared.ball.centroid = vector.zeros(2); --in pixels, (x,y), of camera image
-shared.ball.v = vector.zeros(4); --3D position of ball wrt body
-shared.ball.r = vector.zeros(1); --distance to ball (planar)
-shared.ball.dr = vector.zeros(1);
-shared.ball.da = vector.zeros(1);
-shared.ball.axisMajor = vector.zeros(1);
-shared.ball.axisMinor = vector.zeros(1);
 
-shared.goal = {};
-shared.goal.detect = vector.zeros(1);
-shared.goal.color = vector.zeros(1);
-shared.goal.type = vector.zeros(1);
-shared.goal.v1 = vector.zeros(4);
-shared.goal.v2 = vector.zeros(4);
-shared.goal.postBoundingBox1 = vector.zeros(4);
-shared.goal.postBoundingBox2 = vector.zeros(4);
---added for monitor
-shared.goal.postCentroid1 = vector.zeros(2);
-shared.goal.postAxis1 = vector.zeros(2);
-shared.goal.postOrientation1 = vector.zeros(1);
-shared.goal.postCentroid2 = vector.zeros(2);
-shared.goal.postAxis2 = vector.zeros(2);
-shared.goal.postOrientation2 = vector.zeros(1);
+if webots then --Webots uses double the resolution for labelA!
+  print("orig image1 size:",img_width,img_height)
+end
 
---Midfield landmark for non-nao robots
-shared.landmark = {};
-shared.landmark.detect = vector.zeros(1);
-shared.landmark.color = vector.zeros(1);
-shared.landmark.v = vector.zeros(4);
-shared.landmark.centroid1 = vector.zeros(2);
-shared.landmark.centroid2 = vector.zeros(2);
-shared.landmark.centroid3 = vector.zeros(2);
+-- Next cam
+local image2 = {}
+image2.select = vector.zeros(1);
+image2.count = vector.zeros(1);
+image2.time = vector.zeros(1);
+image2.headAngles = vector.zeros(2);
+image2.fps = vector.zeros(1);
+image2.horizonA = vector.zeros(1);
+image2.horizonB = vector.zeros(1);
+image2.horizonDir = vector.zeros(4); -- Angle of horizon line rotation
+
+-- 2 bytes per pixel (32 bits describes 2 pixels)
+local cw, ch = Config.camera.width, Config.camera.height
+if type(cw)=='number' then
+  image2.yuyv = 2*cw*ch; 
+  image2.yuyv2 = 2*cw*ch/2/2;
+  img_width = cw
+  img_height = ch
+else
+  -- assume table with each element for the camera
+  image2.yuyv = 2*cw[2]*ch[2];
+  image2.yuyv2 = 2*cw[2]*ch[2]/2/2;
+  img_width = cw[2]
+  img_height = ch[2]
+end
+print('im2',img_width,img_height)
+
+local sA, sB = Config.vision.scaleA, Config.vision.scaleB
+if type(sA)=='number' then
+  image2.labelA = (img_width/sA)*(img_height/sA);
+  image2.labelB = image.labelA / (sB*sB)
+else
+  -- assume table with each element for the camera
+  image2.labelA = (img_width/sA[2])*(img_height/sA[2]);
+  image2.labelB = image.labelA / (sB[2]*sB[2])
+end
+
+image2.width = vector.zeros(1);
+image2.height = vector.zeros(1);
+image2.scaleB = vector.zeros(1);
+
+--image2 field-of-view information
+image2.fovTL=vector.zeros(2);
+image2.fovTR=vector.zeros(2);
+image2.fovBL=vector.zeros(2);
+image2.fovBR=vector.zeros(2);
+image2.fovC=vector.zeros(2);
+
+images[2] = image2
+
+
+
+if webots then --Webots uses double the resolution for labelA!
+  print("orig image2 size:",img_width,img_height)
+end
+
+
+
+
+
+local ball = {};
+ball.detect = vector.zeros(1);
+ball.color_count = vector.zeros(1);
+ball.centroid = vector.zeros(2); --in pixels, (x,y), of camera image
+ball.v = vector.zeros(4); --3D position of ball wrt body
+ball.r = vector.zeros(1); --distance to ball (planar)
+ball.dr = vector.zeros(1);
+ball.da = vector.zeros(1);
+ball.axisMajor = vector.zeros(1);
+ball.axisMinor = vector.zeros(1);
+
+local goal = {};
+goal.detect = vector.zeros(1);
+goal.color = vector.zeros(1);
+goal.type = vector.zeros(1);
+goal.v1 = vector.zeros(4);
+goal.v2 = vector.zeros(4);
+goal.postBoundingBox1 = vector.zeros(4);
+goal.postBoundingBox2 = vector.zeros(4);
+ --added for monitor
+goal.postCentroid1 = vector.zeros(2);
+goal.postAxis1 = vector.zeros(2);
+goal.postOrientation1 = vector.zeros(1);
+goal.postCentroid2 = vector.zeros(2);
+goal.postAxis2 = vector.zeros(2);
+goal.postOrientation2 = vector.zeros(1);
+
+---Midfield landmark for non-nao robots
+local landmark = {};
+landmark.detect = vector.zeros(1);
+landmark.color = vector.zeros(1);
+landmark.v = vector.zeros(4);
+landmark.centroid1 = vector.zeros(2);
+landmark.centroid2 = vector.zeros(2);
+landmark.centroid3 = vector.zeros(2);
 
 --Multiple line detection
 max_line_num = 12;
 
-shared.line = {};
-shared.line.detect = vector.zeros(1);
-shared.line.nLines = vector.zeros(1);
-shared.line.v1x = vector.zeros(max_line_num);
-shared.line.v1y = vector.zeros(max_line_num);
-shared.line.v2x = vector.zeros(max_line_num);
-shared.line.v2y = vector.zeros(max_line_num);
-shared.line.endpoint11 = vector.zeros(max_line_num);
-shared.line.endpoint12 = vector.zeros(max_line_num);
-shared.line.endpoint21 = vector.zeros(max_line_num);
-shared.line.endpoint22 = vector.zeros(max_line_num);
-
+local line = {};
+line.detect = vector.zeros(1);
+line.nLines = vector.zeros(1);
+line.v1x = vector.zeros(max_line_num);
+line.v1y = vector.zeros(max_line_num);
+line.v2x = vector.zeros(max_line_num);
+line.v2y = vector.zeros(max_line_num);
+line.endpoint11 = vector.zeros(max_line_num);
+line.endpoint12 = vector.zeros(max_line_num);
+line.endpoint21 = vector.zeros(max_line_num);
+line.endpoint22 = vector.zeros(max_line_num);
+line.xMean = vector.zeros(max_line_num);
+line.yMean = vector.zeros(max_line_num);
 --for best line
-shared.line.v=vector.zeros(4);
-shared.line.angle=vector.zeros(a);
+line.v=vector.zeros(4);
+line.angle=vector.zeros(a);
 
 --Corner detection
-shared.corner = {};
-shared.corner.detect = vector.zeros(1);
-shared.corner.type = vector.zeros(1);
-shared.corner.vc0 = vector.zeros(4);
-shared.corner.v10 = vector.zeros(4);
-shared.corner.v20 = vector.zeros(4);
-shared.corner.v = vector.zeros(4);
-shared.corner.v1 = vector.zeros(4);
-shared.corner.v2 = vector.zeros(4);
+local corner = {};
+corner.detect = vector.zeros(1);
+corner.type = vector.zeros(1);
+corner.vc0 = vector.zeros(4);
+corner.v10 = vector.zeros(4);
+corner.v20 = vector.zeros(4);
+corner.v = vector.zeros(4);
+corner.v1 = vector.zeros(4);
+corner.v2 = vector.zeros(4);
 
-  --[[
-  shared.spot = {};
-  shared.spot.detect = vector.zeros(1);
-  --]]
-
-
-enable_robot_detection = Config.vision.enable_robot_detection or 0;
-
-shared.robot={};
-shared.robot.detect=vector.zeros(1);
-
+local robot={};
+robot.detect=vector.zeros(1);
 if enable_robot_detection>0 then
   --SJ: Don't define the arrays if they are not used 
   --As they will occupy monitor bandwidth
   map_div = Config.vision.robot.map_div;
   --Global map
-  shared.robot.lowpoint = vector.zeros(Config.camera.width/Config.vision.scaleB);
-  shared.robot.map=vector.zeros(6*4*Config.vision.robot.map_div*Config.vision.robot.map_div); --60 by 40 map
+  robot.lowpoint = vector.zeros(Config.camera.width/Config.vision.scaleB);
+  robot.map=vector.zeros(6*4*Config.vision.robot.map_div*Config.vision.robot.map_div); --60 by 40 map
 end
 
-enable_freespace_detection = Config.vision.enable_freespace_detection or 0;
+local debug = {};
+debug.enable_shm_copy = vector.zeros(1);
+debug.store_goal_detections = vector.zeros(1);
+debug.store_ball_detections = vector.zeros(1);
+debug.store_all_images = vector.zeros(1);
+debug.message='';
 
-shared.freespace = {};
-shared.freespace.detect = vector.zeros(1);
+-- for arbitrator
+shared.ball = ball
+shared.goal = goal
+shared.line = line
+shared.landmark = landmark
+shared.corner = corner
+shared.robot = robot 
+shared.debug = debug
 
-shared.boundary = {};
-shared.boundary.detect = vector.zeros(1);
 
-if enable_freespace_detection>0 then
-  shared.freespace.block = vector.zeros(1);
-  shared.freespace.nCol = vector.zeros(1);
-  shared.freespace.nRow = vector.zeros(1);
-  --shared.freespace.vboundA = vector.zeros(2*Config.camera.width);
-  --shared.freespace.pboundA = vector.zeros(2*Config.camera.width);
-  --shared.freespace.tboundA = vector.zeros(Config.camera.width);
-  shared.freespace.vboundB = vector.zeros(2*Config.camera.width/(Config.vision.scaleB));
-  shared.freespace.pboundB = vector.zeros(2*Config.camera.width/(Config.vision.scaleB));
-  shared.freespace.tboundB = vector.zeros(Config.camera.width/(Config.vision.scaleB));
+for nc = 1, Config.camera.ncamera do
+  shared['image'..nc] = images[nc]
+  -- calculate image shm size
+  local im = images[nc]
+  shsize['image'..nc] = (im.yuyv + im.yuyv2 + im.labelA + im.labelB) + 2^16;
 
-  shared.boundary.top = vector.zeros(2*Config.camera.width/Config.vision.scaleB);
-  shared.boundary.bottom = vector.zeros(2*Config.camera.width/Config.vision.scaleB);
+  shared['debug'..nc] = debug
+  shared['ball'..nc] = ball
+  --shared['goal'..nc] = goal
+  --shared['landmark'..nc] = landmark
+  --shared['line'..nc] = line
+  --shared['corner'..nc] = corner
+  --shared['robot'..nc] = robot
 end
 
-shared.debug = {};
-shared.debug.enable_shm_copy = vector.zeros(1);
-shared.debug.store_goal_detections = vector.zeros(1);
-shared.debug.store_ball_detections = vector.zeros(1);
-shared.debug.store_all_images = vector.zeros(1);
-shared.debug.message='';
 
 util.init_shm_segment(getfenv(), _NAME, shared, shsize);
 
 debug_message='';
-
---For vision debugging
+--
+----For vision debugging
 function refresh_debug_message()
   if string.len(debug_message)==0 then
     --it is not updated for whatever reason
@@ -211,6 +282,7 @@ function refresh_debug_message()
     debug_message='';
   end
 end
+
 function add_debug_message(message)
   if string.len(debug_message)>1000 then
     --something is wrong, just reset it 
@@ -218,3 +290,40 @@ function add_debug_message(message)
   end
   debug_message=debug_message..message;
 end
+
+function bboxStats(color, bboxB, rollAngle, scale)
+  scale = scale or scaleB[1];
+  local bboxA = {};
+  bboxA[1] = scale*bboxB[1];
+  bboxA[2] = scale*bboxB[2] + scale - 1;
+  bboxA[3] = scale*bboxB[3];
+  bboxA[4] = scale*bboxB[4] + scale - 1;
+  if rollAngle then
+ --hack: shift boundingbox 1 pix helps goal detection
+ --not sure why this thing is happening...
+
+--    bboxA[1]=bboxA[1]+1;
+      bboxA[2]=bboxA[2]+1;
+
+--    return ImageProc.tilted_color_stats(labelA.data, labelA.m, labelA.n, color, bboxA,rollAngle);
+--  else
+--    return ImageProc.color_stats(labelA.data, labelA.m, labelA.n, color, bboxA);
+  end
+  return bboxA
+end
+
+function bboxB2A(bboxB, scaleB)
+  bboxA = {};
+  bboxA[1] = scaleB*bboxB[1];
+  bboxA[2] = scaleB*bboxB[2] + scaleB - 1;
+  bboxA[3] = scaleB*bboxB[3];
+  bboxA[4] = scaleB*bboxB[4] + scaleB - 1;
+  return bboxA;
+end
+
+function bboxArea(bbox)
+  return (bbox[2] - bbox[1] + 1) * (bbox[4] - bbox[3] + 1);
+end
+
+
+

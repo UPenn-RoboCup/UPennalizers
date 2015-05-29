@@ -1,9 +1,5 @@
 module(..., package.seeall);
 require('Config');
--- Enable Webots specific
-if (string.find(Config.platform.name,'Webots')) then
-  webots = true;
-end
 
 require('Transform');
 require('vector');
@@ -27,39 +23,42 @@ horizonA = 1;
 horizonB = 1;
 horizonDir = 0;
 
-labelA = {};
-if( webots ) then
-  labelA.m = Config.camera.width;
-  labelA.n = Config.camera.height;
-else
-  labelA.m = Config.camera.width/2;
-  labelA.n = Config.camera.height/2;
-end
-
-nxA = labelA.m;
-x0A = 0.5 * (nxA-1);
-nyA = labelA.n;
-y0A = 0.5 * (nyA-1);
-focalA = Config.camera.focal_length/(Config.camera.focal_base/nxA);
-
-scaleB = Config.vision.scaleB;
-labelB = {};
-labelB.m = labelA.m/scaleB;
-labelB.n = labelA.n/scaleB;
-nxB = nxA/scaleB;
-x0B = 0.5 * (nxB-1);
-nyB = nyA/scaleB;
-y0B = 0.5 * (nyB-1);
-focalB = focalA/scaleB;
-
-print('HeadTransform LabelB size: ('..labelB.m..', '..labelB.n..')');
-print('HeadTransform LabelA size: ('..labelA.m..', '..labelA.n..')');
+local cw, ch = Config.camera.width, Config.camera.height
+local sA, scaleB = Config.vision.scaleA, Config.vision.scaleB
 
 neckX    = Config.head.neckX; 
 neckZ    = Config.head.neckZ; 
 footX    = Config.walk.footX; 
 
-function entry()
+function entry(sel)
+  sel = sel or 1;
+  labelA = {};
+
+  if type(cw)~='number' then cw = cw[sel] end
+  if type(ch)~='number' then ch = ch[sel] end
+  if type(sA)~='number' then sA = sA[sel] end
+  if type(scaleB)~='number' then scaleB = scaleB[sel] end
+
+  labelA.m = cw / sA;
+  labelA.n = ch / sA;
+
+  nxA = labelA.m;
+  x0A = 0.5 * (nxA-1);
+  nyA = labelA.n;
+  y0A = 0.5 * (nyA-1);
+  focalA = Config.camera.focal_length/(Config.camera.focal_base/nxA);
+
+  labelB = {};
+  labelB.m = labelA.m/scaleB;
+  labelB.n = labelA.n/scaleB;
+  nxB = nxA/scaleB;
+  x0B = 0.5 * (nxB-1);
+  nyB = nyA/scaleB;
+  y0B = 0.5 * (nyB-1);
+  focalB = focalA/scaleB;
+
+  -- print('HeadTransform LabelB size: ('..labelB.m..', '..labelB.n..')');
+  -- print('HeadTransform LabelA size: ('..labelA.m..', '..labelA.n..')');
 end
 
 
@@ -125,6 +124,7 @@ function rayIntersectA(c)
   local p0 = vector.new({0,0,0,1.0});
   local p1 = vector.new({focalA,-(c[1]-x0A),-(c[2]-y0A),1.0});
 
+  outrange = 0;
   p1 = tHead * p1;
   local p0 = tNeck * p0;
   local v = p1 - p0;
@@ -138,12 +138,13 @@ function rayIntersectA(c)
   -- since it is always very far away
   if (t < 0) then
     t = -t;
+    outrange = 1;
   end 
   local p = p0 + t * v;
   local uBodyOffset = mcm.get_walk_bodyOffset();
   p[1] = p[1] + uBodyOffset[1];
   p[2] = p[2] + uBodyOffset[2];
-  return p;
+  return p, outrange;
 end
 
 
@@ -151,6 +152,7 @@ function rayIntersectB(c)
   local p0 = vector.new({0,0,0,1.0});
   local p1 = vector.new({focalB,-(c[1]-x0B),-(c[2]-y0B),1.0});
 
+  outrange = 0;
   p1 = tHead * p1;
   local p0 = tNeck * p0;
   local v = p1 - p0;
@@ -159,12 +161,13 @@ function rayIntersectB(c)
   -- since it is always very far away
   if (t < 0) then
     t = -t;
+    outrange = 1;
   end
   local p = p0 + t * v;
   local uBodyOffset = mcm.get_walk_bodyOffset();
   p[1] = p[1] + uBodyOffset[1];
   p[2] = p[2] + uBodyOffset[2];
-  return p;
+  return p, outrange;
 end
 
 function exit()
@@ -205,21 +208,22 @@ function coordinatesB(c, scale)
   return v;
 end
 
-function ikineCam(x, y, z, select)
-  yaw,pitch=ikineCam0(x,y,z,select);
+function ikineCam(x, y, z, sel)
+  yaw,pitch=ikineCam0(x,y,z,sel);
   yaw = math.min(math.max(yaw, yawMin), yawMax);
   pitch = math.min(math.max(pitch, pitchMin), pitchMax);
   return yaw,pitch;
 end
 
 --Camera IK without headangle limit
-function ikineCam0(x,y,z,select)
+function ikineCam0(x,y,z,sel)
+  --Bottom camera by default (cameras are 0 indexed so add 1)
+  sel = (sel or 0) + 1;
+
   bodyHeight=vcm.get_camera_bodyHeight();
   bodyTilt=vcm.get_camera_bodyTilt();
   pitch0 =  mcm.get_headPitchBias();
 
-  --Bottom camera by default (cameras are 0 indexed so add 1)
-  select = (select or 0) + 1;
 
   --Look at ground by default
   z = z or 0;
@@ -245,13 +249,13 @@ function ikineCam0(x,y,z,select)
   -- pitch = atan2(x,z) - acos(b/r),  r= sqrt(x^2+z^2)
   -- r*sin(pitch) = z *cos(pitch) + c, 
   -------------------------------------------------------------
-  local c=cameraPos[select][3];
+  local c=cameraPos[sel][3];
   local r = math.sqrt(x^2+y^2);
   local d = math.sqrt(r^2+z^2);
   local p0 = math.atan2(r,z) - math.acos(c/(d + 1E-10));
 
   pitch=p0;
-  pitch = pitch - cameraAngle[select][2]- pitch0;
+  pitch = pitch - cameraAngle[sel][2]- pitch0;
   return yaw, pitch;
 end
 
@@ -290,7 +294,10 @@ function getNeckOffset()
   return v;
 end
 
+---
 --Project 3d point to level plane with some height
+--@param targetheight The heigh of horizontal plane to project onto
+--@param v 3 dimensional point to project
 function projectGround(v,targetheight)
 
   targetheight=targetheight or 0;

@@ -9,7 +9,7 @@ camera::
 	cd Camera && make && cd $(CWD)
 
 kinematics::
-	cd Kinematics && MODE=$(MODE) make && cd $(CWD)
+	cd Kinematics && make && cd $(CWD)
 
 clean::
 	cd Body && make clean && cd $(CWD)

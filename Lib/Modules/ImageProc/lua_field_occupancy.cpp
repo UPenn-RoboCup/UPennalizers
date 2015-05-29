@@ -35,8 +35,6 @@ int lua_field_occupancy(lua_State *L) {
   int nj = luaL_checkint(L, 3);
   const int nRegions = ni;
 
-  int blockpos[nj];
-  int blockcluster[nj];
   int countdown[nRegions];
   int count[nRegions];
   int flag[nRegions] ;
@@ -47,84 +45,93 @@ int lua_field_occupancy(lua_State *L) {
     countdown[i] = 0;
   }
 
-
-  // Scan vertical lines: Uphalf
-  int nBlocks = 0, nBlockClusters = 0;
+  // number of occupied pixels in one colume
+  int nOccupiedPx = 0;
+  // last occupied pixels in one colume
+  int lastOccupiedPx = 0;
+  // number of clusters of occupied pixels
+  int nOPClusters = 0;
+  // threshold to separate cluster
+  int thCluster = 5;
+  // number of occupied pixels in every cluster (max == #row)
+  int OClusterPxs[nj];
+  // First Occupied pixel pos in every cluster
+  int OClusterPosFirst[nj];
+  // Last Occupied Pixel pos in every cluster
+  int OClusterPosLast[nj];
   for (int i = 0; i < ni; i++) {
-    int iRegion = nRegions*i/ni;
-    uint8 *im_row = im_ptr + i;
-    nBlocks = 0;
-    nBlockClusters = 0;
+    nOccupiedPx = 0;
+    nOPClusters = -1;
+    lastOccupiedPx = -1;
+    // initiate Cluster stats
     for (int j = 0; j < nj; j++) {
-      blockpos[j] = 0;
-      blockcluster[j] = 0;
+      OClusterPxs[j] = 0;
+      OClusterPosFirst[j] = 0;
+      OClusterPosLast[j] = 0;
     }
+    uint8 *im_row = im_ptr + i;
     for (int j = 0; j < nj; j++) {
       uint8 label = *im_row;
       if (!isFree(label)) {
-        blockpos[nBlocks++] = j;
-        if (nBlocks == 1) {
-          blockcluster[nBlockClusters] = j;
-          nBlockClusters++;
+        nOccupiedPx++;
+        if ((lastOccupiedPx == -1) || (j - lastOccupiedPx > thCluster)) {
+          OClusterPxs[++nOPClusters]++;
+          OClusterPosFirst[nOPClusters] = j;
         }
-        else if ((blockpos[nBlocks] - blockpos[nBlocks - 1]) > 5) {
-          blockcluster[nBlockClusters] = j;
-          nBlockClusters++;
+        else {
+          OClusterPxs[nOPClusters]++;
         }
+        lastOccupiedPx = j;
       }
       im_row += ni;
     }
-//    std::cout << nBlocks << ' ' << nBlockClusters << std::endl;
-//    std::cout << nBlockClusters << ' ';
+
+    // close cluster
+    nOPClusters++;
+    for (int cnt = 0; cnt < nOPClusters; cnt++) {
+      OClusterPosLast[cnt] = OClusterPosFirst[cnt] + OClusterPxs[cnt] - 1;
+    }
     // no black pixels found, return type 1
-    if (nBlocks < 0.05 * nj) {
+    if (nOccupiedPx < 0.05 * nj) {
       flag[i] = 1;
       count[i] = nj - 1;
       continue;
     }
-    // all black pixels, return type 3
-    if ((blockpos[nBlocks-1] == (nj - 1)) && (blockcluster[nBlockClusters - 1] == 0)) {
+    // all occupied pixels, no freespace found , return type 3
+    else if (nOccupiedPx > 0.95 * nj) {
       flag[i] = 3;
       count[i] = 0;
       continue;
     }
-    // found black switch to green (up to down), return type 2;
-    if (blockpos[nBlocks-1] != (nj - 1)) {
+    
+    for (int cnt = nOPClusters-1; cnt >= 0; cnt--) {
+      // occupied cluster shoud not start from button and occupied cluster should large enought
+      if ((OClusterPosLast[cnt] >= nj - 2) || (OClusterPxs[cnt] < 0.1 * nj)) {
+        flag[i] = 1;
+        count[i] = nj - 1;
+        continue;
+      }
       flag[i] = 2;
-      count[i] = nj - blockpos[nBlocks-1] - 1;
-      continue;
-    }
-    // found green switch to black (up to down), return type 4;
-    if (blockcluster[nBlockClusters-1] != 0) {
-      flag[i] = 4;
-      count[i] = nj - blockcluster[nBlockClusters-1] - 1;
-      continue;
+      count[i] = nj - OClusterPosLast[cnt] - 1;
     }
   }
-//  std::cout << std::endl; 
   // return state
   lua_createtable(L,0,2);
   
   lua_pushstring(L,"range");
   lua_createtable(L,nRegions,0);
-//  std::cout << "counts: ";
   for (int i = 0; i < nRegions; i++){
-//    std::cout << count[i] << ' '; 
     lua_pushinteger(L, count[i]);
     lua_rawseti(L, -2, i+1);
   }
-//  std::cout << std::endl;
   lua_settable(L, -3);
   
   lua_pushstring(L,"flag");
   lua_createtable(L,nRegions,0);
-//  std::cout << "flags: ";
   for (int i = 0; i < nRegions; i++){
-//    std::cout << flag[i] << ' ';
     lua_pushinteger(L, flag[i]);
     lua_rawseti(L, -2, i+1);
   }
-//  std::cout << std::endl;
   lua_settable(L, -3);
   
   return 1;

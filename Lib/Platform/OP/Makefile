@@ -1,4 +1,4 @@
-CWD= $(shell pwd)
+CWD=$(shell pwd)
 
 all:: body camera kinematics gamecontrol
 
@@ -19,5 +19,3 @@ clean:
 	cd Camera && make clean && cd $(CWD)
 	cd Kinematics && make clean && cd $(CWD)
 	cd GameControl && make clean && cd $(CWD)
-
-

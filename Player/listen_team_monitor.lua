@@ -1,22 +1,5 @@
-module(... or '', package.seeall)
-
-
--- Add the required paths
-cwd = '.';
-
-uname = io.popen('uname -s')
-system = uname:read()
-
-computer = os.getenv('COMPUTER') or system;
-package.cpath = cwd.."/Lib/?.so;"..package.cpath;
-
-package.path = cwd.."/Util/?.lua;"..package.path;
-package.path = cwd.."/Config/?.lua;"..package.path;
-package.path = cwd.."/Lib/?.lua;"..package.path;
-package.path = cwd.."/Dev/?.lua;"..package.path;
-package.path = cwd.."/World/?.lua;"..package.path;
-package.path = cwd.."/Vision/?.lua;"..package.path;
-package.path = cwd.."/Motion/?.lua;"..package.path; 
+cwd = os.getenv('PWD')
+require('init')
 
 require 'unix'
 require ('Config')
@@ -40,8 +23,6 @@ else
   teamToTrack={team1};
 end
 
---Push to (team,1) shm
-
 require ('cutil')
 require ('vector')
 require ('serialization')
@@ -51,36 +32,31 @@ require ('wcm')
 require ('gcm')
 require ('vcm')
 
+
+--Set # of teams
+wcm.set_teamdata_teamnum(team_num);
+
+--Push to (team,1) shm
+
+
 Comm.init(Config.dev.ip_wireless,Config.dev.ip_wireless_port);
 print('Receiving Team Message From',Config.dev.ip_wireless);
 
 function push_labelB(obj,teamOffset)
-  if not obj.labelB then return; end
+  if not obj.labelB then return;
+  else
+--    print(obj);
+  end
   id=obj.id+teamOffset;
   local labelB = cutil.test_array();
   cutil.string2label_rle(labelB,obj.labelB.data);
-  if id==1 then
-    wcm.set_labelB_p1(labelB);
-  elseif id==2 then
-    wcm.set_labelB_p2(labelB);
-  elseif id==3 then
-    wcm.set_labelB_p3(labelB);
-  elseif id==4 then
-    wcm.set_labelB_p4(labelB);
-  elseif id==5 then
-    wcm.set_labelB_p5(labelB);
-  elseif id==6 then
-    wcm.set_labelB_p6(labelB);
-  elseif id==7 then
-    wcm.set_labelB_p7(labelB);
-  elseif id==8 then
-    wcm.set_labelB_p8(labelB);
-  elseif id==9 then
-    wcm.set_labelB_p9(labelB);
-  elseif id==10 then
-    wcm.set_labelB_p10(labelB);
+  if string.find(obj.labelB.name,'labelB1') then 
+    wcm['set_labelBtop_p'..id](labelB);
   end
-end
+  if string.find(obj.labelB.name,'labelB2') then
+    wcm['set_labelBbtm_p'..id](labelB);
+  end
+  end
 
 
 team_t_receive=vector.zeros(10);
@@ -175,32 +151,47 @@ function push_team_struct(obj,teamOffset)
     states.goalB25[id]=obj.goalB2[5];
   end
 
-  states.landmark[id]=obj.landmark;
-  states.landmarkv1[id]=obj.landmarkv[1];
-  states.landmarkv2[id]=obj.landmarkv[2];
+  states.landmark[id]=0
+  states.landmarkv1[id]=0
+  states.landmarkv2[id]=0
+
+ --TODO!
+  obj.robotName = "dummy"
+  obj.body_state = "dummy"
+
+
 
   if id==1 then  
     wcm.set_robotNames_n1(obj.robotName);
+    wcm.set_bodyStates_n1(obj.body_state);
   elseif id==2 then  
     wcm.set_robotNames_n2(obj.robotName);
+    wcm.set_bodyStates_n2(obj.body_state);
   elseif id==3 then  
     wcm.set_robotNames_n3(obj.robotName);
+    wcm.set_bodyStates_n3(obj.body_state);
   elseif id==4 then  
     wcm.set_robotNames_n4(obj.robotName);
+    wcm.set_bodyStates_n4(obj.body_state);
   elseif id==5 then  
     wcm.set_robotNames_n5(obj.robotName);
+    wcm.set_bodyStates_n5(obj.body_state);
   elseif id==6 then  
     wcm.set_robotNames_n6(obj.robotName);
+    wcm.set_bodyStates_n6(obj.body_state);
   elseif id==7 then  
     wcm.set_robotNames_n7(obj.robotName);
+    wcm.set_bodyStates_n7(obj.body_state);
   elseif id==8 then  
     wcm.set_robotNames_n8(obj.robotName);
+    wcm.set_bodyStates_n8(obj.body_state);
   elseif id==9 then  
     wcm.set_robotNames_n9(obj.robotName);
+    wcm.set_bodyStates_n9(obj.body_state);
   elseif id==10 then  
     wcm.set_robotNames_n10(obj.robotName);
+    wcm.set_bodyStates_n10(obj.body_state);
   end
-
 
 
 --print("Ballx:",obj.ball.x);
@@ -219,8 +210,8 @@ function push_team_struct(obj,teamOffset)
   wcm.set_teamdata_ballx(states.ballx)
   wcm.set_teamdata_bally(states.bally)
   wcm.set_teamdata_ballt(states.ballt)
-  wcm.set_teamdata_ballx(states.ballvx)
-  wcm.set_teamdata_bally(states.ballvy)
+  wcm.set_teamdata_ballvx(states.ballvx)
+  wcm.set_teamdata_ballvy(states.ballvy)
 
   wcm.set_teamdata_attackBearing(states.attackBearing)
   wcm.set_teamdata_fall(states.fall)
@@ -245,18 +236,19 @@ function push_team_struct(obj,teamOffset)
   wcm.set_teamdata_goalB24(states.goalB24);
   wcm.set_teamdata_goalB25(states.goalB25);
 
+--[[
   wcm.set_teamdata_landmark(states.landmark);
   wcm.set_teamdata_landmarkv1(states.landmarkv1);
   wcm.set_teamdata_landmarkv2(states.landmarkv2);
+--]]
 end
 
 count=0;
 tStart=unix.time();
 
-while( true ) do
+while(true) do
   while (Comm.size() > 0) do
     msg=Comm.receive();
-
     t = serialization.deserialize(msg);
     if t and (t.teamNumber) then
       t.tReceive = unix.time();
@@ -264,16 +256,16 @@ while( true ) do
       if #teamToTrack==1 then 
         if (t.teamNumber == teamToTrack[1]) and (t.id) then
           push_team_struct(t,0);
-	  push_labelB(t,0);
+	        push_labelB(t,0);
         end
       else
         if (t.teamNumber == teamToTrack[1]) and (t.id) then
           push_team_struct(t,0);
-	  push_labelB(t,0);
+	        push_labelB(t,0);
 
         elseif (t.teamNumber == teamToTrack[2]) and (t.id) then
           push_team_struct(t,5);
-	  push_labelB(t,5);
+	        push_labelB(t,5);
 
         end
       end

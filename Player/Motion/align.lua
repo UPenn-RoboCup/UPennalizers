@@ -52,7 +52,7 @@ tStep = 1.0;
 
 
 active = false;
-
+supportLeg = 0;
 
 --For sally
 ph1Single,ph2Single = 0.3,0.7;
@@ -205,9 +205,10 @@ function motion_legs(qLegs)
     yawAngle = (uLeft[3]+uRight[3])/2-uTorsoActual[3];
   elseif supportLeg == 0 then  -- Left support
     yawAngle = uLeft[3]-uTorsoActual[3];
-  elseif supportLeg==1 then
+  else 
     yawAngle = uRight[3]-uTorsoActual[3];
   end
+
   gyro_roll = gyro_roll0*math.cos(yawAngle) +
     -gyro_pitch0* math.sin(yawAngle);
   gyro_pitch = gyro_pitch0*math.cos(yawAngle)

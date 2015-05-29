@@ -78,6 +78,12 @@ function se3_interpolate(t, u1, u2, u3)
   end
 end
 
+function shallow_copy(a)
+  --copy the table by value
+  local ret={}
+  for k,v in pairs(a) do ret[k]=v end
+  return ret
+end
 
 
 function procFunc(a,deadband,maxvalue)
@@ -107,8 +113,10 @@ function pose_relative(pGlobal, pose)
   return vector.new{ca*px + sa*py, -sa*px + ca*py, mod_angle(pa)};
 end
 
+---table of uniform distributed random numbers
+--@param n length of table to return
+--@return table of n uniformly distributed random numbers
 function randu(n)
-  --table of uniform distributed random numbers
   local t = {};
   for i = 1,n do
     t[i] = math.random();
@@ -116,19 +124,44 @@ function randu(n)
   return t;
 end
 
+---Table of normal distributed random numbers.
+--@param n length of table to return
+--@return table of n normally distributed random numbers
 function randn(n)
-  -- table of normal distributed random numbers
-  local t = {};
+  local t = {}
+  local toggle = true
   for i = 1,n do
     --Inefficient implementation:
-    t[i] = math.sqrt(-2.0*math.log(1.0-math.random())) *
-                      math.cos(math.pi*math.random());
+    -- Box-muller
+    if toggle then
+      t[i] = math.sqrt(-2.0*math.log(math.random())) *
+                      math.cos(2*math.pi*math.random())
+      toggle = not toggle
+    else
+    	t[i] = math.sqrt(-2.0*math.log(math.random())) *
+                      math.sin(2*math.pi*math.random())
+      toggle = not toggle
+    end
   end
-  return t;
+  return t
+end
+
+---Two INDEPENDENT normal distributed random numbers.
+--@return table of n normally distributed random numbers
+function randn2()
+  local t = {}
+  -- Box-muller
+    t[1] = math.sqrt(-2.0*math.log(math.random())) *
+                    math.cos(2*math.pi*math.random())
+  	t[2] = math.sqrt(-2.0*math.log(math.random())) *
+                    math.sin(2*math.pi*math.random())
+  return t
 end
 
 
-function init_shm_segment(fenv, name, shared, shsize)
+function init_shm_segment(fenv, name, shared, shsize, tid, pid)
+  tid = tid or Config.game.teamNumber;
+  pid = pid or Config.game.playerID;
   -- initialize shm segments from the *cm format
   for shtable, shval in pairs(shared) do
     -- create shared memory segment
@@ -137,7 +170,7 @@ function init_shm_segment(fenv, name, shared, shsize)
     -- [file_name][shared_table_name][team_number][player_id][username]
     -- ex. vcmBall01brindza is the segment for shared.ball table in vcm.lua
     -- NOTE: the first letter of the shared_table_name is capitalized
-    local shmName = name..string.upper(string.sub(shtable, 1, 1))..string.sub(shtable, 2)..Config.game.teamNumber..Config.game.playerID..(os.getenv('USER') or '');
+    local shmName = name..string.upper(string.sub(shtable, 1, 1))..string.sub(shtable, 2)..tid..pid..(os.getenv('USER') or '');
     
     fenv[shmHandleName] = shm.new(shmName, shsize[shtable]);
     local shmHandle = fenv[shmHandleName];
@@ -157,22 +190,24 @@ function init_shm_segment(fenv, name, shared, shsize)
         fenv['get_'..shtable..'_'..k] =
           function()
             local bytes = shmHandle:get(k);
-            if (bytes == nil) then
+            if (bytes == nil or type(bytes) ~= 'table') then
               return '';
             else
-	      for i=1,#bytes do
-	        if not (bytes[i]>0) then --Testing NaN
-		  print("NaN Detected at string!");
-	          return;
-		end
-	      end
+              for i=1,#bytes do
+                if not (bytes[i]>0) then --Testing NaN
+		              print("NaN Detected at string!");
+	               return;
+		            end
+              end
               return string.char(unpack(bytes));
             end
           end
+
         fenv['set_'..shtable..'_'..k] =
           function(val)
             return shmHandle:set(k, {string.byte(val, 1, string.len(val))});
           end
+          
       elseif (type(v) == 'number') then
         -- setup accessors for a userdata
         fenv['get_'..shtable..'_'..k] =
@@ -316,4 +351,47 @@ function get_wireless_ip()
   ifconfig = io.popen('/sbin/ifconfig wlan0 | grep "inet " | cut -d" " -f10-11');
   ip = ifconfig:read();
   return ip;
+end
+
+function loadconfig(configName)
+  local localConfig=require(configName);
+  for k,v in pairs(localConfig) do
+    Config[k]=localConfig[k];
+  end
+end
+
+function LoadConfig(params, platform)
+  file_header = "Config_"..platform.name;
+  for k, v in pairs(params.name) do
+    file_name = params[v] or "";
+    overload_platform = params[v..'_Platform'] or "";
+    if string.len(overload_platform) ~= 0 then 
+      file_header = "Config_"..overload_platform;
+    else
+      file_header = "Config_"..platform.name;
+    end
+    if string.len(file_name) ~= 0 then file_name = '_'..file_name; end
+    file_name = v..'/'..file_header..'_'..v..file_name
+    loadconfig(file_name)
+  end
+end
+
+function printtable(t)
+  for k,v in pairs(t) do
+    if type(v) == 'table' then
+      -- Assume only two layers
+      if type(k)=='string' then
+        --print(k, printtable(v))
+        print(k, unpack(v))
+      else
+        print(unpack(v))
+      end
+    else
+      if type(k)=='string' then
+        print(k, v)
+      else
+        print(v)
+      end
+    end
+  end
 end

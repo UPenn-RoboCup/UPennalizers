@@ -19,6 +19,7 @@ shared.walk.supportX = vector.zeros(1);
 shared.walk.supportY = vector.zeros(1);
 shared.walk.uLeft = vector.zeros(3);
 shared.walk.uRight = vector.zeros(3);
+shared.walk.vel = vector.zeros(3);
 
 --Robot specific calibration values
 shared.walk.footXComp = vector.zeros(1);
@@ -42,6 +43,25 @@ shared.walk.isFallDown = vector.zeros(1);
 --Is the robot spinning in bodySearch?
 shared.walk.isSearching = vector.zeros(1);
 
+--Is the robot doing the ZMP step kick?
+shared.walk.isStepping = vector.zeros(1);
+
+
+
+--Motion status feedback variables (for motion monitor)
+shared.feedback={}
+shared.feedback.t = vector.zeros(1)
+shared.feedback.support = vector.zeros(2) --pitch roll
+shared.feedback.imuAngle = vector.zeros(2) --pitch roll
+shared.feedback.imuGyro = vector.zeros(2) --pitch roll
+shared.feedback.errorLeftJE = vector.zeros(4) --xy pitch roll
+shared.feedback.errorRightJE = vector.zeros(4) --xy pitch roll
+shared.feedback.errorJE = vector.zeros(4) --xy pitch roll
+shared.feedback.torsoTarget = vector.zeros(2) --pitch roll
+shared.feedback.torsoTargetFiltered = vector.zeros(2) --pitch roll
+
+
+
 shared.us = {};
 shared.us.left = vector.zeros(10);
 shared.us.right = vector.zeros(10);
@@ -49,7 +69,7 @@ shared.us.obstacles = vector.zeros(2);
 shared.us.free = vector.zeros(2);
 shared.us.dSum = vector.zeros(2);
 shared.us.distance = vector.zeros(2);
-
+shared.us.frontobs = vector.zeros(1);
 
 shared.motion = {};
 --Should we perform fall check
@@ -61,6 +81,11 @@ util.init_shm_segment(getfenv(), _NAME, shared, shsize);
 
 -- helper functions
 
+---
+--Get the distance moved in one step
+--@param u0 The previous position
+--@return The Distance moved with the current walk plan
+--@return The global position of the planned step
 function get_odometry(u0)
   if (not u0) then
     u0 = vector.new({0, 0, 0});

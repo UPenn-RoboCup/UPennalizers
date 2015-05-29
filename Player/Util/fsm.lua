@@ -69,6 +69,8 @@ function set_transition(self, fromState, event, toState, action)
   assert(self.reverseStates[fromState], "Unknown from state");
   assert(type(event) == "string", "Unknown event");
   assert(self.reverseStates[toState], "Unknown to state");
+  --print('event is %s',event)
+
   if (action) then
     assert(type(action) == "function", "Unknown action function");
   end

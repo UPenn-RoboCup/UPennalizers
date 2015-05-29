@@ -1,50 +1,66 @@
-#ifdef __cplusplus
-extern "C" {
-#endif
-
-#include "lua.h"
-#include "lualib.h"
-#include "lauxlib.h"
-
-#ifdef __cplusplus
-}
-#endif
-
+#include <lua.hpp>
 #include <stdint.h>
 #include <math.h>
 #include <vector>
+#ifdef TORCH
+#include <torch/luaT.h>
+#ifdef __cplusplus
+extern "C"
+{
+#endif
+#include <torch/TH/TH.h>
+#ifdef __cplusplus
+}
+#endif
+#endif
 
 int lua_color_stats(lua_State *L) {
 
-  uint8_t *im_ptr = (uint8_t *)lua_touserdata(L,1);
-  if ((im_ptr == NULL) || !lua_islightuserdata(L, 1)) {
-    return luaL_error(L, "Input image not light user data");
-  }
+	uint8_t *im_ptr, color;
+	int width, height;
+  int bbox_stack_id;
+	if( lua_islightuserdata(L,1) ){
+		im_ptr = (uint8_t *) lua_touserdata(L, 1);
+		width = luaL_checkint(L, 2);
+		height = luaL_checkint(L, 3);
+    color = luaL_optinteger(L, 4, 1);
+    bbox_stack_id = 5;
+	}
+#ifdef TORCH
+	else if(luaT_isudata(L,1,"torch.ByteTensor")){
+		THByteTensor* b_t =
+			(THByteTensor *) luaT_checkudata(L, 1, "torch.ByteTensor");
+		im_ptr = b_t->storage->data;
+		height = b_t->size[0];
+		width = b_t->size[1];
+    color = luaL_optinteger(L, 2, 1);
+    bbox_stack_id = 3;
+	}
+#endif
+	else {
+		return luaL_error(L, "Input image invalid");
+	}
 
-  int width = luaL_checkint(L, 2);
-  int height = luaL_checkint(L, 3);
-  uint8_t color = luaL_optinteger(L, 4, 1);
-
-  // bouding box
+  // bounding box
   int i0 = 0;
   int i1 = width-1;
   int j0 = 0;
   int j1 = height-1;
-  if (lua_gettop(L) >= 5) {
-    if (!lua_istable(L, 5)) {
+  if (lua_gettop(L) >= bbox_stack_id) {
+    if (!lua_istable(L, bbox_stack_id)) {
       return luaL_error(L, "Bounding box input missing");
     }
 
-    lua_rawgeti(L, 5, 1);
+    lua_rawgeti(L, bbox_stack_id, 1);
     i0 = luaL_checknumber(L, -1);
     if (i0 < 0) i0 = 0;
-    lua_rawgeti(L, 5, 2);
+    lua_rawgeti(L, bbox_stack_id, 2);
     i1 = luaL_checknumber(L, -1);
     if (i1 > width-1) i1 = width-1;
-    lua_rawgeti(L, 5, 3);
+    lua_rawgeti(L, bbox_stack_id, 3);
     j0 = luaL_checknumber(L, -1);
     if (j0 < 0) j0 = 0;
-    lua_rawgeti(L, 5, 4);
+    lua_rawgeti(L, bbox_stack_id, 4);
     j1 = luaL_checknumber(L, -1);
     if (j1 > height-1) j1 = height-1;
     lua_pop(L, 4);

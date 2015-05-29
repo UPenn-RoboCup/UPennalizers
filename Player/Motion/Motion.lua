@@ -6,14 +6,13 @@ require('fsm')
 require('vector')
 require('mcm')
 require('gcm')
-
+require('wcm')
 require('relax')
 require('stance')
 require('nullstate')
 require('walk')
 require('sit')
 require('standstill') -- This makes torso straight (for webots robostadium)
-
 require('falling')
 require('standup')
 require('kick')
@@ -25,6 +24,10 @@ require('dive')
 
 -- Aux
 require 'grip'
+
+if Config.largestep_enable then
+  require ('largestep')
+end
 
 sit_disable = Config.sit_disable or 0;
 
@@ -44,6 +47,7 @@ if sit_disable==0 then --For smaller robots
   sm:add_state(divewait);
   sm:add_state(dive);
   sm:add_state(align);
+
 
   sm:set_transition(sit, 'done', relax);
   sm:set_transition(sit, 'standup', stance);
@@ -67,6 +71,13 @@ if sit_disable==0 then --For smaller robots
   --dive transitions
   sm:set_transition(walk, 'diveready', divewait);
   sm:set_transition(walk, 'dive', dive);
+
+  --ZMP preview motion transitions
+  if Config.largestep_enable then
+    sm:add_state(largestep);
+    sm:set_transition(walk, 'step', largestep);
+    sm:set_transition(largestep, 'done', walk);
+  end
 
   sm:set_transition(divewait, 'dive', dive);
   sm:set_transition(divewait, 'walk', stance);
@@ -92,6 +103,8 @@ if sit_disable==0 then --For smaller robots
   sm:set_transition(align, 'fall', falling);
   sm:set_transition(divewait, 'fall', falling);
   sm:set_transition(falling, 'done', standup);
+  sm:set_transition(falling, 'restand', stance);
+
   sm:set_transition(standup, 'done', stance);
   sm:set_transition(standup, 'fail', standup);
 
@@ -137,20 +150,38 @@ wasStill = false;
 
 -- Ultra Sound Processor
 UltraSound.entry();
+require'wcm'
 
 function entry()
   sm:entry()
   mcm.set_walk_isFallDown(0);
+  wcm.set_robot_is_emergency_stop(0);
   mcm.set_motion_fall_check(1); --check fall by default
 end
 
 function update()
+
+  local t0 = unix.time()
+
+
   -- update us
   UltraSound.update();
-
+  Left, Right = UltraSound.check_obstacle()
+  role = gcm.get_team_role() 
+  if (Left or Right) and role>1 then
+    -- attacker and goalie never stops
+    frontobs = 1
+  else
+    frontobs = 0
+  end
   local imuAngle = Body.get_sensor_imuAngle();
   local maxImuAngle = math.max(math.abs(imuAngle[1]), math.abs(imuAngle[2]-bodyTilt));
   fall = mcm.get_motion_fall_check() --Should we check for fall? 1 = yes
+
+  --SJ: sometimes this becomes nil....
+  fallAngle = fallAngle or 1E6;
+
+
   if (maxImuAngle > fallAngle and fall==1) then
     sm:add_event("fall");
     mcm.set_walk_isFallDown(1); --Notify world to reset heading 
@@ -177,13 +208,30 @@ function update()
     mcm.set_walk_isMoving(0);
   end
 
+  --Particle information
+--  if mcm.get_walk_isFallDown()==0 and mcm.get_walk_isMoving()==0 then
+  if walk.is_stopped then
+  --Dickens: if not moving and not fallen, 
+    --then it is emergency stop (or standing up) 
+    wcm.set_robot_is_emergency_stop(1)
+ else
+    wcm.set_robot_is_emergency_stop(0)
+  end
+
+
   sm:update();
 
   -- update shm
   update_shm();
+
+  local t_loop = unix.time()-t0
+  local v = wcm.get_process_fsm()
+  wcm.set_process_fsm({v[1],v[2]+t_loop,v[3]+1})
+
 end
 
 function exit()
+  wcm.set_robot_is_emergency_stop(0)
   sm:exit();
 end
 
@@ -198,6 +246,7 @@ function update_shm()
   mcm.set_walk_uRight(walk.uRight);
   mcm.set_us_left(UltraSound.left);
   mcm.set_us_right(UltraSound.right);
+  mcm.set_us_frontobs(frontobs)
   mcm.set_walk_stillTime( stillTime );
 end
 

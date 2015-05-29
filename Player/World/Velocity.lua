@@ -37,6 +37,7 @@ ballR_cue_length = 10;
 ballR_cue=vector.zeros(ballR_cue_length);
 ballR_index = 1;
 min_ballR_old = 0;
+--vx,vy=0,0
 
 goalie_log_balls = Config.goalie_log_balls or 0;
 print("GOALIE",goalie_log_balls);
@@ -170,7 +171,7 @@ function update_noball()
   noball_count=noball_count+1;
   --Reset velocity if ball was not seen 
   if noball_count==noball_threshold then
-    --print("Velocity resetted")
+--    print("Velocity resetted")
     vx=0;vy=0;
     ballR_cue=vector.zeros(ballR_cue_length);
     min_ballR_old = 0;

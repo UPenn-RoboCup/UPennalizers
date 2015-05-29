@@ -6,17 +6,25 @@ require('unix')
 require('Config');
 require('walk');
 require('wcm')
+require('vcm')
 
 local cwd = unix.getcwd();
+local getup_flag=0;
 if string.find(cwd, "WebotsController") then
   cwd = cwd.."/Player";
 end
 cwd = cwd.."/Motion/keyframes"
-
 keyframe.load_motion_file(cwd.."/"..Config.km.standup_front,
                           "standupFromFront");
 keyframe.load_motion_file(cwd.."/"..Config.km.standup_back,
                           "standupFromBack");
+keyframe.load_motion_file(cwd.."/"..Config.km.standup_front2,
+                          "standupFromFront2");
+keyframe.load_motion_file(cwd.."/"..Config.km.standup_back2,
+                          "standupFromBack2");
+
+
+
 
 use_rollback_getup = Config.use_rollback_getup or 0;
 batt_max = Config.batt_max or 10;
@@ -29,23 +37,33 @@ function entry()
   -- start standup routine (back/front)
   local imuAngleY = Body.get_sensor_imuAngle(2);
   if (imuAngleY > 0) then
-    print("standupFromFront");
-    keyframe.do_motion("standupFromFront");
+	batt_level=Body.get_battery_level();
+	if batt_level<9 then
+	print("standupFromFront_slow");
+    keyframe.do_motion("standupFromFront2");
+	else
+		print("standupFromFront");
+		keyframe.do_motion("standupFromFront")
+end
   else
     pose = wcm.get_pose();
     batt_level=Body.get_battery_level();
-
-    if math.abs(pose.x) < 2.0 and
-       use_rollback_getup > 0 and
-       batt_level*10>batt_max then
-
-      print("standupFromBack");
+--[[
+    if batt_level<9 then
+      print("standupFromBack_slow");
       keyframe.do_motion("standupFromBack2");
     else
       print("standupFromBack");
       keyframe.do_motion("standupFromBack");
     end
-  end
+--]]
+    if getup_flag==0 and batt_level>9 then
+keyframe.do_motion("standupFromBack");
+else
+keyframe.do_motion("standupFromBack2");
+end
+end
+  --vcm.set_vision_enable(0);
 end
 
 function update()
@@ -55,10 +73,12 @@ function update()
     local maxImuAngle = math.max(math.abs(imuAngle[1]),
                         math.abs(imuAngle[2]));
     if (maxImuAngle > 40*math.pi/180) then
-      return "fail";
+getup_flag=1;     
+ return "fail";
     else
     	--Set velocity to 0 to prevent falling--
     	walk.still=true;
+getup_flag=0;
     	walk.set_velocity(0, 0, 0);
       return "done";
     end

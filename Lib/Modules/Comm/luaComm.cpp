@@ -25,6 +25,7 @@ extern "C"
 #endif
 
 #include <vector>
+#include <algorithm>
 #include <stdint.h>
 
 #define MDELAY 2
@@ -132,7 +133,7 @@ static int lua_comm_update(lua_State *L) {
   while (len > 0) {
     std::string msg((const char *) data, len);
     recvQueue.push_back(msg);
-
+//    std::cout << len << ' ' << recvQueue.back().size() << std::endl;
     len = recvfrom(recv_fd, data, MAX_LENGTH, 0, (struct sockaddr *) &source_addr, &source_addr_len);
   }
 
@@ -160,7 +161,7 @@ static int lua_comm_receive(lua_State *L) {
   }
 
   // TODO: is this enough or do i need to pass an array with the bytes 
-  lua_pushstring(L, recvQueue.front().c_str());
+  lua_pushlstring(L, recvQueue.front().c_str(), recvQueue.front().size());
   recvQueue.pop_front();
 
   /*
@@ -181,11 +182,16 @@ static int lua_comm_send(lua_State *L) {
   int updateRet = lua_comm_update(L);
 
   const char *data = luaL_checkstring(L, 1);
+  int size = luaL_optint(L, 2, 0);
+
 	std::string header;
   std::string dataStr;
-	std::string contents(data);
-  header.push_back(11);
-	dataStr = header + contents;
+//	std::string contents(data);
+	std::string contents(data, size);
+//  header.push_back(11);
+//	dataStr = header + contents;
+	dataStr = contents;
+//  std::cout << dataStr.size() << std::endl;
   int ret = send(send_fd, dataStr.c_str(), dataStr.size(), 0);
     
   lua_pushinteger(L, ret);
@@ -204,8 +210,8 @@ static const struct luaL_reg Comm_lib [] = {
 #ifdef __cplusplus
 extern "C"
 #endif
-int luaopen_Comm (lua_State *L) {
-  luaL_register(L, "Comm", Comm_lib);
+int luaopen_OldComm (lua_State *L) {
+  luaL_register(L, "OldComm", Comm_lib);
 
   return 1;
 }

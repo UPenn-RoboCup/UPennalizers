@@ -2,7 +2,7 @@ fs = 16000;
 nSequence = 512;
 nSkip = 8;
 
-rand('state',0);
+rand('state',1);
 yc = 2*rand(nSequence,1)-1;
 
 %yScale = 32768/nSequence;

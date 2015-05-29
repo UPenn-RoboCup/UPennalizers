@@ -1,132 +1,317 @@
-local zmq = require 'zmq' -- Based on ZMQ
-local poller = require 'zmq/poller'
-local simple_ipc = {} -- Our module
-
---[[
--- On the require, find the interfaces
-local f_ifconfig = io.popen( 'ifconfig -l' )
-local interface_list = f_ifconfig:read()
-f_ifconfig:close()
-for interface in string.gmatch(interface_list, "[%a|%d]+") do 
-	local f_ifconfig = io.popen( "ifconfig "..interface.." | grep 'inet ' | cut -d ' ' -f 2" )
-	local interface_ip = f_ifconfig:read()
-	if interface_ip then
-		local subnet_search = string.gmatch(interface_ip, "192.168.123.%d+")
-		local addr = subnet_search()
-		if addr then
-			simple_ipc.intercom_interface = interface
-			simple_ipc.intercom_interface_ip = interface_ip
-		end
-	end
-	f_ifconfig:close()
-end
---]]
-
--- Simple number of threads
-simple_ipc.n_zmq_threads = 2
-simple_ipc.local_prefix = 'ipc:///tmp/'
--- Set the intercomputer interface
-if simple_ipc.intercom_interface then
-	print( string.format('Selecting (%s) as the inter-pc interface\nUsing address (%s)',
-	simple_ipc.intercom_interface, simple_ipc.intercom_interface_ip) );
-	simple_ipc.intercom_prefix = 'epgm://'..simple_ipc.intercom_interface_ip..';239.192.1.1:'
+---------------------------------
+-- Simple Interface to Lua's 
+-- ZeroMQ wrapper for Team THOR
+-- Version 2 with lzmq from moteus
+-- Version 2 adds pthreads with llthreads2 from moteus
+-- (c) Stephen McGill, 2014
+---------------------------------
+local zmq, poller, llthreads, CTX
+-- LEGACY means we use zmq 3.x with lua-zmq from Neopallium
+-- Else, use lzmq from moetus, which supports zmq 4.x
+local LEGACY = false
+if LEGACY then
+	-- lua-zmq
+	zmq    = require'zmq'
+	poller = require'zmq/poller'
+elseif type(jit)=='table' then
+	-- lzmq with luajit FFI
+	zmq    = require'lzmqFFI'
+	poller = require'lzmqFFI'.poller
+	llthreads = require'llthreads'
 else
-	print( 'There is no inter-pc interface, using TCP' )
-	simple_ipc.intercom_prefix = 'tcp://'
+	-- lzmq
+	zmq    = require'lzmq'
+	poller = require'lzmq.poller'
+	llthreads = require'llthreads'
 end
 
--- If channel is a number, then use tcp
-local function setup_publisher( channel )
-	local channel_obj = {}
-	local channel_type = type(channel)
-	if channel_type=="string" then
-		channel_obj.name = simple_ipc.local_prefix..channel
-	elseif channel_type=="number" then
-    if simple_ipc.intercom_interface then
-    else -- port
-      channel_obj.name = simple_ipc.intercom_prefix..'*:'..channel
-    end
-	end
-	assert(channel_obj.name)
-	print('Publishing on',channel_obj.name)
-	
-  channel_obj.context_handle = zmq.init( simple_ipc.n_zmq_threads )
-  assert( channel_obj.context_handle )
+local simple_ipc = {}
 
-  -- Set the socket type
-  channel_obj.socket_handle = channel_obj.context_handle:socket( zmq.PUB );
-  assert( channel_obj.socket_handle );
+-- Available for simple_ipc
+local N_THREAD_POOL = 1
 
-  -- Bind to a message pipeline
-	-- TODO: connect?
-  channel_obj.socket_handle:bind( channel_obj.name )
+-- Lookup table helper
+-- Easily specify the channel
+local type2prefix = {
+	string = function(s,inverted)
+		-- Prefix string with # for inproc
+		local is_inproc = s:byte(1,1)==35
+		local name
+		if is_inproc then
+			name = 'inproc://'..s
+		else
+			name = 'ipc:///tmp/'..s
+		end
+		-- Postfix string with ! for inverted
+		--local is_inverted = s:byte(-1,-1)==33
+		local is_inverted = inverted==true
+		return name, is_inverted
+	end,
+	number = function(n, target)
+		-- TODO: Specify inverted
+		local name, is_inverted
+		if type(target)~='string' then
+			name = 'tcp://*:'..n
+		else
+			name = 'tcp://'..target..':'..n
+		end
+		return name, is_inverted
+	end,
+}
 
-  -- Set up the sending object
-  function channel_obj.send( self, messages )
-    if type(messages) == "string" then
-      return self.socket_handle:send( messages );
-    end
-    local nmessages = #messages;
-    for i=1,nmessages do
-      local msg = messages[i];
---      assert( type(msg)=="string", 
---        print( string.format("SimpleIPC (%s): Type (%s) not implemented",
---        self.name, type(msg) )
---        ));
-      if i==nmessages then
-        return self.socket_handle:send( msg );
+-- Set up the sending object
+-- Supported: string, userdata, array of strings
+local ch_send = function( self, messages, sz )
+	local tmsg, s, ret = type(messages), self.socket, nil
+	if tmsg == "string" then
+		ret = s:send( messages )
+	elseif tmsg=="table" then
+		local nmessages = #messages
+		for i, msg in ipairs(messages) do
+      if i<nmessages then
+			  ret = s:send( msg, zmq.SNDMORE )
       else
-        ret = self.socket_handle:send( msg, zmq.SNDMORE );
+        ret = s:send( msg )
       end
-    end
-  end
-  return channel_obj;
-end
-simple_ipc.setup_publisher = setup_publisher
-
-local function setup_subscriber( channel )
-	local channel_obj = {}
-	local channel_type = type(channel)
-	if channel_type=="string" then
-		channel_obj.name = simple_ipc.local_prefix..channel
-	elseif channel_type=="number" then
-		channel_obj.name = simple_ipc.intercom_prefix..channel
-  else
-		channel_obj.name = simple_ipc.intercom_prefix..channel[1]..":"..channel[2]
+		end
+		return ret
+	elseif tmsg=="userdata" then
+		-- TODO
 	end
-	assert(channel_obj.name)
-	print('Subscribing on',channel_obj.name)
+	return ret
+end
 
-  channel_obj.context_handle = zmq.init( simple_ipc.n_zmq_threads )
-  assert( channel_obj.context_handle )
+-- Set up receiving object
+local ch_receive = function( self, noblock )
+	local s, ret = self.socket, nil
+	if noblock then
+		ret = s:recv(zmq.NOBLOCK)
+	else
+		ret = s:recv()
+	end
+	-- Check if there is more to be received
+	local has_more
+	-- Remove old API of lua-zmq
+	if LEGACY then
+		has_more = s:getopt( zmq.RCVMORE )
+	else
+		has_more = s:get_rcvmore()
+	end
+	return ret, has_more==1
+end
 
+-- Make a new publisher
+simple_ipc.new_publisher = function( channel, target )
+	-- Form the prefix
+  local ch_name, connect = type2prefix[type(channel)](channel,target)
+	assert(ch_name,'PUBLISH | Bad prefix!')
+	-- Grab or create the context
+	CTX = CTX or zmq.init( N_THREAD_POOL )
   -- Set the socket type
-  channel_obj.socket_handle = channel_obj.context_handle:socket( zmq.SUB );
-  assert( channel_obj.socket_handle );
-
-  -- Bind to a message pipeline
-	-- Bind?
-  local rc = channel_obj.socket_handle:connect( channel_obj.name )
-  channel_obj.socket_handle:setopt( zmq.SUBSCRIBE, '', 0 )
-
-	-- Set up receiving object
-	function channel_obj.receive( self )
-	  local ret = self.socket_handle:recv();
-		local has_more = self.socket_handle:getopt(zmq.RCVMORE)
-    return ret, has_more==1;
+  local ch_socket = CTX:socket( zmq.PUB )
+  assert( ch_socket, 'PUBLISH | Bad socket!' )
+  -- Attach to the channel
+	local is_bind = false
+  if connect then
+    ch_socket:connect( ch_name )
+  else
+    ch_socket:bind( ch_name )
+		is_bind = true
   end
-
-  return channel_obj;
+	-- Return the table
+  return {
+		socket = ch_socket,
+		send = ch_send,
+		name = ch_name,
+		is_bind = is_bind,
+	}
 end
-simple_ipc.setup_subscriber = setup_subscriber
 
-local function wait_on_channels( channels )
-  local poll_obj = poller.new( #channels )
-	for i=1,#channels do
-    poll_obj:add( channels[i].socket_handle, zmq.POLLIN, channels[i].callback );--no callback yet
+-- Make a new subscriber
+simple_ipc.new_subscriber = function( channel, target )
+	-- Form the prefix
+  local ch_name, bind = type2prefix[type(channel)](channel,target)
+	assert(ch_name,'SUBSCRIBE | Bad prefix!')
+	-- Grab or create the context
+	CTX = CTX or zmq.init( N_THREAD_POOL )
+  -- Set the socket type
+  local ch_socket = CTX:socket( zmq.SUB )
+  assert( ch_socket, 'SUBSCRIBE | Bad socket!' )
+	-- Set the subscribe flag with no filters
+	if LEGACY then
+		ch_socket:setopt( zmq.SUBSCRIBE, '', 0 )
+	else
+		ch_socket:set_subscribe''
 	end
-	return poll_obj;
+  -- Attach to the channel
+	local is_bind = false
+  if bind then
+    ch_socket:bind( ch_name )
+		is_bind = true
+  else
+    ch_socket:connect( ch_name )
+  end
+	-- Return the table
+  return {
+		socket = ch_socket,
+		receive = ch_receive,
+		name = ch_name,
+		is_bind = is_bind,
+	}
 end
-simple_ipc.wait_on_channels = wait_on_channels
+
+-- Make a new requester
+simple_ipc.new_requester = function( channel, target )
+	-- Form the prefix
+  local ch_name, bind = type2prefix[type(channel)](channel,target)
+	assert(ch_name,'REQUEST | Bad prefix!')
+	-- Grab or create the context
+	CTX = CTX or zmq.init( N_THREAD_POOL )
+  -- Set the socket type
+  local ch_socket = CTX:socket( zmq.REQ )
+  assert( ch_socket, 'REQUEST | Bad socket!' )
+  -- Attach to the channel
+	local is_bind = false
+  if bind then
+    ch_socket:bind( ch_name )
+		is_bind = true
+  else
+    ch_socket:connect( ch_name )
+  end
+	-- Return the table
+  return {
+		socket = ch_socket,
+		send = ch_send,
+		receive = ch_receive,
+		name = ch_name,
+		is_bind = is_bind,
+	}
+end
+
+-- Make a new replier
+simple_ipc.new_replier = function( channel, target )
+	-- Form the prefix
+  local ch_name, connect = type2prefix[type(channel)](channel,target)
+	assert(ch_name,'REPLIER | Bad prefix!')
+	-- Grab or create the context
+	CTX = CTX or zmq.init( N_THREAD_POOL )
+  -- Set the socket type
+  local ch_socket = CTX:socket( zmq.REP )
+  assert( ch_socket, 'REPLIER | Bad socket!' )
+  -- Attach to the channel
+	local is_bind = false
+  if connect then
+    ch_socket:connect( ch_name )
+  else
+    ch_socket:bind( ch_name )
+		is_bind = true
+  end
+	-- Return the table
+  return {
+		socket = ch_socket,
+		send = ch_send,
+		receive = ch_receive,
+		name = ch_name,
+		is_bind = is_bind,
+	}
+end
+
+-- Make a new pair
+simple_ipc.new_pair = function( channel, is_parent )
+	-- Form the prefix
+  local ch_name, connect = type2prefix[type(channel)](channel)
+	assert(ch_name,'PAIR | Bad prefix!')
+	-- Grab or create the context
+	CTX = CTX or zmq.init( N_THREAD_POOL )
+  -- Set the socket type
+  local ch_socket = CTX:socket( zmq.PAIR )
+  assert( ch_socket, 'PAIR | Bad socket!' )
+  -- Attach to the channel
+	local is_bind = false
+  if is_parent then
+    ch_socket:bind( ch_name )
+		is_bind = true
+  else
+    ch_socket:connect( ch_name )
+  end
+	-- Return the table
+  return {
+		socket = ch_socket,
+		send = ch_send,
+		receive = ch_receive,
+		name = ch_name,
+		is_bind = is_bind,
+	}
+end
+
+-- Return a ZMQ Poller object based on the set of channels
+-- Callbacks set in the code
+simple_ipc.wait_on_channels = function( channels )
+	assert(type(channels)=='table', 'Bad wait channels!')
+	local n_ch = #channels
+  local poll_obj = poller.new( n_ch )
+  -- Add local lookup table for the callbacks
+  local lut = {}
+	for i,ch in pairs(channels) do
+  --for i,ch in ipairs(channels) do
+		local s
+		if type(s)=='number' then
+			-- File descriptor
+			s = ch
+		else
+			-- ZMQ Socket
+			s = ch.socket
+		end
+		assert(s,'No socket for poller!')
+		assert(not lut[s],'Duplicate poller channel!')
+		assert(ch.callback,'No callback for poller!')
+    poll_obj:add( s, zmq.POLLIN, ch.callback )
+		lut[s] = ch
+  end
+	poll_obj.lut = lut
+	poll_obj.n = n_ch
+	poll_obj.clean = function(self,s)
+		-- NOTE: may only be able to remove the last added socket...
+		-- That means arbitrary removal is bad...
+		self:remove(s)
+		self.lut[s] = nil
+		self.n = self.n - 1
+		return self.n
+	end
+  return poll_obj
+end
+
+simple_ipc.import_context = function( existing_ctx )
+	CTX = zmq.init_ctx(existing_ctx)
+end
+
+-- Make a thread with a channel
+simple_ipc.new_thread = function(scriptname, channel, metadata)
+	-- Type checking
+	assert(type(channel)=='string','Must given a comm channel string')
+	assert(type(scriptname)=='string','Must givefilename for stript')
+
+	local f = assert(io.open(scriptname,'r'),'No script found!')
+	local script_str = f:read'*all'
+	f:close()
+	
+	-- Grab or create the context
+	CTX = CTX or zmq.init( N_THREAD_POOL )
+	
+	-- Load the script into the child Lua state
+	-- pass in the ctx, since it is thread safe
+	metadata = metadata or {}
+	metadata.ch_name = '#'..channel
+	local thread = llthreads.new(script_str, CTX:lightuserdata(), metadata )
+	
+	-- Must add the communication...
+	-- NOTE: It is the job of the script to
+	-- ascertain if it was called as a thread
+	-- (Should just check if it was given a context...
+	-- Must call import_context in the thread to achieve communication
+	local pair = simple_ipc.new_pair(metadata.ch_name,true)
+	
+	return pair, thread
+end
 
 return simple_ipc

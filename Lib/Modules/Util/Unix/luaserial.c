@@ -149,7 +149,7 @@ static int lua_writefd(lua_State *L) {
   return 1;
 }
 
-static const struct luaL_reg serial_lib [] = {
+static const luaL_Reg serial_lib [] = {
   {"open", lua_openfd},
   {"close", lua_closefd},
   {"errno", lua_errno},
@@ -178,7 +178,11 @@ static const const_info serial_constants[] = {
 };
 
 int luaopen_serial (lua_State *L) {
+#if LUA_VERSION_NUM == 502
+  luaL_newlib(L, serial_lib);
+#else
   luaL_register(L, "serial", serial_lib);
+#endif
 
   lua_install_constants(L, serial_constants);
   return 1;

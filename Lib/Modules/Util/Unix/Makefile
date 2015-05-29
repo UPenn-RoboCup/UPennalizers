@@ -1,22 +1,31 @@
-CWD= $(shell pwd)
-CHAIN= $(CTCDIR)
+# Makefile used to build Webots files
+include ../../../Makefile.am
 
-all: naoqi 
+all: unix stty getch signal invhyp
 
-naoqi:
-ifeq ($(CHAIN),)
-	@echo Cross compilitation tool not specified. \
-				Please download the ctc tool from \
-				the aldebaran website and follow the \
-				instructions to configure it for your system \
-        && make -f Makefile.local
-else
-	rm -rf build
-	mkdir build
-	cd build && cmake -DCMAKE_TOOLCHAIN_FILE="$(CHAIN)/toolchain-atom.cmake" .. \
-		&& make && cd $(CWD)
-endif
+unix: luaunix.o
+	@echo "\t" LINK $@
+	@$(LD) $(LDFLAGS) -o $@.$(SHLIBEXT) $(LIBOPTS) $^ $(LIB_DIR) -lm $(LIBRT) $(LUA_LIB)
+
+invhyp: lua_invhyp.o
+	@echo "\t" LINK $@
+	@$(LD) $(LDFLAGS) -o $@.$(SHLIBEXT) $(LIBOPTS) $^ $(LIB_DIR) -lm $(LIBRT) $(LUA_LIB)
+
+stty: luastty.o
+	@echo "\t" LINK $@
+	@$(LD) $(LDFLAGS) -o $@.$(SHLIBEXT) $(LIBOPTS) $^ $(LIB_DIR)
+
+getch: lua_getch.o
+	@echo "\t" LINK $@
+	@$(LD) $(LDFLAGS) -o $@.$(SHLIBEXT) $(LIBOPTS) $^ $(LIB_DIR) -lm $(LUA_LIB)
+
+serial: luaserial.o
+	@echo "\t" LINK $@
+	@$(LD) $(LDFLAGS) -o $@.$(SHLIBEXT) $(LIBOPTS) $^ $(LIB_DIR)
+
+signal: lua_signal.o
+	@echo "\t" LINK $@
+	@$(LD) $(LDFLAGS) -o $@.$(SHLIBEXT) $(LIBOPTS) $^ $(LIB_DIR)
 
 clean:
-	make -f Makefile.local clean	
-	rm -rf build
+	rm -f *.o *.$(SHLIBEXT)

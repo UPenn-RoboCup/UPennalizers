@@ -1,86 +1,102 @@
-module(..., package.seeall);
+--module(..., package.seeall);
+local NaoWebotsCam = { } 
+
 require('controller');
 require('carray');
 require('ImageProc');
 
 controller.wb_robot_init();
-timeStep = controller.wb_robot_get_basic_time_step();
+timeStep = controller.wb_robot_get_basic_time_step()
+timeStepCamera = Config.camera_tStep or timeStep
 
--- Get webots tags:
-tags = {};
-tags.camera = controller.wb_robot_get_device("camera");
-controller.wb_camera_enable(tags.camera, timeStep);
+-- Get webots tags: 
+tags = { } ;
+tags.cameraTop = controller.wb_robot_get_device("CameraTop");
+tags.cameraBottom = controller.wb_robot_get_device("CameraBottom");
+tags.camera = tags.cameraTop
+tags.camera_select = 0
 
-positionTop = 0;
-positionBottom = 0.70;
-tags.cameraSelect = controller.wb_robot_get_device("CameraSelect");
-controller.wb_servo_set_position(tags.cameraSelect, positionBottom);
-controller.wb_servo_enable_position(tags.cameraSelect, timeStep);
+controller.wb_camera_enable(tags.cameraTop, timeStepCamera);
+controller.wb_camera_enable(tags.cameraBottom, timeStepCamera);
 
 controller.wb_robot_step(timeStep);
 
-height = controller.wb_camera_get_height(tags.camera);
-width = controller.wb_camera_get_width(tags.camera);
-image = carray.cast(controller.wb_camera_get_image(tags.camera),
-		    'c', 3*height*width);
+height = controller.wb_camera_get_height(tags.cameraTop);
+width = controller.wb_camera_get_width(tags.cameraTop);
 
 mycount = 0;
 
-function set_param()
+local function set_param(self)
 end
 
-function get_param()
-  return 0;
+local function get_param(self)
+	return 0;
 end
 
-function get_height()
-  return height;
+local function get_height(self)
+	return height;
 end
 
-function get_width()
-  return width;
+local function get_width(self)
+	return width;
 end
 
-function get_image()
-  --rgb2yuyv
-  return ImageProc.rgb_to_yuyv(carray.pointer(image), width, height);
+local function get_image(self)
+	self: select_camera(self.select_cam)
+	--rgb2yuyv
+	local image = controller.to_rgb( tags.camera )
+	return ImageProc.rgb_to_yuyv( image, width, height);
 end
 
-function get_labelA(lut)
-  --rgb2label
-  return ImageProc.rgb_to_label(carray.pointer(image), lut, width, height);
-
+local function get_labelA(self, lut)
+	--rgb2label
+	local image = controller.to_rgb( tags.camera )
+	return ImageProc.rgb_to_label( image, lut, width, height );
 end
 
 function get_camera_status()
-  status = {};
-  status.select = get_select();
-  status.count = mycount;
-  status.time = unix.time();
-  status.joint = vector.zeros(20);
-  tmp = Body.get_head_position();
-  status.joint[1],status.joint[2] = tmp[1], tmp[2];
-  mycount = mycount + 1;
-  return status;
+	status = { } ;
+	status.select = get_select();
+	status.count = mycount;
+	status.time = unix.time();
+	status.joint = vector.zeros(20);
+	tmp = Body.get_head_position();
+	status.joint[1],status.joint[2] = tmp[1], tmp[2];
+	mycount = mycount +  1;
+	return status;
 end
 
-function get_camera_position()
-  return controller.wb_servo_get_position(tags.cameraSelect);
-end
+local function select_camera(self, bottom)
+	if (bottom ~= 0) then
 
-function select_camera(bottom)
-  if (bottom ~= 0) then
-    controller.wb_servo_set_position(tags.cameraSelect, positionBottom);
-  else
-    controller.wb_servo_set_position(tags.cameraSelect, positionTop);
-  end
+		tags.camera = tags.cameraBottom
+		tags.camera_select = 1
+	else
+		tags.camera = tags.cameraTop
+		tags.camera_select = 0
+	end
 end
 
 function get_select()
-  if (controller.wb_servo_get_position(tags.cameraSelect) < .5*positionBottom) then
-    --top camera
-    return 0;
-  else
-    return 1;
-  end
+	return tags.camera_select
 end
+
+NaoWebotsCam.init = function(cam_idx)
+local camera = { } 
+-- 0:  top 1:  bottom
+camera.select_cam = cam_idx-1
+camera.height = height
+camera.width = width
+-- Methods
+camera.get_height = get_height
+camera.get_width = get_width
+camera.get_param = get_param
+camera.set_param = set_param
+camera.get_image = get_image
+camera.select_camera = select_camera
+camera.get_labelA = get_labelA
+
+return camera
+end
+
+return NaoWebotsCam

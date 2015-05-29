@@ -9,11 +9,27 @@ require('Config');
 shared = {};
 shsize = {};
 
+
+--We use shm to monitor all the process states
+shared.process={}
+shared.process.broadcast = vector.zeros(1)
+
+shared.process.v1 = vector.zeros(3) --tLast sum_tPassed CountCurrent 
+shared.process.v2 = vector.zeros(3) 
+shared.process.bro = vector.zeros(3) 
+shared.process.fsm = vector.zeros(3)
+
+
+
+
+
+
 shared.robot = {};
 shared.robot.pose = vector.zeros(3);
 shared.robot.uTorso = vector.zeros(3);
 shared.robot.battery_level = vector.zeros(1);
 shared.robot.is_fall_down = vector.zeros(1);
+shared.robot.is_emergency_stop = vector.zeros(1);
 shared.robot.time = vector.zeros(1);
 shared.robot.penalty = vector.zeros(1);
 shared.robot.gpspose = vector.zeros(3);
@@ -23,6 +39,10 @@ shared.robot.odomScale = vector.zeros(3);
 
 shared.robot.team_ball = vector.zeros(3);
 shared.robot.team_ball_score = vector.zeros(1);
+
+shared.robot.flipped = vector.zeros(1);
+shared.robot.is_confused = vector.zeros(1);
+shared.robot.t_confused = vector.zeros(1);
 
 shared.ball = {};
 shared.ball.x = vector.zeros(1);
@@ -36,17 +56,22 @@ shared.ball.p = vector.zeros(1);
 
 
 shared.ball.v_inf = vector.zeros(2);
+shared.ball.t_locked_on = vector.zeros(1);
 
 
 shared.team = {};
 
+
+shared.team.my_eta = vector.zeros(1);
 shared.team.attacker_eta = vector.zeros(1);
 shared.team.defender_eta = vector.zeros(1);
+shared.team.defender2_eta = vector.zeros(1);
 shared.team.supporter_eta = vector.zeros(1);
 shared.team.goalie_alive = vector.zeros(1);
 
 shared.team.attacker_pose = vector.zeros(3);
 shared.team.defender_pose = vector.zeros(3);
+shared.team.defender2_pose = vector.zeros(3);
 shared.team.supporter_pose = vector.zeros(3);
 shared.team.goalie_pose = vector.zeros(3);
 
@@ -83,6 +108,18 @@ shared.obstacle.y = vector.zeros(10);
 shared.obstacle.dist = vector.zeros(10);
 shared.obstacle.role = vector.zeros(10);
 
+
+--NEW obstacle variable (just for the costmap)
+shared.obspole={}
+shared.obspole.num = vector.zeros(1)
+shared.obspole.x = vector.zeros(10)
+shared.obspole.y = vector.zeros(10)
+shared.obspole.t = vector.zeros(10)
+
+
+
+
+
 --Localization monitoring
 shared.particle = {};
 shared.particle.x=vector.zeros(Config.world.n);
@@ -102,6 +139,31 @@ shared.sound.detTime = vector.zeros(1);
 shared.sound.detLIndex = vector.zeros(1);
 shared.sound.detRIndex = vector.zeros(1);
 
+
+use_planner = Config.use_planner or false
+
+
+if use_planner then
+  local div = Config.planner_div or 0.1
+  local xdim = 4.5*2/div + 1
+  local ydim = 3*2/div + 1  
+  local traj_max = 100
+
+  shared.robot.cost1=vector.zeros(xdim*ydim)
+  shared.robot.cost2=vector.zeros(xdim*ydim)
+  shared.robot.dist=vector.zeros(xdim*ydim)    
+
+  shared.robot.traj_num=vector.zeros(1)
+  shared.robot.traj_x=vector.zeros(traj_max)
+  shared.robot.traj_y=vector.zeros(traj_max)
+
+  shsize.robot = xdim*ydim*4*4 + 2^16 --assign big block
+
+
+end
+
+
+
 -----------------------------------------------
 -- This shm is used for wireless team monitoring only
 -- Indexed by player ID + teamOffset 
@@ -110,11 +172,11 @@ listen_monitor = Config.listen_monitor or 0;
 
 if listen_monitor>0 then
   shared.teamdata={};
+  shared.teamdata.teamnum=vector.zeros(1);
   shared.teamdata.teamColor=vector.zeros(10);
   shared.teamdata.robotId=vector.zeros(10);
   shared.teamdata.role=vector.zeros(10);
   shared.teamdata.time=vector.zeros(10);
-
   --Latency information
   shared.teamdata.gclatency=vector.zeros(10);
   shared.teamdata.tmlatency=vector.zeros(10);
@@ -158,27 +220,49 @@ if listen_monitor>0 then
   shared.teamdata.landmarkv2=vector.zeros(10);
 
 --Team LabelB monitoring
+  if type(Config.camera.width) == 'number' then
+    processed_img_width = {Config.camera.width, Config.camera.width};
+  else
+    processed_img_width = Config.camera.width;
+  end
+  if type(Config.camera.height) == 'number' then
+    processed_img_height = {Config.camera.height, Config.camera.height};
+  else
+    processed_img_height = Config.camera.height;
+  end
 
-  processed_img_width = Config.camera.width;
-  processed_img_height = Config.camera.height;
-  processed_img_width = processed_img_width / 2;
-  processed_img_height = processed_img_height / 2;
- 
-  labelB_size =  ((processed_img_width/Config.vision.scaleB)*
-     (processed_img_height/Config.vision.scaleB));
+  top_labelB_size =  ((processed_img_width[1]/Config.vision.scaleA[1]/Config.vision.scaleB[1])*
+     (processed_img_height[1]/Config.vision.scaleA[1]/Config.vision.scaleB[1]));
 
-  shared.labelB = {};
-  shared.labelB.p1 = labelB_size;
-  shared.labelB.p2 = labelB_size;
-  shared.labelB.p3 = labelB_size;
-  shared.labelB.p4 = labelB_size;
-  shared.labelB.p5 = labelB_size;
-  shared.labelB.p6 = labelB_size;
-  shared.labelB.p7 = labelB_size;
-  shared.labelB.p8 = labelB_size;
-  shared.labelB.p9 = labelB_size;
-  shared.labelB.p10 = labelB_size;
-  shsize.labelB = 10*labelB_size + 2^16;
+  shared.labelBtop = {};
+  shared.labelBtop.p1 = top_labelB_size;
+  shared.labelBtop.p2 = top_labelB_size;
+  shared.labelBtop.p3 = top_labelB_size;
+  shared.labelBtop.p4 = top_labelB_size;
+  shared.labelBtop.p5 = top_labelB_size;
+  shared.labelBtop.p6 = top_labelB_size;
+  shared.labelBtop.p7 = top_labelB_size;
+  shared.labelBtop.p8 = top_labelB_size;
+  shared.labelBtop.p9 = top_labelB_size;
+  shared.labelBtop.p10 = top_labelB_size;
+  shsize.labelBtop = 10*top_labelB_size + 2^16;
+
+  btm_labelB_size =  ((processed_img_width[2]/Config.vision.scaleA[2]/Config.vision.scaleB[2])*
+     (processed_img_height[2]/Config.vision.scaleA[2]/Config.vision.scaleB[2]));
+
+  shared.labelBbtm = {};
+  shared.labelBbtm.p1 = btm_labelB_size;
+  shared.labelBbtm.p2 = btm_labelB_size;
+  shared.labelBbtm.p3 = btm_labelB_size;
+  shared.labelBbtm.p4 = btm_labelB_size;
+  shared.labelBbtm.p5 = btm_labelB_size;
+  shared.labelBbtm.p6 = btm_labelB_size;
+  shared.labelBbtm.p7 = btm_labelB_size;
+  shared.labelBbtm.p8 = btm_labelB_size;
+  shared.labelBbtm.p9 = btm_labelB_size;
+  shared.labelBbtm.p10 = btm_labelB_size;
+  shsize.labelBbtm = 10*btm_labelB_size + 2^16;
+
 
   shared.robotNames = {};
   shared.robotNames.n1 = '';
@@ -191,6 +275,18 @@ if listen_monitor>0 then
   shared.robotNames.n8 = '';
   shared.robotNames.n9 = '';
   shared.robotNames.n10 = '';
+
+  shared.bodyStates = {};
+  shared.bodyStates.n1 = '';
+  shared.bodyStates.n2 = '';
+  shared.bodyStates.n3 = '';
+  shared.bodyStates.n4 = '';
+  shared.bodyStates.n5 = '';
+  shared.bodyStates.n6 = '';
+  shared.bodyStates.n7 = '';
+  shared.bodyStates.n8 = '';
+  shared.bodyStates.n9 = '';
+  shared.bodyStates.n10 = '';
 
 end
 

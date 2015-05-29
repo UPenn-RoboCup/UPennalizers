@@ -1,10 +1,13 @@
 module(..., package.seeall);
 
 require('Body')
+require('vcm')
 
 t0 = 0;
 timeout = 1.0;
 
+---
+--Prepare robot to enter relax state; set body hardnesses to zero.
 footX = Config.walk.footX or 0;
 footY = Config.walk.footY;
 supportX = Config.walk.supportX;
@@ -34,16 +37,28 @@ function entry()
 
     Body.set_lleg_hardness({0.6,0.6,0.6,0,0,0});
     Body.set_rleg_hardness({0.6,0.6,0.6,0,0,0});
-  else
+  elseif Config.platform.name=='NaoV4' then
     Body.set_body_hardness(0);
+    Body.set_lleg_hardness({0,0,0.5,0,0,0});
+    Body.set_rleg_hardness({0,0,0.5,0,0,0});
+
+
   end
   Body.set_syncread_enable(1);
+  --vcm.set_vision_enable(1);
 end
 
+---
+--Set actuator commands to resting position, as gotten from joint encoders.
 function update()
   local t = Body.get_time();
 
   --Only reset leg positons, not arm positions (for waiting players)
+
+
+  if Config.game.role == 5 then --Enable head movement for COACH
+    Body.set_head_hardness(.5)
+  end
 
   if(Config.platform.name == 'OP') then
     local qSensor = Body.get_sensor_position();
@@ -56,14 +71,23 @@ function update()
 
     Body.set_lleg_command(qLLeg);
     Body.set_rleg_command(qRLeg);
+  elseif Config.platform.name == 'NaoV4' then
+    --Hack for pocket (bad ankle encoder)
+    qLLeg = vector.new({0,0,-52,124,-70,3})*math.pi/180;
+    qRLeg = vector.new({0,0,-52,124,-70,3})*math.pi/180;
+    Body.set_lleg_command(qLLeg);
+    Body.set_rleg_command(qRLeg);
+    --Set initial commanded values
+    for i=1,6 do
+      Body.commanded_joint_angles[6+i] = qLLeg[i];
+      Body.commanded_joint_angles[12+i] = qRLeg[i];
+    end
   else
-    local qSensor = Body.get_sensor_position();
-    Body.set_actuator_command(qSensor);
-  end
-
+   qLLeg = Body.get_lleg_position();
+   qRLeg = Body.get_rleg_position();
+  end   
+  
   --update vcm body information
-  local qLLeg = Body.get_lleg_position();
-  local qRLeg = Body.get_rleg_position();
   local dpLLeg = Kinematics.torso_lleg(qLLeg);
   local dpRLeg = Kinematics.torso_rleg(qRLeg);
 

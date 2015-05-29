@@ -8,6 +8,7 @@ require('vector')
 require('Transform')
 require('vcm')
 require('mcm')
+require('walk')
 
 active = true;
 t0 = 0;
@@ -54,39 +55,33 @@ function entry()
   t0 = Body.get_time();
 
   walk.active=false;
+  --vcm.set_vision_enable(1);
+  mcm.set_walk_isMoving(1); --start walk
+  mcm.set_walk_isStepping(0);
 end
 
 function update()
   local t = Body.get_time();
 
-  --For OP, wait a bit to read joint readings
+    --For OP, wait a bit to read joint readings
   if not started then 
     if t-t0>tStartWait then
       started=true;
-
       local qLLeg = Body.get_lleg_position();
       local qRLeg = Body.get_rleg_position();
+
+      --Nao uses last commanded value, not currently read value
+      if Config.platform.name == 'NaoV4' then
+        for i=1,6 do
+	  qLLeg[i] = Body.commanded_joint_angles[6+i];
+	  qRLeg[i] = Body.commanded_joint_angles[12+i];
+	end
+      end
       local dpLLeg = Kinematics.torso_lleg(qLLeg);
       local dpRLeg = Kinematics.torso_rleg(qRLeg);
-
       pTorsoL=pLLeg+dpLLeg;
       pTorsoR=pRLeg+dpRLeg;
       pTorso=(pTorsoL+pTorsoR)*0.5;
-
---[[
-      --For OP, lift hip a bit before starting to standup
-      if(Config.platform.name == 'OP') then
-        print("Initial bodyHeight:",pTorso[3]);
-        if pTorso[3]<0.21 then
-          Body.set_lleg_hardness(0.5);
-          Body.set_rleg_hardness(0.5);
-          Body.set_actuator_command(Config.stance.initangle)
-          unix.usleep(1E6*0.4);
-	  started=false;
-	  return;
-        end
-      end
---]]
 
       Body.set_lleg_command(qLLeg);
       Body.set_rleg_command(qRLeg);
@@ -94,7 +89,6 @@ function update()
       Body.set_rleg_hardness(hardnessLeg);
       t0 = Body.get_time();
       count=1;
-
       Body.set_syncread_enable(0); 
     else 
       Body.set_syncread_enable(1); 
@@ -124,25 +118,42 @@ function update()
 
   vcm.set_camera_bodyHeight(pTorso[3]);
   vcm.set_camera_bodyTilt(pTorso[5]);
---print("BodyHeight/Tilt:",pTorso[3],pTorso[5]*180/math.pi)
 
-  q = Kinematics.inverse_legs(pLLeg, pRLeg, pTorso, 0);
+  pTorsoActual = {
+	pTorso[1],
+	pTorso[2],
+	pTorso[3],
+	pTorso[4],
+	pTorso[5],
+	pTorso[6]}
+
+  if walk.has_ball and walk.has_ball>0 then
+    pTorsoActual[1] = pTorsoActual[1] - 0.01;
+  end
+
+  q = Kinematics.inverse_legs(pLLeg, pRLeg, pTorsoActual, 0);
+  --print(q[9])
   Body.set_lleg_command(q);
 
   if (tol) then
     if tFinish==0 then
       tFinish=t;
+--[[
       Body.set_larm_command(qLArm);
       Body.set_rarm_command(qRArm);
       Body.set_larm_hardness(.1);
       Body.set_rarm_hardness(.1);
+--]]
     else
       if t-tFinish>tEndWait then
 	print("Stand done, time elapsed",t-tStart)
 	vcm.set_camera_bodyHeight(Config.walk.bodyHeight);
 	vcm.set_camera_bodyTilt(Config.walk.bodyTilt);
 	walk.stance_reset();
-	walk.start();
+        if Config.disable_walk then
+        else
+	       walk.start();
+       end
         return "done"
       end
     end

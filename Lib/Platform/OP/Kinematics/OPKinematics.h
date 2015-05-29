@@ -11,20 +11,17 @@ enum {LEG_LEFT = 0, LEG_RIGHT = 1};
 const double PI = 2*asin(1);
 const double SQRT2 = sqrt(2);
 
-
-//Those values are not correct for OP.. we need actual spec sheet
-const double neckOffsetZ = .026+.0505;//OP, calculated from spec
+const double neckOffsetZ = .026+.0505;//OP, calculated from spec // From CoM to neck
 const double neckOffsetX = .013;//OP, calculated from spec
-const double shoulderOffsetX = .013;//OP, calculated from spec
+const double shoulderOffsetX = 0;//.013;//OP, calculated from spec
 const double shoulderOffsetY = .082; //op, spec 
 const double shoulderOffsetZ = .026; //OP, calculated from spec
 const double handOffsetX = .058;
-const double handOffsetZ = .0159;
+const double handOffsetZ = 0;//.0159;
 const double upperArmLength = .060;  //OP, spec
 const double lowerArmLength = .129;  //OP, spec
 
 const double hipOffsetY = .037;    //OP, measured
-//const double hipOffsetZ = .050;    //OP, Guesswork
 const double hipOffsetZ = .096;    //OP, Calculated from spec
 const double hipOffsetX = .008;    //OP, Calculated from spec
 const double thighLength = .0930;  //OP, spec
@@ -61,7 +58,12 @@ darwinop_kinematics_inverse_legs(
 			    const double *pTorso,
 			    int legSupport=0);
 
-std::vector<double> darwinop_kinematics_inverse_arm(
+
+std::vector<double> darwinop_kinematics_inverse_larm(
+			    const double *dArm
+			    );
+
+std::vector<double> darwinop_kinematics_inverse_rarm(
 			    const double *dArm
 			    );
 

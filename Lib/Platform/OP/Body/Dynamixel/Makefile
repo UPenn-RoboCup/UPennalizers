@@ -1,20 +1,6 @@
-# Makefile used to build Webots files
-include ../../../../Makefile.inc
-
-TARGETS = all clean
-.PHONY: $(TARGETS)
-
-all: DynamixelPacket
-
-%.o: %.cc
-	$(CXX) $(CXXFLAGS) $(INCLUDES) -o $@ -c $<
-%.o: %.cpp
-	$(CXX) $(CXXFLAGS) $(INCLUDES) -o $@ -c $<
-%.o: %.c
-	$(CC) $(CXXFLAGS) $(INCLUDES) -o $@ -c $<
-
-DynamixelPacket: luadynamixelpacket.o dynamixel.o
-	$(CXX) -o $@.$(SHLIBEXT) $(LIBOPTS) $^ $(LIBRT)
-
+LIBNAME=DynamixelPacket
+EXTRA_OBJ=dynamixel.o
+include ../../../../Makefile.am
+LIBOPTS+=-lm
 clean:
-	rm -f *.o *.$(SHLIBEXT) *.$(MEXEXT)
+	rm -f *.$(SHLIBEXT) *.o

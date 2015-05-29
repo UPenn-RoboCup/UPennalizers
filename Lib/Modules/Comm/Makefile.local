@@ -1,5 +1,5 @@
 # Makefile used to build libraries
-include ../../Makefile.inc
+include ../../Makefile.am
 
 TARGETS = all clean
 .PHONY: $(TARGETS)
@@ -14,7 +14,7 @@ all: comm
 	$(CC) $(CXXFLAGS) $(INCLUDES) -o $@ -c $<
 
 comm: luaComm.o 
-	$(LD) $(LDFLAGS) -o Comm.$(SHLIBEXT) $(LIBOPTS) $^ $(LIB_DIR) -lm
+	$(LD) $(LDFLAGS) -o OldComm.$(SHLIBEXT) $(LIBOPTS) $^ $(LIB_DIR) -lm
 
 clean:
 	rm -f *.$(SHLIBEXT) *.o

@@ -5,7 +5,7 @@ require('os')
 require('unix');
 require('Config')
 
-local volume = 55;
+local volume = 10;
 local lang = 'en-us';
 local gender = Config.dev.gender or 1;
 if gender == 1 then
@@ -15,31 +15,39 @@ else
 end
 enable = Config.speakenable or 1
 
--- define speak queue file
-fifo = '/tmp/speakFIFO'..(os.getenv('USER') or '');
-
--- clean up old fifo if it exists
-unix.system('rm -f '..fifo);
-
--- create directory if needed
-unix.system('mkdir -p /tmp/');
-
--- create the queue file (438 = 0666 permissions)
-if (unix.mkfifo(fifo, 438) ~= 0) then
-  error('Could not create FIFO: '..fifo);
+--Turn off espeak for webots (causes init issues)
+if Config.platform.name=='WebotsNao' or
+   Config.platform.name=='WebotsOP' then
+  enable = 0;
 end
 
--- open the fifo
-fid = io.open(fifo, 'a+');
-if not fid then
-  error('could not open fifo: '..fifo);
-end
 
--- start espeak background process
-if (unix.system('(/usr/bin/env espeak --stdout -v '..lang..girl..' -s 130 -a '..volume..' < '..fifo..' | aplay) > /dev/null 2>&1 &') ~= 0) then
-  error('Could not run speak process');
+if enable == 1 then
+  -- define speak queue file
+  fifo = '/tmp/speakFIFO'..(os.getenv('USER') or '');
+  
+  -- clean up old fifo if it exists
+  unix.system('rm -f '..fifo);
+  
+  -- create directory if needed
+  unix.system('mkdir -p /tmp/');
+  
+  -- create the queue file (438 = 0666 permissions)
+  if (unix.mkfifo(fifo, 438) ~= 0) then
+    error('Could not create FIFO: '..fifo);
+  end
+  
+  -- open the fifo
+  fid = io.open(fifo, 'a+');
+  if not fid then
+    error('could not open fifo: '..fifo);
+  end
+  
+  -- start espeak background process
+  if (unix.system('(/usr/bin/env espeak --stdout -v '..lang..girl..' -s 130 -a '..volume..' < '..fifo..' | aplay) > /dev/null 2>&1 &') ~= 0) then
+    error('Could not run speak process');
+  end
 end
-
 
 function talk(text)
   if enable==1 then
@@ -50,6 +58,8 @@ function talk(text)
 end
 
 function play(filename)
-  unix.system('aplay '..filename..' &');
+  if enable == 1 then
+    unix.system('mpg123 '..filename..' &');
+  end
 end
 

@@ -2,8 +2,9 @@ module(..., package.seeall);
 
 require('Config');
 require('vector');
-require('vcm')
-require 'util'
+require('vcm');
+require('gcm');
+require('util');
 
 n = Config.world.n;
 xLineBoundary = Config.world.xLineBoundary;
@@ -14,52 +15,68 @@ yMax = Config.world.yMax;
 goalWidth = Config.world.goalWidth;
 postYellow = Config.world.postYellow;
 postCyan = Config.world.postCyan;
-landmarkYellow = Config.world.landmarkYellow;
-landmarkCyan = Config.world.landmarkCyan;
-spot = Config.world.spot;
+spotWhite = Config.world.spot;
 ballYellow = Config.world.ballYellow;
 ballCyan = Config.world.ballCyan;
-landmarkYellow = Config.world.landmarkYellow;
-landmarkCyan = Config.world.landmarkCyan;
 Lcorner = Config.world.Lcorner;
-
---Are we using same colored goals?
-use_same_colored_goal=Config.world.use_same_colored_goal or 0;
+Lgoalie_corner = Config.world.Lgoalie_corner;
 
 --Triangulation method selection
 use_new_goalposts= Config.world.use_new_goalposts or 0;
+if Config.game.playerID > 1 then
+  triangulation_threshold=Config.world.triangulation_threshold or 4.0;
+  position_update_threshold = Config.world.position_update_threshold or 6.0;
+else
+  -- smaller threshold for the goalie
+  triangulation_threshold=Config.world.triangulation_threshold_goalie or 3.0;
+  position_update_threshold = Config.world.position_update_threshold_goalie or 3.0;
+end
+angle_update_threshold = Config.world.angle_update_threshold or 0.6;
 
 --For single-colored goalposts
 postUnified = {postYellow[1],postYellow[2],postCyan[1],postCyan[2]};
 postLeft={postYellow[1],postCyan[1]}
 postRight={postYellow[2],postCyan[2]}
 
-rGoalFilter = Config.world.rGoalFilter;
-aGoalFilter = Config.world.aGoalFilter;
-rPostFilter = Config.world.rPostFilter;
-aPostFilter = Config.world.aPostFilter;
-rKnownGoalFilter = Config.world.rKnownGoalFilter or Config.world.rGoalFilter;
-aKnownGoalFilter = Config.world.aKnownGoalFilter or Config.world.aGoalFilter;
-rKnownPostFilter = Config.world.rKnownPostFilter or Config.world.rPostFilter;
-aKnownPostFilter = Config.world.aKnownPostFilter or Config.world.aPostFilter;
-rUnknownGoalFilter = Config.world.rUnknownGoalFilter or Config.world.rGoalFilter;
-aUnknownGoalFilter = Config.world.aUnknownGoalFilter or Config.world.aGoalFilter;
-rUnknownPostFilter = Config.world.rUnknownPostFilter or Config.world.rPostFilter;
-aUnknownPostFilter = Config.world.aUnknownPostFilter or Config.world.aPostFilter;
+--position and angle update rates
+rGoalFilter = Config.world.rGoalFilter or 0.02;
+aGoalFilter = Config.world.aGoalFilter or 0.05;
+rPostFilter = Config.world.rPostFilter or 0.01;
+aPostFilter = Config.world.aPostFilter or 0.03;
+rPostFilter2 = Config.world.rPostFilter2 or 0.01;
+aPostFilter2 = Config.world.aPostFilter2 or 0.03;
+rCornerFilter = Config.world.rCornerFilter or 0.01;
+aCornerFilter = Config.world.aCornerFilter or 0.03;
+if(gcm.get_team_role() == 0) then
+    rCornerFilter = rCornerFilter + 0.02;
+    aCornerFilter = aCornerFilter + 0.02;
+end
 
-rLandmarkFilter = Config.world.rLandmarkFilter;
-aLandmarkFilter = Config.world.aLandmarkFilter;
+--Sigma values for one landmark observation
+rSigmaSingle1 = Config.world.rSigmaSingle1 or .15;
+rSigmaSingle2 = Config.world.rSigmaSingle2 or .10;
+aSigmaSingle = Config.world.aSigmaSingle or 50*math.pi/180;
 
-rCornerFilter = Config.world.rCornerFilter;
-aCornerFilter = Config.world.aCornerFilter;
+--Sigma values for goal observation
+rSigmaDouble1 = Config.world.rSigmaSingle1 or .25;
+rSigmaDouble2 = Config.world.rSigmaSingle2 or .20;
+aSigmaDouble = Config.world.aSigmaSingle or 50*math.pi/180;
+
+daNoise = Config.world.daNoise or 2.0*math.pi/180.0;
+drNoise = Config.world.drNoise or 0.01;
+
+dont_reset_orientation = Config.world.dont_reset_orientation or 0;
 
 
 
-xp = .5*xMax*vector.new(util.randn(n));
-yp = .5*yMax*vector.new(util.randn(n));
-ap = 2*math.pi*vector.new(util.randu(n));
-wp = vector.zeros(n);
+xp = .5*xMax*vector.new(util.randn(n)); -- x coordinate of each particle
+yp = .5*yMax*vector.new(util.randn(n)); -- y coordinate
+ap = 2*math.pi*vector.new(util.randu(n)); -- angle
+wp = vector.zeros(n); -- weight
 
+---Initializes a gaussian distribution of particles centered at p0
+--@param p0 center of distribution
+--@param dp scales how wide the distrubution is
 function initialize(p0, dp)
   p0 = p0 or {0, 0, 0};
   dp = dp or {.5*xMax, .5*yMax, 2*math.pi};
@@ -82,6 +99,16 @@ function initialize_manual_placement(p0, dp)
 end
 
 function initialize_unified(p0,p1,dp)
+  init_override = Config.world.init_override or 0;
+  if init_override == 1 then --High kick challenge
+    for i=1,n do
+      xp[i]=0;
+      yp[i]=0;
+      ap[i]=5*math.pi/180  * (math.random()-.5);
+    end
+    wp = vector.zeros(n);
+    return;
+  end
   --Particle initialization for the same-colored goalpost
   --Half of the particles at p0
   --Half of the particles at p1
@@ -89,14 +116,23 @@ function initialize_unified(p0,p1,dp)
   p1 = p1 or {0, 0, 0};
   --Low spread  
   dp = dp or {.15*xMax, .15*yMax, math.pi/6};
+  dp = dp or {.1*xMax, .1*yMax, math.pi/8};
 
-  for i=1,n/2 do
-    xp[i]=p0[1]+dp[1]*(math.random()-.5); 
-    yp[i]=p0[2]+dp[2]*(math.random()-.5);
+  for i=1,n/2 do    
+    -- xp[i]=p0[1]+dp[1]*(math.random()-.5); 
+    -- yp[i]=p0[2]+dp[2]*(math.random()-.5);
+
+    local normalRand = util.randn2()
+    xp[i]=p0[1]+dp[1]*normalRand[1]; 
+    yp[i]=p0[2]+dp[2]*normalRand[2];
     ap[i]=p0[3]+dp[3]*(math.random()-.5);
 
-    xp[i+n/2]=p1[1]+dp[1]*(math.random()-.5);
-    yp[i+n/2]=p1[2]+dp[2]*(math.random()-.5);
+    -- xp[i+n/2]=p1[1]+dp[1]*(math.random()-.5);
+    -- yp[i+n/2]=p1[2]+dp[2]*(math.random()-.5);
+    
+    normalRand = util.randn2()
+    xp[i+n/2]=p1[1]+dp[1]*normalRand[1];
+    yp[i+n/2]=p1[2]+dp[2]*normalRand[2];    
     ap[i+n/2]=p1[3]+dp[3]*(math.random()-.5);
   end
   wp = vector.zeros(n);
@@ -112,18 +148,41 @@ function initialize_heading(aGoal)
   wp = vector.zeros(n);
 end
 
+---Sets headings of all particles to random angles with 0 weight
+--@usage For when robot falls down
 function reset_heading()
-  ap = 2*math.pi*vector.new(util.randu(n));
-  wp = vector.zeros(n);
+  if dont_reset_orientation == 0 then
+    ap = 2*math.pi*vector.new(util.randu(n));
+    wp = vector.zeros(n);
+  else
+
+  end
 end
 
+function flip_particles()
+  xp = -xp;
+  yp = -yp;
+    for i = 1, n do
+      if ap[i] <= math.pi then
+        ap[i] = ap[i] + math.pi;
+      else
+        ap[i] = ap[i] - math.pi;
+      end
+    end
+end 
+
+---Returns best pose out of all particles
 function get_pose()
   local wmax, imax = max(wp);
   return xp[imax], yp[imax], mod_angle(ap[imax]);
 end
 
+---Caluclates weighted sample variance of current particles.
+--@param x0 x coordinates of current particles
+--@param y0 y coordinates of current particles
+--@param a0 angles of current particles
+--@return weighted sample variance of x coordinates, y coordinates, and angles
 function get_sv(x0, y0, a0)
-  -- weighted sample variance of current particles
   local xs = 0.0;
   local ys = 0.0;
   local as = 0.0;
@@ -142,6 +201,11 @@ function get_sv(x0, y0, a0)
   return math.sqrt(xs)/ws, math.sqrt(ys)/ws, math.sqrt(as)/ws;
 end
 
+---Calcualtes distance and angle from each particle to landmark
+--@param xlandmark x coordinate of landmark in world frame
+--@param ylandmark y coordinate of landmark in world frame
+--@return r distance from landmark to each particle
+--@return a angle between landmkark and each particle
 function landmark_ra(xlandmark, ylandmark)
   local r = vector.zeros(n);
   local a = vector.zeros(n);
@@ -154,53 +218,106 @@ function landmark_ra(xlandmark, ylandmark)
   return r, a;
 end
 
-function landmark_observation(pos, v, rLandmarkFilter, aLandmarkFilter)
+---Updates particles with respect to the detection of a landmark
+--@param pos Table of possible positions for a landmark
+--@param v x and y coordinates of detected landmark relative to robot
+--@param rLandmarkFilter How much to adjust particles according to
+--distance to landmark
+--@param aLandmarkFilter How much to adjust particles according to 
+--angle to landmark
+function landmark_observation(pos, v, rLandmarkFilter, aLandmarkFilter,dont_update_position)
+
+  -- local p = wcm.get_pose()
+  -- if math.sqrt(p.x^2 + p.y^2) < 1 then
+  --     dont_update_position = 1
+  -- end
+
   local r = math.sqrt(v[1]^2 + v[2]^2);
   local a = math.atan2(v[2], v[1]);
-  local rSigma = .15*r + 0.10;
-  local aSigma = 5*math.pi/180;
+
+  local rSigma = rSigmaSingle1 * r + rSigmaSingle2;
+  local aSigma = aSigmaSingle;
+
   local rFilter = rLandmarkFilter or 0.02;
   local aFilter = aLandmarkFilter or 0.04;
 
-  --Calculate best matching landmark pos to each particle
-  local dxp = {};
-  local dyp = {};
-  local dap = {};
-  for ip = 1,n do
-    local dx = {};
-    local dy = {};
-    local dr = {};
-    local da = {};
-    local err = {};
-    for ipos = 1,#pos do
-      dx[ipos] = pos[ipos][1] - xp[ip];
-      dy[ipos] = pos[ipos][2] - yp[ip];
-      dr[ipos] = math.sqrt(dx[ipos]^2 + dy[ipos]^2) - r;
-      da[ipos] = mod_angle(math.atan2(dy[ipos],dx[ipos]) - (ap[ip] + a));
-      err[ipos] = (dr[ipos]/rSigma)^2 + (da[ipos]/aSigma)^2;
+  --TODO: If landmark is very far, increase? the rate 
+  local rFactor, aFactor = 0,0
+  if r > 2 then rFactor = r/2*0.05 end
+  if a > math.pi/2 then aFactor = a/(math.pi/2)*0.05 end
+  
+  -- rFilter = rFilter + rFactor
+  -- aFilter = aFilter + aFactor
+
+  --If we see a landmark at very close range
+  --A small positional error can change the angle a lot
+          --So we do not update angle if the distance is very small 
+          if Config.game.playerID == 1 then
+            angle_update_threshold = math.huge
+          else
+            angle_update_threshold = 3
+          end
+
+          --Calculate best matching landmark pos to each particle
+          local dxp = {};
+          local dyp = {};
+          local dap = {};
+          for ip = 1,n do
+            local dx = {};
+            local dy = {};
+            local dr = {};
+            local da = {};
+            local err = {};
+            for ipos = 1,#pos do
+              dx[ipos] = pos[ipos][1] - xp[ip];
+              dy[ipos] = pos[ipos][2] - yp[ip];
+              dr[ipos] = math.sqrt(dx[ipos]^2 + dy[ipos]^2) - r;
+              da[ipos] = mod_angle(math.atan2(dy[ipos],dx[ipos]) - (ap[ip] + a));
+
+              if dont_update_position==1 then --only angle error
+                err[ipos] = (da[ipos]/aSigma)^2;
+              else --position and angle error
+                err[ipos] = (dr[ipos]/rSigma)^2 + (da[ipos]/aSigma)^2;
+              end
+            end
+            local errMin, imin = min(err);
+
+            --Update particle weights:
+            wp[ip] = wp[ip] - errMin;
+            dxp[ip] = dx[imin];
+            dyp[ip] = dy[imin];
+            dap[ip] = da[imin];
+        --[[
+            if ip % 40 == 0 then
+                print("drp[ip] "..math.sqrt(dxp[ip]^2 + dyp[ip]^2));
+                print("dap[ip] "..dap[ip]);
+            end
+        ]]--
+          end
+          --Filter toward best matching landmark position:
+          for ip = 1,n do
+            --print(string.format("%d %.1f %.1f %.1f",ip,xp[ip],yp[ip],ap[ip]));
+            if not (dont_update_position==1) and r < position_update_threshold then
+              --print(type(xp), type(dxp), type(ap))
+              xp[ip] = xp[ip] + rFilter * (dxp[ip] - r * math.cos(ap[ip] + a));
+              yp[ip] = yp[ip] + rFilter * (dyp[ip] - r * math.sin(ap[ip] + a));
+            end
+
+            if r > angle_update_threshold then
+      ap[ip] = ap[ip] + aFilter * dap[ip];
     end
-    local errMin, imin = min(err);
-
-    --Update particle weights:
-    wp[ip] = wp[ip] - errMin;
-
-    dxp[ip] = dx[imin];
-    dyp[ip] = dy[imin];
-    dap[ip] = da[imin];
-  end
-  --Filter toward best matching landmark position:
-  for ip = 1,n do
---print(string.format("%d %.1f %.1f %.1f",ip,xp[ip],yp[ip],ap[ip]));
-    xp[ip] = xp[ip] + rFilter * (dxp[ip] - r * math.cos(ap[ip] + a));
-    yp[ip] = yp[ip] + rFilter * (dyp[ip] - r * math.sin(ap[ip] + a));
-    ap[ip] = ap[ip] + aFilter * dap[ip];
-
+ 
     -- check boundary
     xp[ip] = math.min(xMax, math.max(-xMax, xp[ip]));
     yp[ip] = math.min(yMax, math.max(-yMax, yp[ip]));
   end
 end
 
+---Update particles according to a goal detection
+--@param pos All possible positions of the goals
+--For example, each post location is an entry in pos
+--@param v x and y coordinates of detected goal relative to robot
+--function goal_observation(pos, v)
 ---------------------------------------------------------------------------
 -- Now we have two ambiguous goals to check
 -- So we separate the triangulation part and the update part
@@ -307,30 +424,30 @@ function triangulate2(pos,v)
          end
        end
      else 
-     --right post correction based on left post
-     -- v2=kcos(a2),ksin(a2)
-     -- k^2 - 2k(v[1][1]cos(a2)+v[1][2]sin(a2)) + d2Post[1]-goalWidth^2 = 0
-     local ca=math.cos(aPost[2]);
-     local sa=math.sin(aPost[2]);
-     local b=v[1][1]*ca+ v[1][2]*sa;
-     local c=d2Post[1]-goalWidth^2;
+       --right post correction based on left post
+       -- v2=kcos(a2),ksin(a2)
+       -- k^2 - 2k(v[1][1]cos(a2)+v[1][2]sin(a2)) + d2Post[1]-goalWidth^2 = 0
+       local ca=math.cos(aPost[2]);
+       local sa=math.sin(aPost[2]);
+       local b=v[1][1]*ca+ v[1][2]*sa;
+       local c=d2Post[1]-goalWidth^2;
   
-     if b*b-c>0 then
-       k1=b-math.sqrt(b*b-c);
-       k2=b+math.sqrt(b*b-c);
-       vcm.add_debug_message(string.format("d2: %.1f v2: %.1f %.1f\n",
-  	d2,v[2][1],v[2][2]));
-       vcm.add_debug_message(string.format("k1: %.1f v2_1: %.1f %.1f\n",
-	k1,k1*ca,k1*sa ));
-       vcm.add_debug_message(string.format("k2: %.1f v2_2: %.1f %.1f\n",
-	k2,k2*ca,k2*sa ));
-       if math.abs(d2-k1)<math.abs(d2-k2) then
-          v[2][1],v[2][2]=k1*ca,k1*sa;
-       else
-          v[2][1],v[2][2]=k2*ca,k2*sa;
+       if b*b-c>0 then
+         k1=b-math.sqrt(b*b-c);
+         k2=b+math.sqrt(b*b-c);
+         vcm.add_debug_message(string.format("d2: %.1f v2: %.1f %.1f\n",
+    	d2,v[2][1],v[2][2]));
+         vcm.add_debug_message(string.format("k1: %.1f v2_1: %.1f %.1f\n",
+  	k1,k1*ca,k1*sa ));
+         vcm.add_debug_message(string.format("k2: %.1f v2_2: %.1f %.1f\n",
+  	k2,k2*ca,k2*sa ));
+         if math.abs(d2-k1)<math.abs(d2-k2) then
+            v[2][1],v[2][2]=k1*ca,k1*sa;
+         else
+            v[2][1],v[2][2]=k2*ca,k2*sa;
+         end
        end
      end
-   end
 
    end
 
@@ -374,52 +491,6 @@ end
 
 
 
-function goal_observation(pos, v)
-  --Get estimate using triangulation
-  if use_new_goalposts==1 then
-    pose,dGoal,aGoal=triangulate2(pos,v);
-  else
-    pose,dGoal,aGoal=triangulate(pos,v);
-  end
-
---  vcm.add_debug_message(string.format("aGoal: %d\n",aGoal*180/math.pi))
---  vcm.add_debug_message(string.format("pos: %.1f %.1f\n",pos[1][1],pos[1][2]))
-
-  local x,y,a=pose.x,pose.y,pose.a;
-
-  local rSigma = .25*dGoal + 0.20;
-  local aSigma = 5*math.pi/180;
-  local rFilter = rKnownGoalFilter;
-  local aFilter = aKnownGoalFilter;
-
---SJ: testing
-triangulation_threshold=4.0;
-
-  if dGoal<triangulation_threshold then 
-
-
-    for ip = 1,n do
-      local xErr = x - xp[ip];
-      local yErr = y - yp[ip];
-      local rErr = math.sqrt(xErr^2 + yErr^2);
-      local aErr = mod_angle(a - ap[ip]);
-      local err = (rErr/rSigma)^2 + (aErr/aSigma)^2;
-      wp[ip] = wp[ip] - err;
-
-      --Filter towards goal:
-      xp[ip] = xp[ip] + rFilter*xErr;
-      yp[ip] = yp[ip] + rFilter*yErr;
-      ap[ip] = ap[ip] + aFilter*aErr;
-    end
-  else
-  --Don't use triangulation for far goals
-    goalpos={{(pos[1][1]+pos[2][1])/2, (pos[1][2]+pos[2][2])/2}}
-    goalv={(v[1][1]+v[2][1])/2, (v[1][2]+v[2][2])/2}
-    landmark_observation(goalpos, goalv , rKnownGoalFilter, aKnownGoalFilter);
-  end
-
-
-end
 
 
 
@@ -438,116 +509,179 @@ function goal_observation_unified(pos1,pos2,v)
     pose2,dGoal2=triangulate(pos2,v);
   end
 
-  local x1,y1,a1=pose1.x,pose1.y,pose1.a;
-  local x2,y2,a2=pose2.x,pose2.y,pose2.a;
+  local p = wcm.get_pose()
+  local d1 = math.sqrt((p.x - pose1.x)^2 + (p.y - pose1.y)^2)
+  local d2 = math.sqrt((p.x - pose2.x)^2 + (p.y - pose2.y)^2)
+  local pose = {}
+  local dGoal = 0
 
-  local rSigma1 = .25*dGoal1 + 0.20;
-  local rSigma2 = .25*dGoal2 + 0.20;
-  local aSigma = 5*math.pi/180;
-  local rFilter = rUnknownGoalFilter;
-  local aFilter = aUnknownGoalFilter;
+  if d1 > d2 then
+      pose = pose1
+      dGoal = dGoal1
+  else
+      pose = pose2
+      dGoal = dGoal2
+  end
 
-  for ip = 1,n do
-    local xErr1 = x1 - xp[ip];
-    local yErr1 = y1 - yp[ip];
-    local rErr1 = math.sqrt(xErr1^2 + yErr1^2);
-    local aErr1 = mod_angle(a1 - ap[ip]);
-    local err1 = (rErr1/rSigma1)^2 + (aErr1/aSigma)^2;
+  if dGoal<triangulation_threshold then 
+    -- print("dGoal in triangulation thres\n")
+    
+    --Goal close, triangulate
+    local x1,y1,a1=pose1.x,pose1.y,pose1.a;
+    local x2,y2,a2=pose2.x,pose2.y,pose2.a;
 
-    local xErr2 = x2 - xp[ip];
-    local yErr2 = y2 - yp[ip];
-    local rErr2 = math.sqrt(xErr2^2 + yErr2^2);
-    local aErr2 = mod_angle(a2 - ap[ip]);
-    local err2 = (rErr2/rSigma2)^2 + (aErr2/aSigma)^2;
+    --SJ: I think rSigma is too large / aSigma too small
+    --If the robot has little pos error and big angle error
+    --It will pulled towared flipped position
 
-    --Filter towards best matching goal:
-     if err1>err2 then
-      wp[ip] = wp[ip] - err2;
-      xp[ip] = xp[ip] + rFilter*xErr2;
-      yp[ip] = yp[ip] + rFilter*yErr2;
-      ap[ip] = ap[ip] + aFilter*aErr2;
-    else
-      wp[ip] = wp[ip] - err1;
-      xp[ip] = xp[ip] + rFilter*xErr1;
-      yp[ip] = yp[ip] + rFilter*yErr1;
-      ap[ip] = ap[ip] + aFilter*aErr1;
+    local rSigma = rSigmaDouble1 * dGoal1 + rSigmaDouble2;
+    local aSigma = aSigmaDouble;
+
+    local rFilter = rGoalFilter;
+    local aFilter = aGoalFilter;
+
+    for ip = 1,n do
+      local xErr1 = x1 - xp[ip];
+      local yErr1 = y1 - yp[ip];
+      local rErr1 = math.sqrt(xErr1^2 + yErr1^2);
+      local aErr1 = mod_angle(a1 - ap[ip]);
+      local err1 = (rErr1/rSigma)^2 + (aErr1/aSigma)^2;
+
+      local xErr2 = x2 - xp[ip];
+      local yErr2 = y2 - yp[ip];
+      local rErr2 = math.sqrt(xErr2^2 + yErr2^2);
+      local aErr2 = mod_angle(a2 - ap[ip]);
+      local err2 = (rErr2/rSigma)^2 + (aErr2/aSigma)^2;
+
+      --SJ: distant goals are more noisy
+ 
+      --Filter towards best matching goal:
+      if err1>err2 then
+        wp[ip] = wp[ip] - err2;
+        xp[ip] = xp[ip] + rFilter*xErr2;
+        yp[ip] = yp[ip] + rFilter*yErr2;
+        ap[ip] = ap[ip] + aFilter*aErr2;
+      else
+        wp[ip] = wp[ip] - err1;
+        xp[ip] = xp[ip] + rFilter*xErr1;
+        yp[ip] = yp[ip] + rFilter*yErr1;
+        ap[ip] = ap[ip] + aFilter*aErr1;
+      end
     end
+  elseif dGoal<position_update_threshold then
+    -- print("dGoal in mid-range\n")
+    
+    --Goal midrange, use a point update
+    --Goal too far, use a point estimate
+    goalpos1={(pos1[1][1]+pos1[2][1])/2, (pos1[1][2]+pos1[2][2])/2}
+    goalpos2={(pos2[1][1]+pos2[2][1])/2, (pos2[1][2]+pos2[2][2])/2}
+    goalv={(v[1][1]+v[2][1])/2, (v[1][2]+v[2][2])/2}
+    landmark_observation(
+	    {goalpos1,goalpos2},
+	    goalv , rUnknownPostFilter, aUnknownGoalFilter);
+  else --Goal VERY far, just update angle only
+    -- print("dGoal farther than position update thres\n")
+
+    goalpos1={(pos1[1][1]+pos1[2][1])/2, (pos1[1][2]+pos1[2][2])/2}
+    goalpos2={(pos2[1][1]+pos2[2][1])/2, (pos2[1][2]+pos2[2][2])/2}
+    goalv={(v[1][1]+v[2][1])/2, (v[1][2]+v[2][2])/2}
+    landmark_observation(
+	    {goalpos1,goalpos2},
+	    goalv , rUnknownGoalFilter, aUnknownGoalFilter,1);
   end
 end
 
-
-
-function ball_yellow(v)
-  goal_observation(ballYellow, v);
+function get_goal_defend()
+  if gcm.get_team_color() == 1 then
+    -- red defends yellow goal
+    return {postYellow[1][1], 0, 0};
+  else
+    -- blue defends cyan goal
+    return {postCyan[1][1], 0, 0};
+  end
 end
 
-function ball_cyan(v)
-  goal_observation(ballCyan, v);
-end
+function post_coach(v1,v2,goalType)
+  local v_x,v_y = v1[1],v1[2]
+  if goalType==3 then
+    v_x = (v1[1]+v2[1])/2
+    v_y = (v1[2]+v2[2])/2
+  end
+  v_r = math.sqrt(v_x*v_x + v_y*v_y)
 
-function goal_yellow(v)
-  goal_observation(postYellow, v);
-end
+  if v_r<4.0 then
+    if v_y<0 then 
+      gcm.set_coach_side(
+        gcm.get_coach_side()-1)
+    elseif v_y>0 then
+      gcm.set_coach_side(
+        gcm.get_coach_side()+1)
+    end
+  end
+--  print("Coach:",gcm.get_coach_side(),v_r)
 
-function goal_cyan(v)
-  goal_observation(postCyan, v);
-end
+  if math.abs(gcm.get_coach_side())>10 then
+    print("COACH POSITION CONFIRMED")
+    gcm.set_coach_confirm(1)
+    local half = gcm.get_game_half()    
+    local goalDefend=get_goal_defend();
+    if half==0 then
+      if gcm.get_coach_side()>0 then --we're on the left desk
+        print("COACH ON RIGHT SIDE OF OUR GOAL")
+        PoseFilter.initialize(vector.new({goalDefend[1]/2, Config.world.yMax*1.05, -math.pi/2}),{0,0,0})
+      else
+        print("COACH ON LEFT SIDE OF OUR GOAL")
+        PoseFilter.initialize(vector.new({goalDefend[1]/2, -Config.world.yMax*1.05, math.pi/2}),{0,0,0})
+      end
+    else
+      if gcm.get_coach_side()>0 then --we're on the left desk
+        print("COACH ON RIGHT SIDE OF ENEMY GOAL")
+        PoseFilter.initialize(vector.new({-goalDefend[1]/2, Config.world.yMax*1.05, -math.pi/2}),{0,0,0})
+      else
+        print("COACH ON RIGHT SIDE OF ENEMY GOAL")
+        PoseFilter.initialize(vector.new({-goalDefend[1]/2, -Config.world.yMax*1.05, math.pi/2}),{0,0,0})
+      end
+    end
+  end
 
-function post_yellow_unknown(v)
-  landmark_observation(postYellow, v[1], rKnownPostFilter, aKnownPostFilter);
-end
+--4 possible coach poses
+--  vector.new({goalDefend[1]/2, -Config.world.yMax*1.05,  math.pi/2})
+--  vector.new({goalDefend[1]/2,  Config.world.yMax*1.05, -math.pi/2}))      
+--  vector.new({goalDefend[1]/2, -Config.world.yMax*1.05,  math.pi/2})
+--  vector.new({goalDefend[1]/2,  Config.world.yMax*1.05, -math.pi/2}))        
 
-function post_yellow_left(v)
-  landmark_observation({postYellow[1]}, v[1], rKnownPostFilter, aKnownPostFilter);
-end
-
-function post_yellow_right(v)
-  landmark_observation({postYellow[2]}, v[1], rKnownPostFilter, aKnownPostFilter);
-end
-
-function post_cyan_unknown(v)
-  landmark_observation(postCyan, v[1], rKnownPostFilter, aKnownPostFilter);
-end
-
-function post_cyan_left(v)
-  landmark_observation({postCyan[1]}, v[1], rKnownPostFilter, aKnownPostFilter);
-end
-
-function post_cyan_right(v)
-  landmark_observation({postCyan[2]}, v[1], rKnownPostFilter, aKnownPostFilter);
 end
 
 function post_unified_unknown(v)
-  landmark_observation(postUnified, v[1], rUnknownPostFilter, aUnknownPostFilter);
+  landmark_observation(postUnified, v[1], rPostFilter, aPostFilter);
 end
 
 function post_unified_left(v)
-  landmark_observation(postLeft, v[1], rUnknownPostFilter, aUnknownPostFilter);
+  landmark_observation(postLeft, v[1], rPostFilter2, aPostFilter2);
 end
 
 function post_unified_right(v)
-  landmark_observation(postRight, v[1], rUnknownPostFilter, aUnknownPostFilter);
+  landmark_observation(postRight, v[1], rPostFilter2, aPostFilter2);
 end
 
 function goal_unified(v)
   goal_observation_unified(postCyan,postYellow, v);
 end
 
-function landmark_cyan(v)
-  landmark_observation({landmarkCyan}, v, rLandmarkFilter, aLandmarkFilter);
-end
-
-function landmark_yellow(v)
-  landmark_observation({landmarkYellow}, v, rLandmarkFilter, aLandmarkFilter);
-end
-
 function corner(v,a)
-  landmark_observation(Lcorner,v,rCornerFilter,aCornerFilter);
---  line(v,a);--Fix heading
+  if(gcm.get_team_role() == 0) then
+    landmark_observation(Lgoalie_corner,v,rCornerFilter,aCornerFilter);
+  else
+    landmark_observation(Lcorner,v,rCornerFilter,aCornerFilter);
+  end
 end
 
 
 function line(v, a)
+
+---Updates weights of particles according to the detection of a line
+--@param v x and y coordinates of center of line relative to robot
+--@param a angle of line relative to angle of robot
   -- line center
   x = v[1];
   y = v[2];
@@ -555,15 +689,18 @@ function line(v, a)
 
   w0 = .25 / (1 + r/2.0);
 
-  -- TODO: wrap in loop for lua
   for ip = 1,n do
     -- pre-compute sin/cos of orientations
     ca = math.cos(ap[ip]);
     sa = math.sin(ap[ip]);
 
     -- compute line weight
-    local wLine = w0 * (math.cos(4*(ap[ip] + a)) - 1);
-    wp[ip] = wp[ip] + wLine;
+    -- Line orientation should be close to 0, +/-pi/2, +/-pi
+    -- local wLine = w0 * (math.cos(4*(ap[ip] + a)) - 1);  -- need a math.abs
+    -- wp[ip] = wp[ip] + wLine;
+
+    local wLine = w0*math.abs(math.sin(2*(ap[ip] + a)))
+    wp[ip] = wp[ip] - wLine;
 
     local xGlobal = v[1]*ca - v[2]*sa + xp[ip];
     local yGlobal = v[1]*sa + v[2]*ca + yp[ip];
@@ -576,6 +713,12 @@ function line(v, a)
   end
 end
 
+---Updates particles according to the movement of the robot.
+--Moves each particle the distance that the robot has moved
+--since the last update.
+--@param dx distance moved in x direction since last update
+--@param dy distance moved in y direction since last update
+--@param da angle turned since last update
 function odometry(dx, dy, da)
   for ip = 1,n do
     ca = math.cos(ap[ip]);
@@ -586,12 +729,17 @@ function odometry(dx, dy, da)
   end
 end
 
+---Set all particles to x,y,a=0,0,0.
+--This function does not update the weights
 function zero_pose()
   xp = vector.zeros(n);
   yp = vector.zeros(n);
   ap = vector.zeros(n);
 end
 
+---Return the largest value of a table and it's index
+--@param t table of values
+--@return largest value and it's index
 function max(t)
   local imax = 0;
   local tmax = -math.huge;
@@ -638,14 +786,19 @@ function addNoise()
   add_noise();
 end
 
+---Adds noise to particle x,y coordinates and angle.
 function add_noise()
-  da = 2.0*math.pi/180.0;
-  dr = 0.01;
+  da = daNoise;
+  dr = drNoise;
   xp = xp + dr * vector.new(util.randn(n));
   yp = yp + dr * vector.new(util.randn(n));
   ap = ap + da * vector.new(util.randn(n));
 end
 
+---Resample particles.
+--If enough particles have low enough weights, then
+--replaces low-weighted particles with new random particles
+--and new particles that are nearby high-weighted particles
 function resample()
   -- resample particles
 
@@ -706,6 +859,7 @@ function resample()
   yp2 = vector.zeros(n);
   ap2 = vector.zeros(n);
   nsampleSum = 1;
+  
   ni = 1;
   for i = 1,2*n do
     oi = wSum[i][2];
@@ -719,18 +873,6 @@ function resample()
     end
   end
 
-  --Mirror some particles
---[[
-  n_mirror = 10;
-  for i=1,n_mirror do
-    if i~=iMax then
-	xp2[i]=-xp[i];
-	yp2[i]=-yp[i];
-	ap2[i]=-ap[i];
-    end
-  end
---]]
-
   -- always put max particle
   xp2[1] = xp[iMax];
   yp2[1] = yp[iMax];
@@ -741,3 +883,13 @@ function resample()
   ap = ap2;
   wp = vector.zeros(n);
 end
+
+
+
+function spot(v)
+  landmark_observation(spotWhite, v, 0.03, 0.06);
+end
+
+
+
+

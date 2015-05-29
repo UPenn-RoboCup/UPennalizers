@@ -15,7 +15,7 @@ switchTimeout = 10;
 switchFreq = 50;
 
 -- update freq (update is run at 100hz)
-updateFreq = 10;
+updateFreq = 1;
 
 -- left/right us
 left = vector.zeros(10);
@@ -45,11 +45,10 @@ disThresh = .6;
 function entry()
   -- auto send and receive on both left/right
   Body.set_actuator_us(68);
-  print("UltraSound entry");
 end
 
-obsThres = 0.28;
-clearThres = 0.50;
+obsThres = 0.35;
+clearThres = 0.45;
 
 leftObsCount = 0;
 rightObsCount = 0;
@@ -63,66 +62,69 @@ zeroCountThres = 10;
 enable_obstacle_detection=Config.fsm.enable_obstacle_detection or 0;
 
 function update()
+  
   if enable_obstacle_detection == 1 then
+    --print ("Turned On!")
     count = count + 1;
 
     if (count % updateFreq == 0) then
       left = vector.new(Body.get_sensor_usLeft());
+ --     print("Left ultrasound = " .. unpack(left))
+      --util.ptable(left)
       right = vector.new(Body.get_sensor_usRight());
-
+   --   print("Right ultrasound = " .. unpack(right))
+      --util.ptable(right)
       -- left
       if (left[1] > 0 and left[1] < 2.55) then
-        --print('left '..left[1]);
         if left[1] < obsThres then
           leftObsCount = leftObsCount + 0.5;
         elseif left[1] > clearThres then
           leftObsCount = leftObsCount - 1; 
         end 
-        --print('leftObsCount '..leftObsCount);
-
+        
         leftZeroCount = 0;
       else
+        --print ('Invalid Reading!!!')
         leftZeroCount = leftZeroCount + 1;
 
         if (leftZeroCount > zeroCountThres) then
           --print('leftZeroCount '..leftZeroCount);
-          leftObsCount = leftObsCount - 0.30;
+          leftObsCount = leftObsCount - 0.10;
         else
           leftObsCount = leftObsCount - 0.01;
         end
       end
       leftObsCount = math.max(0, math.min(10, leftObsCount));
-
+      --print('leftObsCount '..leftObsCount);
       -- right 
       if (right[1] > 0 and right[1] < 2.55) then
-        --print('right '..right[1]);
         if right[1] < obsThres then
           rightObsCount = rightObsCount + 0.5;
         elseif right[1] > clearThres then
           rightObsCount = rightObsCount - 1; 
         end 
-        --print('rightObsCount '..rightObsCount);
-
+        
         rightZeroCount = 0;
       else
+        --print ('Invalid Reading!!!')
         rightZeroCount = rightZeroCount + 1;
 
         if (rightZeroCount > zeroCountThres) then
           --print('rightZeroCount '..rightZeroCount);
-          rightObsCount = rightObsCount - 0.30;
+          rightObsCount = rightObsCount - 0.10;
         else
           rightObsCount = rightObsCount - 0.01;
         end
       end
-
       rightObsCount = math.max(0, math.min(10, rightObsCount));
+      --print('rightObsCount '..rightObsCount);
     end
   end
-
+ 
 end
 
 function check_obstacle()
-  return {leftObsCount, rightObsCount};
+  return leftObsCount > 5, rightObsCount > 5;
 end
 
 function update2()
@@ -135,7 +137,7 @@ function update2()
 
       -- left
       if (left[1] > 0 and left[1] < 2.55) then
-        print('left '..left[1]);
+        --print('left '..left[1]);
         --data is valid, so store it for comparison with last numSavedValues values
         dSum[1] = dSum[1] - dLeftObs[numSavedValues];
         for j = numSavedValues,2,-1 do
@@ -149,7 +151,7 @@ function update2()
 
       -- right 
       if (right[1] > 0 and right[1] < 2.55) then
-        print('right '..right[1]);
+        --print('right '..right[1]);
         --data is valid, so store it for comparison with last numSavedValues values
         dSum[2] = dSum[2] - dRightObs[numSavedValues];
         for j = numSavedValues,2,-1 do
@@ -160,8 +162,13 @@ function update2()
         dSum[2] = dSum[2] + dRightObs[1];
         distance[2] = right[2];
       end
+      --print (util.ptable(dLeftObs))
+      --print ("dist_left"..dSum[1])
+      --print (util.ptable(dRightObs))
+      --print ("dist_right"..dSum[2])
     end
   end
+
 end
 
 function obstacle()
@@ -192,7 +199,10 @@ function obstacle()
     obstacles[2] = 1;
     distance[2] = lastRightObstacle;
   end
-
+  print ("free_left"..free[1])
+  print ("free_right"..free[2])
+  print ("obstacle_left"..obstacles[1])
+  print ("obstacle_right"..obstacles[2])
   mcm.set_us_obstacles(obstacles);
   mcm.set_us_free(free);
   mcm.set_us_dSum(dSum);

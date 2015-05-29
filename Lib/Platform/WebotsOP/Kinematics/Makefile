@@ -1,22 +1,6 @@
-# Makefile used to build libraries
-include ../../../Makefile.inc
-
-TARGETS = all clean
-.PHONY: $(TARGETS)
-
-LIBNAME= OPKinematics
-
-all:: kinematics
-
-%.o: %.cpp
-	$(CXX) $(CXXFLAGS) $(INCLUDES) -o $@ -c $<
-%.o: %.cc
-	$(CXX) $(CXXFLAGS) $(INCLUDES) -o $@ -c $<
-%.o: %.c
-	$(CC) $(CXXFLAGS) $(INCLUDES) -o $@ -c $<
-
-kinematics:: luaOPKinematics.o OPKinematics.o Transform.o
-	$(LD) $(LDFLAGS) -o $(LIBNAME).$(SHLIBEXT) $(LIBOPTS) $^ $(LIB_DIR) -lm
-
+LIBNAME=OPKinematics
+EXTRA_OBJ=OPKinematics.o Transform.o
+include ../../../Makefile.am
+LIBOPTS+=-lm
 clean:
 	rm -f *.$(SHLIBEXT) *.o

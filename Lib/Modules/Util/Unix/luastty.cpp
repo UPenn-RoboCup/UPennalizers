@@ -240,7 +240,7 @@ static int lua_stty_clocal(lua_State *L) {
   return 0;
 }
 
-static const struct luaL_reg stty_lib [] = {
+static const luaL_Reg stty_lib [] = {
   {"raw", lua_stty_raw},
   {"sane", lua_stty_sane},
   {"serial", lua_stty_serial},
@@ -254,7 +254,11 @@ static const struct luaL_reg stty_lib [] = {
 
 extern "C"
 int luaopen_stty (lua_State *L) {
+#if LUA_VERSION_NUM == 502
+  luaL_newlib(L, stty_lib);
+#else
   luaL_register(L, "stty", stty_lib);
+#endif
   
   return 1;
 }

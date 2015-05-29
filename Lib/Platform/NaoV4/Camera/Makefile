@@ -1,21 +1,12 @@
-CWD= $(shell pwd)
-CHAIN= $(CTCDIR)
-
-all: naoqi 
-
-naoqi:
-ifeq ($(CHAIN),)
-	@echo Cross compilitation tool not specified. \
-				Please download the ctc tool from \
-				the aldebaran website and follow the \
-				instructions to configure it for your system
+ifeq ($(shell uname),Darwin)
+all:
 else
-	rm -rf build
-	mkdir build
-	cd build && cmake -DCMAKE_TOOLCHAIN_FILE="$(CHAIN)/toolchain-atom.cmake" .. \
-		&& make && cd $(CWD)
+LIBNAME=uvc
+EXTRA_OBJ=v4l2.o timeScalar.o
+include ../../../Makefile.am
+CFLAGS+=-Wall -g
+LIBOPTS+=-lm $(LIBRT)
 endif
-
 clean:
-	make -f Makefile.local clean	
-	rm -rf build
+	rm -f *.$(SHLIBEXT) *.o
+

@@ -1,21 +1,9 @@
-module(..., package.seeall);
-
 require('Config');      -- For Ball and Goal Size
 require('ImageProc');
 require('HeadTransform');       -- For Projection
-require('Vision');
 require('Body');
 require('shm');
 require('vcm');
-require('Detection');
-require('Debug');
-
--- Define Color
-colorOrange = Config.color.orange;
-colorYellow = Config.color.yellow;
-colorCyan = Config.color.cyan;
-colorField = Config.color.field;
-colorWhite = Config.color.white;
 
 enable_robot_detection = Config.vision.enable_robot_detection or 0;
 use_tilted_bbox = Config.vision.use_tilted_bbox or 0;
@@ -73,13 +61,13 @@ function update_weights()
   r1=v1[1]^2+v1[2]^2;
   angle1=math.atan2(v1[2],v1[1]);
   
-  v2=HeadTransform.coordinatesB({Vision.labelB.m,1,0,0});
+  v2=HeadTransform.coordinatesB({p_vision.labelB.m,1,0,0});
   v2=HeadTransform.projectGround(v2,0);
   r2=v2[1]^2+v2[2]^2;
   angle2=math.atan2(v2[2],v2[1]);
 
   --midpoint in the bottom
-  v3=HeadTransform.coordinatesB({Vision.labelB.m/2,Vision.labelB.n,0,0});
+  v3=HeadTransform.coordinatesB({p_vision.labelB.m/2,p_vision.labelB.n,0,0});
   v3=HeadTransform.projectGround(v3,0);
   r3=v3[1]^2+v3[2]^2;
 
@@ -124,9 +112,8 @@ end
 covered={};
 blocked={};
 
-function detect(color)
-  local robot = {};
-  robot.detect = 0;
+local update = function(self, color, p_vision)
+  self.detect = 0;
   count=0;
 
   if use_tilted_bbox>0 then
@@ -136,10 +123,10 @@ function detect(color)
   end
 
   fieldRobots = ImageProc.robots(
-	Vision.labelB.data,Vision.labelB.m,Vision.labelB.n,
-	colorField+colorWhite+colorOrange,tiltAngle,max_gap);
+	p_vision.labelB.data,p_vision.labelB.m,p_vision.labelB.n,
+	Config.color.field + Config.color.white + Config.color.orange,tiltAngle,max_gap);
 
-  for i=1,Vision.labelB.m do
+  for i=1,p_vision.labelB.m do
     j=fieldRobots[i];
     v=HeadTransform.coordinatesB({i,j,0,0});
     v=HeadTransform.projectGround(v,0);
@@ -157,3 +144,17 @@ end
 function update_shm()
   vcm.set_robot_map(weight);
 end
+
+local detectRobot = {}
+
+function detectRobot.entry(parent_vision)
+  print('init Robot detection')
+  local self = {}
+  self.update = update
+
+  self.detect = 0
+
+  return self
+end
+
+return detectRobot
