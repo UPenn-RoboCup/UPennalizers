@@ -3,25 +3,18 @@ require('init')
 
 require 'unix'
 require ('Config')
+
+team_num=1
+teamToTrack={Config.game.teamNumber}
+print("Team tracking: ",teamToTrack[1])
+
+org_team_num = Config.game.teamNumber
+
 --Copy data to shm 1-1
 Config.game.teamNumber = 1;
 Config.game.playerID = 1;
 Config.listen_monitor = 1;
 
-io.write("Enter number of teams to track: ");
-io.flush();
-team_num=io.read("*number");
-if team_num==2 then
-  io.write("Enter two team numbers to track: ");
-  io.flush();
-  team1,team2=io.read("*number","*number");
-  teamToTrack={team1, team2};
-else
-  io.write("Enter the team number to track: ");
-  io.flush();
-  team1=io.read("*number");
-  teamToTrack={team1};
-end
 
 require ('cutil')
 require ('vector')
@@ -32,31 +25,52 @@ require ('wcm')
 require ('gcm')
 require ('vcm')
 
+require('utilMsg')
 
 --Set # of teams
 wcm.set_teamdata_teamnum(team_num);
+tLastDebug = unix.time()
+
 
 --Push to (team,1) shm
 
 
 Comm.init(Config.dev.ip_wireless,Config.dev.ip_wireless_port);
 print('Receiving Team Message From',Config.dev.ip_wireless);
+local labelB2 = cutil.test_label(4800,0); --Set to max size once
+
+
 
 function push_labelB(obj,teamOffset)
-  if not obj.labelB then return;
-  else
---    print(obj);
-  end
-  id=obj.id+teamOffset;
-  local labelB = cutil.test_array();
-  cutil.string2label_rle(labelB,obj.labelB.data);
-  if string.find(obj.labelB.name,'labelB1') then 
+  local labelB = cutil.test_array();  
+
+  if Config.dev.comm == 'OldComm' then
+  
+    if not obj.labelB1 then return end
+
+    id=obj.id+teamOffset;
+    local labelB2 = cutil.test_label(4800,0); --Set to max size once
+    cutil.string2label_rle(labelB,obj.labelB1.data);
     wcm['set_labelBtop_p'..id](labelB);
-  end
-  if string.find(obj.labelB.name,'labelB2') then
+
+    if not obj.labelB2 then return end
+    id=obj.id+teamOffset;
+    cutil.string2label_rle(labelB,obj.labelB2.data);
     wcm['set_labelBbtm_p'..id](labelB);
+
+  else --Team Comm
+    if obj.labelB then
+      if obj.labelBind == 1 then
+        cutil.array2label_rle(labelB, #obj.labelB, obj.labelB)
+        wcm['set_labelBtop_p'..id](labelB);
+      end
+      if obj.labelBind == 2 then
+        cutil.array2label_rle(labelB, #obj.labelB, obj.labelB)
+        wcm['set_labelBbtm_p'..id](labelB);
+      end
+    end
   end
-  end
+end
 
 
 team_t_receive=vector.zeros(10);
@@ -100,9 +114,12 @@ function push_team_struct(obj,teamOffset)
   states.goalB24=wcm.get_teamdata_goalB24();
   states.goalB25=wcm.get_teamdata_goalB25();
 
-  states.landmark=wcm.get_teamdata_landmark();
-  states.landmarkv1=wcm.get_teamdata_landmarkv1();
-  states.landmarkv2=wcm.get_teamdata_landmarkv2();
+  states.cornera=wcm.get_teamdata_cornera();
+  states.cornerv1=wcm.get_teamdata_cornerv1();
+  states.cornerv2=wcm.get_teamdata_cornerv2();
+
+  states.gclatency = wcm.get_teamdata_gclatency()
+  states.tmlatency = wcm.get_teamdata_tmlatency()
 
 --print("Team message from",obj.id)
 
@@ -126,6 +143,7 @@ function push_team_struct(obj,teamOffset)
   states.ballvx[id]=obj.ball.velx;
   states.ballvy[id]=obj.ball.vely;
 
+
   states.attackBearing[id]=obj.attackBearing;
   states.fall[id]=obj.fall;
   states.penalty[id]=obj.penalty;
@@ -136,6 +154,13 @@ function push_team_struct(obj,teamOffset)
   states.goalv12[id]=obj.goalv1[2];
   states.goalv21[id]=obj.goalv2[1];
   states.goalv22[id]=obj.goalv2[2];
+
+  states.gclatency[id]=obj.gc_latency
+  states.tmlatency[id]=obj.tm_latency
+
+--print(id,obj.gc_latency)
+--print(id,obj.tm_latency)
+
 
   if obj.goalB1 then
     states.goalB11[id]=obj.goalB1[1];
@@ -151,16 +176,9 @@ function push_team_struct(obj,teamOffset)
     states.goalB25[id]=obj.goalB2[5];
   end
 
-  states.landmark[id]=0
-  states.landmarkv1[id]=0
-  states.landmarkv2[id]=0
-
- --TODO!
-  obj.robotName = "dummy"
-  obj.body_state = "dummy"
-
-
-
+  states.cornera[id]=obj.corner;
+  states.cornerv1[id]=obj.cornerv[1];
+  states.cornerv2[id]=obj.cornerv[2];
   if id==1 then  
     wcm.set_robotNames_n1(obj.robotName);
     wcm.set_bodyStates_n1(obj.body_state);
@@ -236,54 +254,83 @@ function push_team_struct(obj,teamOffset)
   wcm.set_teamdata_goalB24(states.goalB24);
   wcm.set_teamdata_goalB25(states.goalB25);
 
---[[
-  wcm.set_teamdata_landmark(states.landmark);
-  wcm.set_teamdata_landmarkv1(states.landmarkv1);
-  wcm.set_teamdata_landmarkv2(states.landmarkv2);
---]]
+  wcm.set_teamdata_cornera(states.cornera);
+  wcm.set_teamdata_cornerv1(states.cornerv1);
+  wcm.set_teamdata_cornerv2(states.cornerv2);
+
 end
 
 count=0;
 tStart=unix.time();
 
-while(true) do
-  while (Comm.size() > 0) do
-    msg=Comm.receive();
-    t = serialization.deserialize(msg);
-    if t and (t.teamNumber) then
-      t.tReceive = unix.time();
-      count=count+1;
-      if #teamToTrack==1 then 
-        if (t.teamNumber == teamToTrack[1]) and (t.id) then
-          push_team_struct(t,0);
-	        push_labelB(t,0);
+
+if Config.dev.comm == 'OldComm' then
+  while(true) do
+    while (Comm.size() > 0) do
+      msg=Comm.receive();
+      t = serialization.deserialize(msg);
+      if t and (t.teamNumber) then
+        t.tReceive = unix.time();
+	
+        count=count+1;
+        if #teamToTrack==1 then 
+          if (t.teamNumber == teamToTrack[1]) and (t.id) then
+            push_team_struct(t,0);
+            push_labelB(t,0);
+          end
+        else
+          if (t.teamNumber == teamToTrack[1]) and (t.id) then
+            push_team_struct(t,0);
+            push_labelB(t,0);
+          elseif (t.teamNumber == teamToTrack[2]) and (t.id) then
+            push_team_struct(t,5);
+            push_labelB(t,5);
+          end
         end
-      else
-        if (t.teamNumber == teamToTrack[1]) and (t.id) then
-          push_team_struct(t,0);
-	        push_labelB(t,0);
-
-        elseif (t.teamNumber == teamToTrack[2]) and (t.id) then
-          push_team_struct(t,5);
-	        push_labelB(t,5);
-
+        if count%30==0 then
+          print(string.format("Team message: %.1f fps",count/(t.tReceive-tStart)));
+          tStart=t.tReceive;
+          count=0;
         end
       end
-      if count%30==0 then
-        print(string.format("Team message: %d fps",count/(t.tReceive-tStart)));
-	tStart=t.tReceive;
-        count=0;
-      end
     end
+    unix.usleep(1E6*0.01);
   end
---TODO: timeout
---[[
-  for i=1,10 do
-    t_current = unix.time();
-    if t.tReceive-team_t_receive[i]>5.0 then
+else
+  while true do 
+    msg=Comm.receive()
+    while msg do
+--      print(Comm.size())
+      t = utilMsg.convert_state_std_to_penn(msg,org_team_num)      
+      msg=Comm.receive()
+      if t and (t.teamNumber) then
+        t.tReceive = unix.time();
+        t.time = unix.time()
+        count=count+1;
+        if #teamToTrack==1 then
+          if (t.teamNumber == teamToTrack[1]) and (t.id) then
+            push_team_struct(t,0);
+            push_labelB(t,0);
+          end
+        else
+          if (t.teamNumber == teamToTrack[1]) and (t.id) then
+            push_team_struct(t,0);
+            push_labelB(t,0);
 
+          elseif (t.teamNumber == teamToTrack[2]) and (t.id) then
+            push_team_struct(t,5);
+            push_labelB(t,5);
+          end
+        end
+
+      end
+      unix.usleep(1E6*0.01)
+    end
+    if unix.time()-tLastDebug>1 then
+      print(string.format("Team message: %.2f fps",count/(unix.time()-tStart)));
+      tStart=unix.time();
+      count=0;
+      tLastDebug = unix.time()
     end
   end
---]]
-  unix.usleep(1E6*0.01);
 end

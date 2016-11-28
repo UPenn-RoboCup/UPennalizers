@@ -1,0 +1,114 @@
+# The Goal proto correspond to the goals used in the Robocup 2008
+# Standard Platform League, Nao division.
+# The color of the goal and the support polygons can be modified.
+#
+# Author: 15 FEB 2008: Çetin Meriçli <cetin.mericli@boun.edu.tr>
+# on behalf of SPL TC and OC <spl_tech@tzi.de>,<spl_orga@tzi.de>
+# Modified: 12 JUNE 2008: added a bounding object for the net
+# Modified: 29 OCTOBER 2009: Reviewed by Yvan Bourquin - www.cyberbotics.com
+#  -merged various IndexFaceSet for better performance
+#  -fixed unwanted black color in support triangles
+# Modified: 22 APRIL 2010: by Yvan Bourquin - www.cyberbotics.com
+#  -modified to hold net 350 mm back from posts (according to SPL 2010 specs)
+#  -removed unused Shapes/Materials in boundingObject
+
+PROTO Landmark [
+  field SFVec3f translation 0 0 0
+  field SFRotation rotation 0 1 0 0
+  field SFFloat postRadius 0.05
+  field SFColor postColor1 1 0 0
+  field SFColor postColor2 0 0 1
+  field SFBool locked TRUE
+]
+{
+Solid {
+  translation IS translation
+  rotation IS rotation
+  children [
+    DEF LOW_POST_TRANS Transform {
+      translation 0 0.075 0
+      children [
+        Shape {
+          appearance DEF POST_APP1 Appearance {
+            material Material {
+              diffuseColor IS postColor1
+              specularColor IS postColor1
+            }
+          }
+          geometry Cylinder {
+            bottom FALSE
+            height 0.15
+            radius IS postRadius
+          }
+        }
+      ]
+    }
+    DEF MID_POST_TRANS Transform {
+      translation 0 0.225 0
+      children [
+        Shape {
+          appearance DEF POST_APP2 Appearance {
+	    material Material {
+	      diffuseColor IS postColor2
+              specularColor IS postColor2
+ 	    }
+          }
+          geometry Cylinder {
+            bottom FALSE
+            height 0.15
+            radius IS postRadius
+          }
+        }
+      ]
+    }
+    DEF HIGH_POST_TRANS Transform {
+      translation 0 0.375 0
+      children [
+        Shape {
+          appearance USE POST_APP1
+          geometry Cylinder {
+            bottom FALSE
+            height 0.15
+            radius IS postRadius
+          }
+        }
+      ]
+    }
+   ]
+   boundingObject Group {
+    children [
+      USE LOW_POST_TRANS
+      USE MID_POST_TRANS
+      USE HIGH_POST_TRANS
+      Transform {
+        translation 0 0.075 0
+        children [
+          DEF POLE1 Box {
+            size 0.05 0.2 0.05
+          }
+        ]
+      }
+      Transform {
+        translation 0 0.225 0
+        children [
+          USE POLE1
+        ]
+      }
+      Transform {
+        translation 0 0.375 0
+        children [
+          USE POLE1
+        ]
+
+      }
+    ]
+  }
+
+  physics Physics {
+  density -1
+  mass 0.391
+  }
+
+  locked IS locked
+}
+}

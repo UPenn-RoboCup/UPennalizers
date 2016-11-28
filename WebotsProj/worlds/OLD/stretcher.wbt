@@ -1,0 +1,64 @@
+#VRML_SIM V6.0 utf8
+WorldInfo {
+  info [
+    "Description"
+    "Author: Stephen McGill <e-mail>"
+    "Date: DD MMM YYYY"
+    ]
+}
+Viewpoint {
+  fieldOfView 0.75
+  orientation -0.363624 -0.927195 -0.089924 1
+  position -2.08771 1.19 1.57074
+}
+Background {
+  skyColor [ 0.4 0.7 1 ]
+}
+PointLight {
+  intensity 1
+  ambientIntensity 0.5
+  location 0 2 0
+}
+DEF FLOOR Solid {
+  translation -2.5 0 -2.5
+
+  children [
+    Shape {
+      geometry ElevationGrid {
+        color Color {
+          color [
+            0.803922 0.498039 0.298039
+            1 1 0
+            ]
+        }
+        colorPerVertex FALSE
+        xDimension 6
+        xSpacing 1
+        zDimension 6
+        zSpacing 1
+      }
+    }
+  ]
+    boundingObject Transform {
+      translation 2.5 0 2.5
+        children [
+        Plane {
+          size 5 5
+        }
+      ]
+    }
+}
+Stretcher {
+  translation 0 0.36 0
+}
+
+DEF Follow DARwInOP {
+  translation 0 0.342 -0.25
+}
+DEF Lead DARwInOPGPS {
+  translation 0 0.342 0.25
+  rotation 0 1 0 3.14159
+  controller "darwin-op_team_0"
+  controllerArgs "0 0"
+}
+

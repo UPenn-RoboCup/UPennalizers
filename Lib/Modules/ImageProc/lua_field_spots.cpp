@@ -19,6 +19,23 @@ extern "C" {
 static uint8_t colorSpot = 0x10;
 static uint8_t colorField = 0x08;
 
+bool CheckArea(RegionProps &prop, int area_th){
+  int width = prop.maxI-prop.minI+1;
+  int height = prop.maxJ-prop.minJ+1;
+  if (prop.area<width*height*0.5 or prop.area<area_th)
+    return false;
+  else
+    return true;
+}
+
+bool CheckEdge(RegionProps &prop, int width, int height){
+  if (prop.maxI>=width-1 or prop.maxJ>= height-1 or
+        prop.minI == 0 or prop.minJ==0)
+    return false;
+  else
+    return true;
+}
+
 bool CheckBoundary(RegionProps &prop, uint8_t *im_ptr,
 		   int m, int n, uint8_t color)
 {
@@ -63,7 +80,7 @@ int lua_field_spots(lua_State *L) {
   }
   int m = luaL_checkint(L, 2);
   int n = luaL_checkint(L, 3);
-
+  int min_area = luaL_optinteger(L, 4, 5);
   int nlabel = ConnectRegions(props, im_ptr, m, n, colorSpot);
   if (nlabel <= 0) {
     return 0;
@@ -71,8 +88,13 @@ int lua_field_spots(lua_State *L) {
 
   std::vector<int> valid;
   for (int i = 0; i < nlabel; i++) {
-    if (CheckBoundary(props[i], im_ptr, m, n, colorField)) {
-      valid.push_back(i);
+    if (CheckArea(props[i], min_area)) {
+      if (CheckEdge(props[i],m,n)){
+        valid.push_back(i);
+        //printf("Region number %d\n",i+1);
+        //printf("  Left: %d; Right: %d;\n", props[i].minI, props[i].maxI);
+        //printf("  Top: %d; Bottom: %d;\n", props[i].minJ, props[i].maxJ);
+      }
     }
   }
   int nvalid = valid.size();

@@ -1,22 +1,7 @@
-# Makefile used to build libraries
+LIBNAME=NaoKinematics
+EXTRA_OBJ=naoKinematics.o Transform.o
 include ../../../Makefile.am
-
-TARGETS = all clean
-.PHONY: $(TARGETS)
-
-LIBNAME= NaoWebotsKinematics
-
-all: kinematics
-
-%.o: %.cpp
-	$(CXX) $(CXXFLAGS) $(INCLUDES) -o $@ -c $<
-%.o: %.cc
-	$(CXX) $(CXXFLAGS) $(INCLUDES) -o $@ -c $<
-%.o: %.c
-	$(CC) $(CXXFLAGS) $(INCLUDES) -o $@ -c $<
-
-kinematics: luaNaoKinematics.o naoKinematics.o Transform.o
-	$(LD) $(LDFLAGS) -o $(LIBNAME).$(SHLIBEXT) $(LIBOPTS) $^ $(LIB_DIR) -lm
-
+LIBOPTS+=-lm
 clean:
 	rm -f *.$(SHLIBEXT) *.o
+

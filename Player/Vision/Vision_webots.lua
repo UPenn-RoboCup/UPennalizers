@@ -4,6 +4,13 @@
 
 local Vision = {}
 
+--[[
+local ok, _ = pcall(require, 'ffi')
+if ok then
+  ImageProc2 = require'ImageProcFFI'
+end
+--]]
+
 require('carray');
 require('vector');
 require('Config');
@@ -35,7 +42,7 @@ vcm.set_debug_store_all_images(Config.vision.store_all_images);
 
 local camera_init = function(self, cidx)
   self.camera = Camera.init(cidx)
-  print("Config.camera.width",Config.camera.width,cidx)
+--  print("Config.camera.width",Config.camera.width,cidx)
   vcm['set_image'..cidx..'_width'](Config.camera.width[cidx]);
   vcm['set_image'..cidx..'_height'](Config.camera.height[cidx]);
 end
@@ -60,14 +67,37 @@ local update = function(self)
   headAngles = Body.get_head_position();
   HeadTransform.update(cidx-1, headAngles);
 
-  
-  labelA_t = ImageProc.yuyv_to_label(self.image, self.lut)
-  labelB_t = ImageProc.block_bitor(labelA_t)
-  cc_t = ImageProc.color_count(labelA_t)
-  -- convert to ligth userdata
-  self.labelA.data = cutil.torch_to_userdata(labelA_t)
-  self.colorCount  = cc_t
-  self.labelB.data = cutil.torch_to_userdata(labelB_t)
+  if ImageProc2 then
+    labelA_t = ImageProc2.yuyv_to_label(self.image, self.lut)
+    labelB_t = ImageProc2.block_bitor(labelA_t)
+    cc_t = ImageProc2.color_count(labelA_t)
+    -- convert to ligth userdata
+    self.labelA.data = cutil.torch_to_userdata(labelA_t)
+    self.colorCount  = cc_t
+    self.labelB.data = cutil.torch_to_userdata(labelB_t)
+  else
+--SJ: this function is broken, so we just skip this
+--But this result in low-resolution label...      
+--    if webots then
+    if false then
+      self.labelA.data = self.camera:get_labelA(self.lut)
+    else
+      self.labelA.data =
+      ImageProc.yuyv_to_label(
+      self.image, self.lut,
+      self.camera:get_width(), 
+      self.camera:get_height(), 
+      self.scaleA
+      );
+    end
+    -- determine total number of pixels of each color/label
+    self.colorCount = ImageProc.color_count(self.labelA.data, self.labelA.npixel);
+    -- bit-or the segmented image
+    self.labelB.data = ImageProc.block_bitor(self.labelA.data, self.labelA.m, 
+                           self.labelA.n, self.scaleB, self.scaleB);
+   --print('ball',self.colorCount[1])
+  end
+
   self:update_shm(cidx, headAngles)
   
   self.Detection:update(self);
@@ -114,6 +144,9 @@ local update_shm = function(t, cidx, headAngles)
       vcm['set_image'..cidx..'_labelA'](t.labelA.data);
       vcm['set_image'..cidx..'_labelB'](t.labelB.data);
       vcm['set_debug'..cidx..'_message'](t.debug_message);
+
+--      print('set_image'..cidx..'_labelB'..' Set')
+
     end
     if vcm.get_camera_broadcast() > 0 then --Wired monitor broadcasting
       vcm['set_image'..cidx..'_labelA'](t.labelA.data);
@@ -176,21 +209,30 @@ function Vision.entry(cidx)
   
   -- Initialize the Labeling
   self.scaleA = Config.vision.scaleA
-  --TODO: hack
-  if jit then self.scaleA = 2 end
+  self.scaleB = Config.vision.scaleB;
+
+  
+  if type(self.scaleA)=='table' then
+    self.scaleA = Config.vision.scaleA[cidx]
+    self.scaleB = Config.vision.scaleB[cidx]
+  end
+
+
+
   self.labelA = {}
   self.labelA.m = self.camera:get_width() / self.scaleA
   self.labelA.n = self.camera:get_height() / self.scaleA
   self.labelA.npixel = self.labelA.m * self.labelA.n;
   
-  self.scaleB = Config.vision.scaleB;
+  
   self.labelB = {}
   self.labelB.m = self.labelA.m / self.scaleB;
   self.labelB.n = self.labelA.n / self.scaleB;
   self.labelB.npixel = self.labelB.m * self.labelB.n;
  
 
-  vcm['set_image'..cidx..'_scaleB'](Config.vision.scaleB);
+  vcm['set_image'..cidx..'_scaleA'](Config.vision.scaleA[cidx]);
+  vcm['set_image'..cidx..'_scaleB'](Config.vision.scaleB[cidx]);
   print('Vision LabelA size: ('..self.labelA.m..', '..self.labelA.n..')');
   print('Vision LabelB size: ('..self.labelB.m..', '..self.labelB.n..')');
 
@@ -206,16 +248,21 @@ function Vision.entry(cidx)
   self.Detection = Detection.entry(self);
 
   -- Load the lookup table
+  if ImageProc2 then
     print"NEW LABELING"
     -- Setup the new vision labeling mechanism
     local w, h = self.camera:get_width(), self.camera:get_height()
-    ImageProc.setup(w, h, self.scaleA, self.scaleB)
+    ImageProc2.setup(w, h, self.scaleA, self.scaleB)
 
     local lut_filename = "Player/Data/"..Config.camera.lut_file[cidx]
-    local lut_id = ImageProc.load_lut(lut_filename)
-    self.lut = ImageProc.get_lut(lut_id):data()
+    local lut_id = ImageProc2.load_lut(lut_filename)
+    self.lut = ImageProc2.get_lut(lut_id):data()
     print("LOADED "..lut_filename)
-    return self 
+  else
+    self.lut_ud = ColorLUT.load_LUT(Config.camera.lut_file[cidx], cidx);
+    self.lut, self.lut_size = self.lut_ud:pointer()
+  end
+  return self 
 end
 
 return Vision

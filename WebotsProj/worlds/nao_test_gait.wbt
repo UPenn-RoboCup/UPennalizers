@@ -1,0 +1,67 @@
+#VRML_SIM V7.4.3 utf8
+WorldInfo {
+  info [
+    "Simulation of the Robocup Standard Platform League"
+    "Authors: Olivier Michel, Yvan Bourquin, Fabien Rohrer"
+    "Webpage: http://www.robotstadium.org"
+  ]
+  title "Robotstadium"
+  basicTimeStep 2.5
+  FPS 60
+}
+Viewpoint {
+  orientation -0.00803724 -0.999959 -0.00415109 3.17766
+  position -1.24965 0.172398 -6.3021
+}
+Background {
+  skyColor [
+    0.678431 0.847059 0.901961
+  ]
+}
+DirectionalLight {
+  ambientIntensity 1
+  direction -0.5 -2 -0.5
+  intensity 0.3
+  castShadows TRUE
+}
+DirectionalLight {
+  ambientIntensity 1
+  direction 0.5 -0.5 0.5
+  intensity 0.5
+}
+DEF STARTLINE Solid {
+  translation -2 -2.5 0
+  children [
+    Shape {
+      appearance Appearance {
+        material Material {
+          diffuseColor 0 1 0
+        }
+        texture ImageTexture {
+          url [
+            "textures/texture_grid.png"
+          ]
+        }
+      }
+      geometry Box {
+        size 5 5 2
+      }
+    }
+  ]
+  boundingObject Transform {
+    children [
+      Box {
+        size 5 5 2
+      }
+    ]
+  }
+  locked TRUE
+}
+DEF PLAYER_1_1 Nao_H21_V40GPSOnly {
+  translation -0.445861 0.334724 0.000710103
+  rotation -1.68819e-09 0.704162 0.710039 3.12984
+  controller "nao_team_0"
+  controllerArgs "1 98 1"
+  waistBand TRUE
+  waistBandColor 0.9 0.5 0.5
+}

@@ -1,0 +1,25 @@
+<Simulation>
+
+
+  <Surface name="TORSO_MATERIAL_black" diffuseColor="rgb(0%, 0%, 0%)" ambientColor="rgb(0%, 0%, 0%)" specularColor="rgb(0%, 0%, 0%)" shininess="8"/>
+  <Surface name="TORSO_MATERIAL_blue" diffuseColor="rgb(0%, 100%, 100%)" ambientColor="rgb(50%, 50%, 50%)" specularColor="rgb(0%, 0%, 0%)" shininess="8"/>
+  <Surface name="TORSO_MATERIAL_red" diffuseColor="rgb(100%, 0%, 100%)" ambientColor="rgb(50%, 50%, 50%)" specularColor="rgb(0%, 0%, 0%)" shininess="8"/>
+  <Surface name="TORSO_MATERIAL_yellow" diffuseColor="rgb(100%, 100%, 0%)" ambientColor="rgb(50%, 50%, 50%)" specularColor="rgb(0%, 0%, 0%)" shininess="8"/>
+
+  <Surface name="MAIN_SKIN_MATERIAL" ambientColor="rgb(100%, 100%, 100%)" diffuseColor="rgb(83.33%, 83.33%, 83.33%)"  specularColor="rgb(0%, 0%, 0%)" shininess="8"/>
+  <Surface name="STRUCTURE_MATERIAL" ambientColor="rgb(40%, 40%, 40%)" diffuseColor="rgb(40%, 40%, 40%)" specularColor="rgb(40%, 40%, 40%)" shininess="10"/>
+  <Surface name="EARS_TEXTURE" ambientColor="rgb(40%, 40%, 40%)" diffuseColor="rgb(40%, 40%, 40%)" specularColor="rgb(0%, 0%, 0%)" shininess="8" diffuseTexture="../Textures/hires_ear_texture.png"/>
+  <Surface name="BACKGROUND_MATERIAL" ambientColor="rgb(0%, 0%, 0%)" diffuseColor="rgb(0%, 0%, 0%)" specularColor="rgb(0%, 0%, 0%)" shininess="8"/>
+  
+  <Surface name="LEAR_LED_MATERIAL" ambientColor="rgb(20%, 20%, 20%)" diffuseColor="rgb(0%, 0%, 80%)" specularColor="rgb(0%, 0%, 0%)" emissionColor="rgb(0%, 0%, 80%)" shininess="8"/>
+  <Surface name="REAR_LED_MATERIAL" ambientColor="rgb(20%, 20%, 20%)" diffuseColor="rgb(0%, 0%, 80%)" specularColor="rgb(0%, 0%, 0%)" emissionColor="rgb(0%, 0%, 80%)" shininess="8"/>
+  
+  <Surface name="LEYE_LED_MATERIAL" ambientColor="rgb(20%, 20%, 20%)" diffuseColor="rgb(0%, 0%, 80%)" specularColor="rgb(0%, 0%, 0%)" emissionColor="rgb(0%, 0%, 80%)" shininess="8"/>
+  <Surface name="REYE_LED_MATERIAL" ambientColor="rgb(20%, 20%, 20%)" diffuseColor="rgb(0%, 0%, 80%)" specularColor="rgb(0%, 0%, 0%)" emissionColor="rgb(0%, 0%, 80%)" shininess="8"/>
+  
+  <Surface name="BUTTON_LED_MATERIAL" ambientColor="rgb(20%, 20%, 20%)" diffuseColor="rgb(0%, 0%, 80%)" specularColor="rgb(0%, 0%, 0%)" emissionColor="rgb(0%, 0%, 80%)" shininess="8"/>
+  
+  <Surface name="LFOOT_LED_TEXTURE" ambientColor="rgb(20%, 20%, 20%)" diffuseColor="rgb(0%, 0%, 80%)" specularColor="rgb(0%, 0%, 0%)" emissionColor="rgb(0%, 0%, 80%)" shininess="8" diffuseTexture="../Textures/hires_button_texture.png"/>
+  <Surface name="RFOOT_LED_TEXTURE" ambientColor="rgb(20%, 20%, 20%)" diffuseColor="rgb(0%, 0%, 80%)" specularColor="rgb(0%, 0%, 0%)" emissionColor="rgb(0%, 0%, 80%)" shininess="8" diffuseTexture="../Textures/hires_button_texture.png"/>
+  
+</Simulation>

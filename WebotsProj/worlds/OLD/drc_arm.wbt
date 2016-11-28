@@ -1,0 +1,784 @@
+#VRML_SIM V6.0 utf8
+WorldInfo {
+  info [
+    "Description"
+    "Author: first name last name <e-mail>"
+    "Date: DD MMM YYYY"
+  ]
+  basicTimeStep 33
+}
+Viewpoint {
+  orientation -0.0115389 -0.999815 -0.0153914 1.59993
+  position -1.4138 0.422118 0.0784826
+  follow "robot"
+}
+Background {
+  skyColor [
+    0.4 0.7 1
+  ]
+}
+PointLight {
+  intensity 0.5
+  location 10 10 10
+  radius 200
+}
+PointLight {
+  intensity 0.5
+  location 10 10 -10
+}
+PointLight {
+  intensity 0.5
+  location -10 10 10
+}
+PointLight {
+  intensity 0.5
+  location -10 10 -10
+}
+DEF FLOOR Solid {
+  translation -0.5 0 -0.5
+  children [
+    Shape {
+      geometry ElevationGrid {
+        color Color {
+          color [
+            0.803922 0.498039 0.298039
+            1 1 0
+          ]
+        }
+        colorPerVertex FALSE
+        xDimension 22
+        xSpacing 0.1
+        zDimension 22
+        zSpacing 0.1
+      }
+    }
+  ]
+  boundingObject Transform {
+    translation 0.5 0 0.5
+    children [
+      Plane {
+      }
+    ]
+  }
+}
+Supervisor {
+}
+DEF nx_arm Robot {
+  translation 0 0.051 0
+  children [
+    DEF id1_base Solid {
+      children [
+        Shape {
+          appearance Appearance {
+            material Material {
+              diffuseColor 0.501961 0.501961 0
+            }
+          }
+          geometry Box {
+            size 0.054 0.102 0.054
+          }
+        }
+      ]
+      boundingObject Shape {
+        geometry Box {
+          size 0.054 0.102 0.054
+        }
+      }
+      physics Physics {
+        density -1
+        mass 0.585131
+        centerOfMass 0 0.001 0
+      }
+    }
+    DEF ID1 Servo {
+      translation 0 0.054 0
+      children [
+        DEF mp_j02_plus_id1_horn Group {
+          children [
+            DEF mp_j02_side-wall Transform {
+              translation 0.059 0.0285 0
+              children [
+                Shape {
+                  appearance Appearance {
+                    material Material {
+                      diffuseColor 1 0 0.501961
+                    }
+                  }
+                  geometry Box {
+                    size 0.003 0.051 0.051
+                  }
+                }
+              ]
+            }
+            DEF mp_j02_side_wall Transform {
+              translation -0.058 0.0285 0
+              children [
+                Shape {
+                  appearance Appearance {
+                    material Material {
+                      diffuseColor 1 0 0.501961
+                    }
+                  }
+                  geometry Box {
+                    size 0.003 0.051 0.051
+                  }
+                }
+              ]
+            }
+            DEF mp_j02_side_disc Transform {
+              translation 0.059 0.0545 0
+              rotation 0 0 1 1.5708
+              children [
+                Shape {
+                  appearance Appearance {
+                    material Material {
+                      diffuseColor 1 0 0.501961
+                      transparency 0.35
+                    }
+                  }
+                  geometry Cylinder {
+                    height 0.003
+                    radius 0.024
+                  }
+                }
+              ]
+            }
+            DEF mp_j02_side_disc Transform {
+              translation -0.058 0.0545 0
+              rotation 0 0 1 1.5708
+              children [
+                Shape {
+                  appearance Appearance {
+                    material Material {
+                      diffuseColor 1 0 0.501961
+                      transparency 0.35
+                    }
+                  }
+                  geometry Cylinder {
+                    height 0.003
+                    radius 0.024
+                  }
+                }
+              ]
+            }
+            DEF id1_horn Transform {
+              children [
+                Shape {
+                  appearance Appearance {
+                    material Material {
+                      diffuseColor 0 1 0
+                    }
+                  }
+                  geometry Cylinder {
+                    height 0.006
+                    radius 0.024
+                  }
+                }
+              ]
+            }
+            DEF mp_j02_base_box Transform {
+              translation 0 0.0045 0
+              children [
+                Shape {
+                  appearance Appearance {
+                    material Material {
+                      diffuseColor 1 0 0.501961
+                      transparency 0.35
+                    }
+                  }
+                  geometry Box {
+                    size 0.118 0.003 0.054
+                  }
+                }
+              ]
+            }
+          ]
+        }
+        DEF ID2 Servo {
+          translation -0.0535 0.0545 0
+          rotation 1 0 0 0
+          children [
+            DEF mp_j03_plus_id2_horn Group {
+              children [
+                DEF id2_side_frame Transform {
+                  translation 0.054 0.0315 0
+                  children [
+                    Shape {
+                      appearance Appearance {
+                        material Material {
+                          diffuseColor 1 0 0.501961
+                        }
+                      }
+                      geometry Box {
+                        size 0.048 0.009 0.06
+                      }
+                    }
+                  ]
+                }
+                DEF id2_main_body Transform {
+                  translation 0.057 0 0
+                  children [
+                    Shape {
+                      appearance Appearance {
+                        material Material {
+                          diffuseColor 0.501961 0.501961 0
+                        }
+                      }
+                      geometry Box {
+                        size 0.108 0.054 0.054
+                      }
+                    }
+                  ]
+                }
+                DEF id2_horn Transform {
+                  rotation 0 0 1 1.5708
+                  children [
+                    Shape {
+                      appearance Appearance {
+                        material Material {
+                          diffuseColor 0 1 0
+                        }
+                      }
+                      geometry Cylinder {
+                        height 0.006
+                        radius 0.024
+                      }
+                    }
+                  ]
+                }
+              ]
+            }
+            DEF ID3 Servo {
+              translation 0.054 0.039 0
+              rotation 0 1 0 -1.5708
+              children [
+                DEF mp_j04_plus_id3_horn Group {
+                  children [
+                    DEF id4_attach1 Transform {
+                      translation -0.001 0.1625 0
+                      children [
+                        Shape {
+                          appearance Appearance {
+                            material Material {
+                              diffuseColor 0.501961 0.501961 0
+                            }
+                          }
+                          geometry Box {
+                            size 0.054 0.054 0.054
+                          }
+                        }
+                      ]
+                    }
+                    DEF id4_attach3 Transform {
+                      translation 0.0059 0.191 0
+                      rotation 0 0 1 0.785398
+                      children [
+                        Shape {
+                          appearance Appearance {
+                            material Material {
+                              diffuseColor 0.501961 0.501961 0
+                            }
+                          }
+                          geometry Box {
+                            size 0.05 0.046 0.054
+                          }
+                        }
+                      ]
+                    }
+                    DEF id4_attach_2_plus_id4_body Transform {
+                      translation 0.0258 0.2128 -0.003
+                      rotation 0 0 1 -0.785398
+                      children [
+                        Shape {
+                          appearance Appearance {
+                            material Material {
+                              diffuseColor 0.501961 0.501961 0
+                            }
+                          }
+                          geometry Box {
+                            size 0.048 0.045 0.06
+                          }
+                        }
+                      ]
+                    }
+                    DEF long_arm Transform {
+                      translation 0 0.087 0
+                      children [
+                        Shape {
+                          appearance Appearance {
+                            material Material {
+                              diffuseColor 0.501961 0.501961 0
+                            }
+                          }
+                          geometry Box {
+                            size 0.058 0.168 0.058
+                          }
+                        }
+                      ]
+                    }
+                    DEF id3_horn Transform {
+                      children [
+                        Shape {
+                          appearance Appearance {
+                            material Material {
+                              diffuseColor 0 1 0
+                            }
+                          }
+                          geometry Cylinder {
+                            height 0.006
+                            radius 0.024
+                          }
+                        }
+                      ]
+                    }
+                  ]
+                }
+                DEF ID4 Servo {
+                  translation 0.025 0.213 0.03
+                  rotation 0 0 -1 0
+                  children [
+                    DEF mp_jo5_plus_id4_horn Group {
+                      children [
+                        DEF mp_j05_side-wall_2 Transform {
+                          translation -0.04 0.027 0.0045
+                          rotation 1 0 0 1.5708
+                          children [
+                            Shape {
+                              appearance Appearance {
+                                material Material {
+                                  diffuseColor 1 0 0.501961
+                                }
+                              }
+                              geometry Cylinder {
+                                height 0.003
+                                radius 0.011
+                              }
+                            }
+                          ]
+                        }
+                        DEF mp_j05_side_wall_1 Transform {
+                          translation -0.04 0.027 -0.0645
+                          rotation 1 0 0 1.5708
+                          children [
+                            Shape {
+                              appearance Appearance {
+                                material Material {
+                                  diffuseColor 1 0 0.501961
+                                }
+                              }
+                              geometry Cylinder {
+                                height 0.003
+                                radius 0.011
+                              }
+                            }
+                          ]
+                        }
+                        DEF mp_j05_side_wall_2 Transform {
+                          translation -0.017 0.017 0.0045
+                          rotation 0 0 1 0.785398
+                          children [
+                            Shape {
+                              appearance Appearance {
+                                material Material {
+                                  diffuseColor 1 0 0.501961
+                                }
+                              }
+                              geometry Box {
+                                size 0.04 0.048 0.003
+                              }
+                            }
+                          ]
+                        }
+                        DEF mp_j05_side_wall_2 Transform {
+                          translation -0.03 0.0385 0.0045
+                          children [
+                            Shape {
+                              appearance Appearance {
+                                material Material {
+                                  diffuseColor 1 0 0.501961
+                                }
+                              }
+                              geometry Box {
+                                size 0.042 0.021 0.003
+                              }
+                            }
+                          ]
+                        }
+                        DEF mp_j05_side_wall_1 Transform {
+                          translation -0.017 0.017 -0.0645
+                          rotation 0 0 1 0.785398
+                          children [
+                            Shape {
+                              appearance Appearance {
+                                material Material {
+                                  diffuseColor 1 0 0.501961
+                                }
+                              }
+                              geometry Box {
+                                size 0.04 0.048 0.003
+                              }
+                            }
+                          ]
+                        }
+                        DEF mp_j05_side_wall_1 Transform {
+                          translation -0.03 0.0385 -0.0645
+                          children [
+                            Shape {
+                              appearance Appearance {
+                                material Material {
+                                  diffuseColor 1 0 0.501961
+                                }
+                              }
+                              geometry Box {
+                                size 0.042 0.021 0.003
+                              }
+                            }
+                          ]
+                        }
+                        DEF forearm Transform {
+                          translation -0.03 0.121 -0.03
+                          children [
+                            Shape {
+                              appearance Appearance {
+                                material Material {
+                                  diffuseColor 0.501961 0.501961 0
+                                }
+                              }
+                              geometry Box {
+                                size 0.045 0.144 0.045
+                              }
+                            }
+                          ]
+                        }
+                        DEF mp_j05_side_disc Transform {
+                          translation 0 0 0.0045
+                          rotation 1 0 0 1.5708
+                          children [
+                            Shape {
+                              appearance Appearance {
+                                material Material {
+                                  diffuseColor 1 0 0.501961
+                                }
+                              }
+                              geometry Cylinder {
+                                height 0.003
+                                radius 0.018
+                              }
+                            }
+                          ]
+                        }
+                        DEF mp_j05_side_disc Transform {
+                          translation 0 0 -0.0645
+                          rotation 1 0 0 1.5708
+                          children [
+                            Shape {
+                              appearance Appearance {
+                                material Material {
+                                  diffuseColor 1 0 0.501961
+                                }
+                              }
+                              geometry Cylinder {
+                                height 0.003
+                                radius 0.018
+                              }
+                            }
+                          ]
+                        }
+                        DEF mp_j05_base Transform {
+                          translation -0.03 0.0475 -0.03
+                          rotation 0 0 1 -0
+                          children [
+                            Shape {
+                              appearance Appearance {
+                                material Material {
+                                  diffuseColor 1 0 0.501961
+                                }
+                              }
+                              geometry Box {
+                                size 0.042 0.003 0.072
+                              }
+                            }
+                          ]
+                        }
+                        DEF id_4_horn Transform {
+                          rotation 1 0 0 1.5708
+                          children [
+                            Shape {
+                              appearance Appearance {
+                                material Material {
+                                  diffuseColor 0 1 0
+                                }
+                              }
+                              geometry Cylinder {
+                                height 0.006
+                                radius 0.018
+                              }
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                    DEF ID5 Servo {
+                      translation -0.03 0.196 -0.03
+                      rotation 0 1 0 1.5708
+                      children [
+                        DEF ID6 Servo {
+                          translation -0.03 0.035 0
+                          rotation 1 0 0 0
+                          children [
+                            DEF mp_jo07_plus_id6_horn Group {
+                              children [
+                                DEF mp_j07_side_wall Transform {
+                                  translation -0.0045 0.0195 0
+                                  rotation 0 0 1 0
+                                  children [
+                                    Shape {
+                                      appearance Appearance {
+                                        material Material {
+                                          diffuseColor 1 0 0.501961
+                                        }
+                                      }
+                                      geometry Box {
+                                        size 0.003 0.039 0.042
+                                      }
+                                    }
+                                  ]
+                                }
+                                DEF mp_j07_side_wall Transform {
+                                  translation 0.0645 0.0195 0
+                                  rotation 0 0 1 0
+                                  children [
+                                    Shape {
+                                      appearance Appearance {
+                                        material Material {
+                                          diffuseColor 1 0 0.501961
+                                        }
+                                      }
+                                      geometry Box {
+                                        size 0.003 0.039 0.042
+                                      }
+                                    }
+                                  ]
+                                }
+                                DEF mp_j07_side_disc Transform {
+                                  translation 0.0645 -0 0
+                                  rotation 0 0 1 1.5708
+                                  children [
+                                    Shape {
+                                      appearance Appearance {
+                                        material Material {
+                                          diffuseColor 1 0 0.501961
+                                        }
+                                      }
+                                      geometry Cylinder {
+                                        height 0.003
+                                        radius 0.018
+                                      }
+                                    }
+                                  ]
+                                }
+                                DEF mp_j07_side_disc Transform {
+                                  translation -0.0045 0 0
+                                  rotation 0 0 1 1.5708
+                                  children [
+                                    Shape {
+                                      appearance Appearance {
+                                        material Material {
+                                          diffuseColor 1 0 0.501961
+                                        }
+                                      }
+                                      geometry Cylinder {
+                                        height 0.003
+                                        radius 0.018
+                                      }
+                                    }
+                                  ]
+                                }
+                                DEF mp_j07_base Transform {
+                                  translation 0.03 0.0375 0
+                                  rotation 0 0 1 0
+                                  children [
+                                    Shape {
+                                      appearance Appearance {
+                                        material Material {
+                                          diffuseColor 1 0 0.501961
+                                        }
+                                      }
+                                      geometry Box {
+                                        size 0.072 0.003 0.042
+                                      }
+                                    }
+                                  ]
+                                }
+                                DEF id_6-horn Transform {
+                                  rotation 0 0 1 1.5708
+                                  children [
+                                    Shape {
+                                      appearance Appearance {
+                                        material Material {
+                                          diffuseColor 0 1 0
+                                        }
+                                      }
+                                      geometry Cylinder {
+                                        height 0.006
+                                        radius 0.018
+                                      }
+                                    }
+                                  ]
+                                }
+                              ]
+                            }
+                          ]
+                          name "id6"
+                          boundingObject USE mp_jo07_plus_id6_horn
+                          physics Physics {
+                            density -1
+                            mass 0.049739
+                            centerOfMass 0.031 0.026 0
+                          }
+                          maxVelocity 5
+                          maxForce 42
+                          controlP 32
+                        }
+                        DEF mp_j06_plus_id5_horn Group {
+                          children [
+                            DEF id6_body Transform {
+                              translation 0.003 0.033 0
+                              children [
+                                Shape {
+                                  appearance Appearance {
+                                    material Material {
+                                      diffuseColor 0.501961 0.501961 0
+                                    }
+                                  }
+                                  geometry Box {
+                                    size 0.06 0.042 0.042
+                                  }
+                                }
+                              ]
+                            }
+                            DEF id6_body_frame Transform {
+                              translation 0 0.0075 0
+                              children [
+                                Shape {
+                                  appearance Appearance {
+                                    material Material {
+                                      diffuseColor 1 0 0.501961
+                                    }
+                                  }
+                                  geometry Box {
+                                    size 0.054 0.009 0.048
+                                  }
+                                }
+                              ]
+                            }
+                            DEF id5_horn Transform {
+                              children [
+                                Shape {
+                                  appearance Appearance {
+                                    material Material {
+                                      diffuseColor 0 1 0
+                                    }
+                                  }
+                                  geometry Cylinder {
+                                    height 0.006
+                                    radius 0.018
+                                  }
+                                }
+                              ]
+                            }
+                          ]
+                        }
+                      ]
+                      name "id5"
+                      boundingObject USE mp_j06_plus_id5_horn
+                      physics Physics {
+                        density -1
+                        mass 0.252023
+                        centerOfMass 0.002 0.035 0
+                      }
+                      maxVelocity 5
+                      maxForce 42
+                      controlP 32
+                    }
+                  ]
+                  name "id4"
+                  boundingObject USE mp_jo5_plus_id4_horn
+                  physics Physics {
+                    density -1
+                    mass 0.418792
+                    centerOfMass -0.03 0.124 -0.03
+                  }
+                  maxVelocity 5
+                  maxForce 42
+                  controlP 32
+                }
+              ]
+              name "id3"
+              boundingObject USE mp_j04_plus_id3_horn
+              physics Physics {
+                density -1
+                mass 1.17856
+                centerOfMass 0.006 0.11 0.0004
+              }
+              maxVelocity 4
+              maxForce 54
+              controlP 32
+            }
+          ]
+          name "id2"
+          boundingObject USE mp_j03_plus_id2_horn
+          physics Physics {
+            density -1
+            mass 0.661144
+            centerOfMass 0.057 0.002 0
+          }
+          maxVelocity 4
+          maxForce 54
+          controlP 32
+        }
+      ]
+      name "id1"
+      boundingObject USE mp_j02_plus_id1_horn
+      physics Physics {
+        density -1
+        mass 0.126323
+        centerOfMass 0 0.021 0
+      }
+      maxVelocity 4
+      maxForce 54
+      controlP 32
+    }
+  ]
+  controller "nx_arm2"
+}
+DEF control_wall Solid {
+  translation 0 0.5 0.5
+  children [
+    Transform {
+      translation 0 -0.2 0
+      rotation 1 0 0 1.5708
+      children [
+        Shape {
+          appearance Appearance {
+            material Material {
+              diffuseColor 0 1 0
+            }
+          }
+          geometry Box {
+            size 0.2 0.2 0.2
+          }
+        }
+      ]
+    }
+    Shape {
+      geometry Box {
+        size 1 1 0.2
+      }
+    }
+  ]
+  boundingObject Box {
+    size 1 1 0.2
+  }
+  locked TRUE
+}

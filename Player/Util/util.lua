@@ -5,6 +5,27 @@ require('carray');
 require('vector');
 require('unix')
 
+---------------------------------
+function split(str, pat)
+   local t = {}  
+   local fpat = "(.-)" .. pat
+   local last_end = 1
+   local s, e, cap = str:find(fpat, 1)
+   while s do
+      if s ~= 1 or cap ~= "" then
+     table.insert(t,cap)
+      end
+      last_end = e+1
+      s, e, cap = str:find(fpat, last_end)
+   end
+   if last_end <= #str then
+      cap = str:sub(last_end)
+      table.insert(t, cap)
+   end
+   return t
+end
+---------------------------------
+
 function ptable(t)
   -- print a table key, value pairs
   for k,v in pairs(t) do print(k,v) end
@@ -395,3 +416,35 @@ function printtable(t)
     end
   end
 end
+
+--Sorts a simple lua table that has 1 set of entries, i.e. tbl={4, 8, 27, 13, 75, 7}
+--It will return a table with two sets of entries, one with the sorted values
+--and another with the sorted indeces.
+--For example, the table listed above will return as
+--            ID, VAL
+--newtbl = { {1 ,  4}
+--           {6 ,  7}
+--           {2 ,  8}
+--           {4 ,  13}
+--           {3 ,  27}
+--           {5 ,  75}}
+--
+function SortTable(tbl)
+
+    local newtbl = {};   
+    for k,v in pairs(tbl) do
+        newtbl[#newtbl+1] = {k,v};
+        --print(newtbl[#newtbl][1],newtbl[#newtbl][2])
+    end
+
+    table.sort(newtbl, function(b,c) return b[2] < c[2] end)
+    
+    --for testing
+    --print("Order, id, value")
+    --for k = 1,#newtbl do
+    --    print (k,newtbl[k][1],newtbl[k][2])
+    --end
+    
+    return newtbl
+end
+

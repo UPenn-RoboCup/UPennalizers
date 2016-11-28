@@ -7,6 +7,7 @@ require('Speak')
 require('vector')
 receiver = require('GameControlReceiver')
 
+--Speak.talk('Nao Game Control called');
 ip = Config.dev.ip_wireless;
 teamNumber = Config.game.teamNumber;
 playerID = gcm.get_team_player_id();
@@ -24,7 +25,9 @@ kickoff = -1;
 half = 1;
 
 teamPenalty = vector.zeros(Config.game.nPlayers)
-
+-----------------
+coach_message = '';
+-----------------
 penalty = { } ;
 for t = 1,2 do
 
@@ -102,6 +105,7 @@ count = 0;
 updateCount = 1;
 buttonPressed = 0;
 function update()
+    --Speak.talk('Nao Game Control update function called');
 	-- get latest game control packet
 	gamePacket = receive();
 	count = count +  1;
@@ -110,7 +114,7 @@ function update()
                 if gcm.in_penalty() then penalty_status=0 else penalty_status=1 end
                 receiver.send(teamNumber, playerID, penalty_status, ip)
 		-- if the game control state has not been set check for the teamIndex 
-		teamIndex = 0;
+        teamIndex = 0;
 		for i = 1,2 do
 
 			if gamePacket.teams[i].teamNumber == teamNumber then
@@ -138,12 +142,14 @@ function update()
 				enemyIndex = 1;
 			end
 			theirScore = gamePacket.teams[enemyIndex].score;
-
+            print('SCORE'..gamePakcet.teams[teamIndex].score);
+            print('COACH'..gamePacket.teams[teamIndex].coachSequence);
 			-- update team color
-			set_team_color(gamePacket.teams[teamIndex].teamColour); 
+			print('update color in init');
+            set_team_color(gamePacket.teams[teamIndex].teamColour); 
 
 			-- update kickoff team
-      if (gamePacket.kickOffTeam == teamNumber) then
+    if (gamePacket.kickOffTeam == teamNumber) then
 				set_kickoff(1);
 			else
 				set_kickoff(0);
@@ -179,7 +185,8 @@ function update()
 		teamIndex = 0;
 
 		-- update team color (it is set in gameInitial)
-		set_team_color(gcm.get_team_color());
+		print('update color in update');
+        set_team_color(gcm.get_team_color());
 
 		-- update kickoff
 		set_kickoff(gcm.get_game_kickoff());
@@ -207,7 +214,6 @@ function update()
 
 	-- update shm
 	if (updateCount == count) then
-
 		update_shm();
 	end
 end

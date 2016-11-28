@@ -1,3 +1,5 @@
+UPennalizers
+
 This project is a modularized software framework for use with humanoid robot
 development and research. The modularized platform separates low level
 components that vary from robot to robot from the high level logic that does not

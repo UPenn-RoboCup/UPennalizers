@@ -101,21 +101,21 @@ int init_devices() {
 
 
 void *sound_comm_rx_thread_func(void*) {
-
   printf("starting SoundComm receiver thread\n");
-
   sigset_t sigs;
   sigfillset(&sigs);
   pthread_sigmask(SIG_BLOCK, &sigs, NULL);
 
   snd_pcm_uframes_t frames = NFRAME;
-
+  if (sound_comm_thread_set_receiver_volume(75) < 0) {
+      fprintf(stderr, "unable to initialize reciever volume.\n");
+    }
   // number of frames in buffer
   int nrxFrames = 0;
   // current buffer index
   int irxBuffer = 0;
   while (1) {
-
+    
     if (rxPauseCmd) {
       // pause requested
 
@@ -147,7 +147,6 @@ void *sound_comm_rx_thread_func(void*) {
 
         rxPaused = false;
       }
-
       if (nrxFrames + frames < PFRAME) {
         // all frames fit within buffer, read all available frames
         int rframes = snd_pcm_readi(rx, rxBuffer+irxBuffer, frames);
@@ -196,8 +195,7 @@ void *sound_comm_rx_thread_func(void*) {
           irxBuffer = 0;
           continue;
         } 
-
-        // process audio sample
+       // process audio sample
         char symbol;
         long frame;
         int xLIndex;
@@ -257,14 +255,15 @@ void *sound_comm_rx_thread_func(void*) {
           continue;
 
         } 
-
         // update rx buffer
         nrxFrames = rframes;
         irxBuffer = rframes * SAMPLES_PER_FRAME;
       }
-    }
 
+    }
+    
     pthread_testcancel();
+ 
   }
 }
 
@@ -291,7 +290,7 @@ void sound_comm_rx_thread_cleanup() {
 
 /***********************************************************************************
  * *********************************************************************************
- *                  RECEVIER THREAD FUNCTIONS
+ *                  TRANSMITTER THREAD FUNCTIONS
  * *********************************************************************************
  * *********************************************************************************/
 
@@ -503,33 +502,31 @@ int sound_comm_thread_set_receiver_volume(int volume) {
 
 
 int sound_comm_thread_init() {
+  
   int ret;
-
+  printf("Testing Threads...\n");
   // initialize audio devices (transmitter and receiver)
   ret = init_devices();
   if (ret < 0) {
     fprintf(stderr, "error initializing devices\n");
     return ret;
   }
-
   // set volumes
-  if (sound_comm_thread_set_transmitter_volume(100) < 0) {
+  if (sound_comm_thread_set_transmitter_volume(20) < 0) {
     fprintf(stderr, "unable to initialize transmitter volume.\n");
     return -1;
   }
+  
   if (sound_comm_thread_set_receiver_volume(75) < 0) {
     fprintf(stderr, "unable to initialize reciever volume.\n");
     return -1;
   }
-  
-
   // initialize detection variables
   detection.count = 0;
   detection.time = 0;
   detection.lIndex = -1;
   detection.rIndex = -1;
   detection.symbol = '\0';
-
   // create mutexes
   if ((ret = pthread_mutex_init(&detectionMutex, NULL)) != 0) {
     fprintf(stderr, "error initializing detection mutex: %d\n", ret);
@@ -543,7 +540,7 @@ int sound_comm_thread_init() {
     fprintf(stderr, "error initializing debug pcm mutex: %d\n", ret);
     return ret;
   }
-
+  
   // start receiver thread
   printf("creating sound receiver thread\n");
   ret = pthread_create(&rxthread, NULL, sound_comm_rx_thread_func, NULL);
@@ -551,13 +548,16 @@ int sound_comm_thread_init() {
     printf("error creating receiver pthread: %d\n", ret);
     return -1;
   }
+  
+  /*
+  //transmitter thread m
   printf("creating sound transmitter thread\n");
   ret = pthread_create(&txthread, NULL, sound_comm_tx_thread_func, NULL);
   if (ret != 0) {
     printf("error creating transmitter pthread: %d\n", ret);
     return -1;
   }
-
+  */
   return 0;
 }
 

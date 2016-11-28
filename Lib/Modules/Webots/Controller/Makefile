@@ -7,7 +7,8 @@ lua_controller.c: lua_controller.i
 	@echo "\t" SWIG $@
 	$(V)swig -lua -o $@ -I$(WEBOTS_HOME)/include/controller/c lua_controller.i
 
-WEBOTS_HOME=/home/sagar/Documents/webots
+#WEBOTS_HOME=/home/sagar/Documents/webots
+WEBOTS_HOME=/usr/local/webots
 ifeq ($(OSTYPE),darwin)
 WEBOTS_HOME=/Applications/Webots
 endif

@@ -1,0 +1,64 @@
+# The Ball's size, mass and color correspond to the soccer ball used in the Robocup SPL
+# You can change the centerOfMass to [0 0 0] to avoid the random rolling effect
+# Author: Yvan Bourquin - www.cyberbotics.com
+# May 12, 2011: Added damping
+
+PROTO PayloadC [
+field SFVec3f translation 0 0.0325 0
+field SFRotation rotation 1 0 0 1.5708
+field SFColor color 1.0 0.25 1
+field SFFloat radius 0.0325
+field SFFloat height 0.3
+field SFFloat mass 0.1
+field SFVec3f centerOfMass 0 -0.0001 0
+field SFFloat linearDamping 0.17
+field SFFloat angularDamping 0.33
+field SFString contactMaterial "default"
+]
+{
+  Solid {
+    translation IS translation
+    rotation IS rotation
+    name "stretcher"
+    children [
+      DEF CYL_SHAPE_L_TRANS Transform {
+#        translation -0.08 0 0
+        children [
+        Shape {
+          appearance DEF CYL_APP Appearance {
+            material Material {
+              ambientIntensity 0.2
+              shininess 0.7
+              diffuseColor IS color
+              specularColor IS color
+#              emissiveColor IS color
+            }
+          }
+          geometry Cylinder {
+            radius IS radius
+            height IS height
+            subdivision 12
+          }
+        }
+        ]
+      }
+    ]
+      contactMaterial IS contactMaterial
+#    boundingObject USE CYL_SHAPE_L
+      boundingObject Group {
+        children [
+          USE CYL_SHAPE_L_TRANS
+          ]
+      }
+    physics Physics {
+      density -1
+        mass IS mass
+        centerOfMass IS centerOfMass
+        damping Damping {
+          linear IS linearDamping
+            angular IS angularDamping
+        }
+    }
+  }
+}
+

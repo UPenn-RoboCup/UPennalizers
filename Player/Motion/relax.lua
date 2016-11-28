@@ -14,7 +14,7 @@ supportX = Config.walk.supportX;
 pLLeg = vector.new({-supportX , footY, 0, 0,0,0});
 pRLeg = vector.new({-supportX , -footY, 0, 0,0,0});
 
-hip_pitch_target = -20*math.pi/180;
+hip_pitch_target = 50*math.pi/180;
 
 ankle_pitch_target = -95*math.pi/180;
 ankle_pitch_target = -105*math.pi/180;
@@ -34,10 +34,16 @@ function entry()
     
     Body.set_lleg_command({0,0,hip_pitch_target,0,0,0});
     Body.set_rleg_command({0,0,hip_pitch_target,0,0,0});
-
+    print("hello".. hip_pitch_target);
     Body.set_lleg_hardness({0.6,0.6,0.6,0,0,0});
     Body.set_rleg_hardness({0.6,0.6,0.6,0,0,0});
   elseif Config.platform.name=='NaoV4' then
+        if (Config.game.role == 5) then
+            print('~~~~~~~~~relax body hardness is set to 0.5 for coach');
+            Body.set_body_hardness(0.5);
+            Body.set_lleg_hardness({0.5, 0.5, 0.5, 0.5, 0.5, 0.5});
+            Body.set_rleg_hardness({0.5, 0.5, 0.5, 0.5, 0.5, 0.5});
+        end
     Body.set_body_hardness(0);
     Body.set_lleg_hardness({0,0,0.5,0,0,0});
     Body.set_rleg_hardness({0,0,0.5,0,0,0});
@@ -73,9 +79,13 @@ function update()
     Body.set_rleg_command(qRLeg);
   elseif Config.platform.name == 'NaoV4' then
     --Hack for pocket (bad ankle encoder)
+    qLLeg = vector.new({0,0,-50,124,-70,3})*math.pi/180;
+    qRLeg = vector.new({0,0,-50,124,-70,3})*math.pi/180;
+	if (Config.game.role == 5) then	
     qLLeg = vector.new({0,0,-52,124,-70,3})*math.pi/180;
     qRLeg = vector.new({0,0,-52,124,-70,3})*math.pi/180;
-    Body.set_lleg_command(qLLeg);
+    end
+	Body.set_lleg_command(qLLeg);
     Body.set_rleg_command(qRLeg);
     --Set initial commanded values
     for i=1,6 do

@@ -25,7 +25,7 @@ struct SPLStandardMessage
 {
   char header[4];        // "SPL "
   uint8_t version;       // has to be set to SPL_STANDARD_MESSAGE_STRUCT_VERSION
-  int8_t playerNum;      // [MANDATORY FIELD] 1-5
+  int8_t playerNum;      // [MANDATORY FIELD] 1-5 in drop-in games, 1-6 in normal games
   int8_t teamNum;        // [MANDATORY FIELD] the number of the team (as provided by the organizers)
   int8_t fallen;         // [MANDATORY FIELD] 1 means that the robot is fallen, 0 means that the robot can play
 
@@ -82,7 +82,7 @@ struct SPLStandardMessage
   // 1 - wants to be keeper
   // 2 - wants to play defense
   // 3 - wants to play the ball
-  // 4 - robot is lost
+  // 4 - robot is lost (i.e. cannot decide what to do now, maybe because of disorientation [see confidence fields])
   int8_t intention;
 
   // [MANDATORY]

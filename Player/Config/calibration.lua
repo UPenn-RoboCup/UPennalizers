@@ -20,15 +20,15 @@ cal["ticktock"]={
   RHipOffset = 0,
 }
 cal["pockets"]={
-  LAnkleOffset = -0.017,
+  LAnkleOffset = 0,
   RAnkleOffset = 0,
-  LHipOffset = 0.017,
+  LHipOffset = 0,
   RHipOffset = 0,
 }
 
 cal["tink"]={
   LAnkleOffset = 0,
   RAnkleOffset = 0,
-  LHipOffset = 0,
+  LHipOffset = 0, 
   RHipOffset = 0,
 }

@@ -24,6 +24,13 @@ Transform& Transform::translate(double x, double y, double z) {
   return *this;
 }
 
+Transform& Transform::translate(const double* p) {
+  t[0][3] += t[0][0]*p[0] + t[0][1]*p[1] + t[0][2]*p[2];
+  t[1][3] += t[1][0]*p[0] + t[1][1]*p[1] + t[1][2]*p[2];
+  t[2][3] += t[2][0]*p[0] + t[2][1]*p[1] + t[2][2]*p[2];
+  return *this;
+}
+
 Transform& Transform::translateX(double x) {
   t[0][3] += t[0][0]*x;
   t[1][3] += t[1][0]*x;
@@ -176,4 +183,14 @@ std::vector<double> position6D(const Transform &t1) {
   p[4] = -asin(t1(2,0));
   p[5] = atan2(t1(1,0), t1(0,0));
   return p;
+}
+
+Transform trcopy (const Transform &t1) {
+  Transform t;
+  for (int i = 0; i < 4; i++) {
+    for (int j = 0; j < 4; j++) {      
+      t(i,j) = t1(i,j);      
+    }
+  }
+  return t;
 }

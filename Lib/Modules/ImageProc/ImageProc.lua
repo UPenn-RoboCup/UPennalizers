@@ -207,9 +207,9 @@ function ImageProc.setup (w0, h0, sA, sB)
   ImageProc.tilted_goal_posts = ImageProcFuncs.tilted_goal_posts
   ImageProc.field_occupancy = ImageProcFuncs.field_occupancy
   ImageProc.field_lines = ImageProcFuncs.field_lines
+  ImageProc.line_connect = ImageProcFuncs.line_connect
   ImageProc.field_spots = ImageProcFuncs.field_spots
   ImageProc.robots = ImageProcFuncs.robots
-
 end
 
 return ImageProc

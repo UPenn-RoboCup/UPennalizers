@@ -1,0 +1,134 @@
+#VRML_SIM V6.0 utf8
+WorldInfo {
+  info [
+    "Simulation of the Robocup Standard Platform League"
+    "Authors: Olivier Michel, Yvan Bourquin, Fabien Rohrer"
+    "Webpage: http://www.robotstadium.org"
+  ]
+  title "Robotstadium"
+  basicTimeStep 40
+  runRealTime TRUE
+}
+Viewpoint {
+  orientation -0.999518 -0.0278818 0.0136224 0.678493
+  position -0.166543 5.29416 6.98743
+  follow "ball"
+}
+Background {
+  skyColor [
+    0.678431 0.847059 0.901961
+  ]
+}
+DirectionalLight {
+  ambientIntensity 1.6
+  direction -0.5 -2 -0.5
+  intensity 0.3
+}
+DirectionalLight {
+  ambientIntensity 1.6
+  direction 0.5 -0.5 0.5
+  intensity 0.5
+}
+SoccerField {
+}
+Walls {
+}
+DEF YELLOW_GOAL Goal {
+  translation 3 0 0
+  postColor 0.992157 0.854902 0.219608
+}
+DEF BLUE_GOAL Goal {
+  translation -3 0 0
+  rotation 0 1 0 3.14159
+  postColor 0.152941 0.505882 0.733333
+}
+DEF BALL Ball {
+}
+Supervisor {
+  children [
+    Emitter {
+      channel -1
+    }
+    Receiver {
+      channel 2
+    }
+  ]
+  name "soccer referee"
+  controller "nao_soccer_supervisor"
+}
+DEF GOAL_KEEPER_0 Nao_H21_V40 {
+  translation -3 0.35 0
+  color 0.8 0.8 0.8
+  controller "nao_team_0"
+  controllerArgs "0 0"
+  cameraWindowPosition 0.125 1
+  waistBand TRUE
+}
+DEF PLAYER_1_0 Nao_H21_V40 {
+  translation -2.325 0.35 -0.35
+  color 0.8 0.8 0.8
+  controller "nao_team_0"
+  controllerArgs "1 0"
+  cameraWindowPosition 0.375 1
+  waistBand TRUE
+}
+DEF PLAYER_2_0 Nao_H21_V40 {
+  translation -2.325 0.35 -1.575
+  color 0.8 0.8 0.8
+  controller "nao_team_0"
+  controllerArgs "2 0"
+  cameraWindowPosition 0.625 1
+  waistBand TRUE
+}
+DEF PLAYER_3_0 Nao_H21_V40 {
+  translation -2.325 0.35 1.575
+  color 0.8 0.8 0.8
+  controller "nao_team_0"
+  controllerArgs "3 0"
+  cameraWindowPosition 0.875 1
+  waistBand TRUE
+}
+DEF GOAL_KEEPER_1 Nao_H21_V40 {
+  translation 3 0.35 0
+  rotation 0 0.707107 0.707107 3.1416
+  color 0.8 0.8 0.8
+  controller "nao_team_1"
+  controllerArgs "0 1"
+  cameraWindowPosition 0.125 0
+  waistBand TRUE
+  waistBandColor 0.9 0.5 0.5
+  channel 1
+}
+DEF PLAYER_1_1 Nao_H21_V40 {
+  translation 0.675 0.35 0
+  rotation 0 0.707107 0.707107 3.1415
+  color 0.8 0.8 0.8
+  controller "nao_team_1"
+  controllerArgs "1 1"
+  cameraWindowPosition 0.375 0
+  waistBand TRUE
+  waistBandColor 0.9 0.5 0.5
+  channel 1
+}
+DEF PLAYER_2_1 Nao_H21_V40 {
+  translation 1.2 0.35 1.125
+  rotation 0 0.707107 0.707107 3.1415
+  color 0.8 0.8 0.8
+  controller "nao_team_1"
+  controllerArgs "2 1"
+  cameraWindowPosition 0.625 0
+  waistBand TRUE
+  waistBandColor 0.9 0.5 0.5
+  channel 1
+}
+DEF PLAYER_3_1 Nao_H21_V40 {
+  translation 2.325 0.35 -1.125
+  rotation 0 0.707107 0.707107 3.1415
+  color 0.8 0.8 0.8
+  controller "nao_team_1"
+  controllerArgs "3 1"
+  cameraWindowPosition 0.875 0
+  waistBand TRUE
+  waistBandColor 0.9 0.5 0.5
+  channel 1
+}

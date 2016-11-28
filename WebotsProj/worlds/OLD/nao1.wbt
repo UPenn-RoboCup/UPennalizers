@@ -1,0 +1,56 @@
+#VRML_SIM V6.0 utf8
+WorldInfo {
+  info [
+    "Simulation of the Robocup Standard Platform League"
+    "Authors: Olivier Michel, Yvan Bourquin, Fabien Rohrer"
+    "Webpage: http://www.robotstadium.org"
+  ]
+  title "Robotstadium"
+  basicTimeStep 40
+}
+Viewpoint {
+  orientation -1 0 0 0.8
+  position 0 8 8
+}
+Background {
+  skyColor [
+    0.678431 0.847059 0.901961
+  ]
+}
+DirectionalLight {
+  ambientIntensity 1.6
+  direction -0.5 -2 -0.5
+  intensity 0.3
+  castShadows TRUE
+}
+DirectionalLight {
+  ambientIntensity 1.6
+  direction 0.5 -0.5 0.5
+  intensity 0.5
+}
+SoccerField {
+}
+Walls {
+}
+DEF YELLOW_GOAL Goal {
+  translation 3 0 0
+  postColor 0.992157 0.854902 0.219608
+}
+DEF BLUE_GOAL Goal {
+  translation -3 0 0
+  rotation 0 1 0 3.14159
+  postColor 0.992157 0.854902 0.219608
+}
+DEF BALL Ball {
+  translation 0 0.0323921 0
+}
+DEF PLAYER_1_1 NaoV3RGPS {
+  translation 0.675 0.35 2
+  rotation 0 1 0 -3.14
+  controller "nao_team_0"
+  controllerArgs "3 26"
+  synchronization FALSE
+  cameraWindowPosition 0.375 0
+  waistBand TRUE
+  waistBandColor 0.9 0.5 0.5
+}

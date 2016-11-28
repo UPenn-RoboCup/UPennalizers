@@ -40,7 +40,7 @@ distance = vector.zeros(2);
 
 obsThresh = .02*numSavedValues/5;--.03;
 freeThresh = .1*numSavedValues/5;--.15;
-disThresh = .6;
+disThresh = .3;
 
 function entry()
   -- auto send and receive on both left/right

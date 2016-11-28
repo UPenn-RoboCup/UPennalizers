@@ -2,7 +2,6 @@ module(... or "",package.seeall)
 --TODO: what about coroutine instead running to files?
 cwd = os.getenv('PWD')
 require('init')
-
 require('unix')
 require('vcm')
 
@@ -36,7 +35,6 @@ function update(nc)
   -- update vision 
   local imageProcessed = false
   imageProcessed = Vision_thread[nc]:update();
-  --World.update_odometry();
   
   -- update localization
   if imageProcessed then

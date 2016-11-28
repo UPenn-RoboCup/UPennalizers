@@ -140,7 +140,7 @@ unsigned char * to_rgb( int tag ) {
 %include <webots/pen.h>
 %include <webots/radio.h>
 
-# Receiver:
+// Receiver:
 %typemap(out) const void * {
   lua_pushlstring(L, (const char*) $1, wb_receiver_get_data_size(arg1));
   SWIG_arg++;

@@ -1,0 +1,129 @@
+<Simulation>
+  
+  <Body name="number0">
+    <ComplexAppearance ref="quad">
+      <Set name="texture" value="tex0" />
+    </ComplexAppearance>
+  </Body>
+  <Body name="number1">
+    <ComplexAppearance ref="quad">
+      <Set name="texture" value="tex1" />
+    </ComplexAppearance>
+  </Body>
+  <Body name="number2">
+    <ComplexAppearance ref="quad">
+      <Set name="texture" value="tex2" />
+    </ComplexAppearance>
+  </Body>
+  <Body name="number3">
+    <ComplexAppearance ref="quad">
+      <Set name="texture" value="tex3" />
+    </ComplexAppearance>
+  </Body>
+  <Body name="number4">
+    <ComplexAppearance ref="quad">
+      <Set name="texture" value="tex4" />
+    </ComplexAppearance>
+  </Body>
+  <Body name="number5">
+    <ComplexAppearance ref="quad">
+      <Set name="texture" value="tex5" />
+    </ComplexAppearance>
+  </Body>
+  <Body name="number6">
+    <ComplexAppearance ref="quad">
+      <Set name="texture" value="tex6" />
+    </ComplexAppearance>
+  </Body>
+  <Body name="number7">
+    <ComplexAppearance ref="quad">
+      <Set name="texture" value="tex7" />
+    </ComplexAppearance>
+  </Body>
+  <Body name="number8">
+    <ComplexAppearance ref="quad">
+      <Set name="texture" value="tex8" />
+    </ComplexAppearance>
+  </Body>
+  <Body name="number9">
+    <ComplexAppearance ref="quad">
+      <Set name="texture" value="tex9" />
+    </ComplexAppearance>
+  </Body>
+  
+  <ComplexAppearance name="quad">
+    <Surface diffuseColor="rgb(100%, 100%, 100%)" diffuseTexture="Textures/numbers.png"/> 
+    <Vertices unit="dm">
+-1 0 1
+-1 0 -1
+1 0 -1
+1 0 1
+    </Vertices>
+    <Quads>
+0 1 2 3
+    </Quads>
+    <TexCoords ref="$texture" />
+  </ComplexAppearance>
+
+<TexCoords name="tex0">
+0 0
+0 1
+0.1 1
+0.1 0
+</TexCoords>
+<TexCoords name="tex1">
+0.1 0
+0.1 1
+0.2 1
+0.2 0
+</TexCoords>
+<TexCoords name="tex2">
+0.2 0
+0.2 1
+0.3 1
+0.3 0
+</TexCoords>
+<TexCoords name="tex3">
+0.3 0
+0.3 1
+0.4 1
+0.4 0
+</TexCoords>
+<TexCoords name="tex4">
+0.4 0
+0.4 1
+0.5 1
+0.5 0
+</TexCoords>
+<TexCoords name="tex5">
+0.5 0
+0.5 1
+0.6 1
+0.6 0
+</TexCoords>
+<TexCoords name="tex6">
+0.6 0
+0.6 1
+0.7 1
+0.7 0
+</TexCoords>
+<TexCoords name="tex7">
+0.7 0
+0.7 1
+0 8 1
+0.8 0
+</TexCoords>
+<TexCoords name="tex8">
+0.8 0
+0.8 1
+0.9 1
+0.9 0
+</TexCoords>
+<TexCoords name="tex9">
+0.9 0
+0.9 1
+1 1
+1 0
+</TexCoords>
+
+</Simulation>

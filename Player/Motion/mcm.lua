@@ -39,6 +39,7 @@ shared.walk.bodyCarryOffset = vector.zeros(3);
 
 --To notify world to reset heading
 shared.walk.isFallDown = vector.zeros(1);
+shared.walk.isGetupDone = vector.zeros(1);
 
 --Is the robot spinning in bodySearch?
 shared.walk.isSearching = vector.zeros(1);

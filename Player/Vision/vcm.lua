@@ -80,6 +80,7 @@ end
 
 image.width = vector.zeros(1);
 image.height = vector.zeros(1);
+image.scaleA = vector.zeros(1);
 image.scaleB = vector.zeros(1);
 
 --Image field-of-view information
@@ -92,9 +93,6 @@ image.fovC=vector.zeros(2);
 images[1] = image
 
 
-if webots then --Webots uses double the resolution for labelA!
-  print("orig image1 size:",img_width,img_height)
-end
 
 -- Next cam
 local image2 = {}
@@ -121,7 +119,7 @@ else
   img_width = cw[2]
   img_height = ch[2]
 end
-print('im2',img_width,img_height)
+
 
 local sA, sB = Config.vision.scaleA, Config.vision.scaleB
 if type(sA)=='number' then
@@ -135,6 +133,7 @@ end
 
 image2.width = vector.zeros(1);
 image2.height = vector.zeros(1);
+image2.scaleA = vector.zeros(1);
 image2.scaleB = vector.zeros(1);
 
 --image2 field-of-view information
@@ -148,16 +147,10 @@ images[2] = image2
 
 
 
-if webots then --Webots uses double the resolution for labelA!
-  print("orig image2 size:",img_width,img_height)
-end
-
-
-
-
 
 local ball = {};
 ball.detect = vector.zeros(1);
+ball.on_line = vector.zeros(1);
 ball.color_count = vector.zeros(1);
 ball.centroid = vector.zeros(2); --in pixels, (x,y), of camera image
 ball.v = vector.zeros(4); --3D position of ball wrt body
@@ -166,6 +159,7 @@ ball.dr = vector.zeros(1);
 ball.da = vector.zeros(1);
 ball.axisMajor = vector.zeros(1);
 ball.axisMinor = vector.zeros(1);
+ball.vcoach = vector.zeros(4);
 
 local goal = {};
 goal.detect = vector.zeros(1);
@@ -183,14 +177,14 @@ goal.postCentroid2 = vector.zeros(2);
 goal.postAxis2 = vector.zeros(2);
 goal.postOrientation2 = vector.zeros(1);
 
----Midfield landmark for non-nao robots
-local landmark = {};
-landmark.detect = vector.zeros(1);
-landmark.color = vector.zeros(1);
-landmark.v = vector.zeros(4);
-landmark.centroid1 = vector.zeros(2);
-landmark.centroid2 = vector.zeros(2);
-landmark.centroid3 = vector.zeros(2);
+local spot = {};
+spot.detect = vector.zeros(1);
+spot.color = vector.zeros(1);
+spot.v = vector.zeros(4);
+spot.bboxB = vector.zeros(4);
+spot.centroid1 = vector.zeros(2);
+spot.centroid2 = vector.zeros(2);
+spot.centroid3 = vector.zeros(2);
 
 --Multiple line detection
 max_line_num = 12;
@@ -202,6 +196,7 @@ line.v1x = vector.zeros(max_line_num);
 line.v1y = vector.zeros(max_line_num);
 line.v2x = vector.zeros(max_line_num);
 line.v2y = vector.zeros(max_line_num);
+line.real_length = vector.zeros(max_line_num);
 line.endpoint11 = vector.zeros(max_line_num);
 line.endpoint12 = vector.zeros(max_line_num);
 line.endpoint21 = vector.zeros(max_line_num);
@@ -210,7 +205,16 @@ line.xMean = vector.zeros(max_line_num);
 line.yMean = vector.zeros(max_line_num);
 --for best line
 line.v=vector.zeros(4);
-line.angle=vector.zeros(a);
+line.angle=vector.zeros(1);
+line.lengthB=vector.zeros(1);
+
+--Circle detectin
+local circle = {};
+circle.detect = vector.zeros(1);
+circle.x = vector.zeros(1);
+circle.y = vector.zeros(1);
+circle.var = vector.zeros(1);
+circle.angle = vector.zeros(1);
 
 --Corner detection
 local corner = {};
@@ -222,6 +226,10 @@ corner.v20 = vector.zeros(4);
 corner.v = vector.zeros(4);
 corner.v1 = vector.zeros(4);
 corner.v2 = vector.zeros(4);
+corner.angle = vector.zeros(1);
+
+
+
 
 local robot={};
 robot.detect=vector.zeros(1);
@@ -244,8 +252,9 @@ debug.message='';
 -- for arbitrator
 shared.ball = ball
 shared.goal = goal
+shared.spot = spot
 shared.line = line
-shared.landmark = landmark
+shared.circle = circle
 shared.corner = corner
 shared.robot = robot 
 shared.debug = debug
@@ -259,57 +268,20 @@ for nc = 1, Config.camera.ncamera do
 
   shared['debug'..nc] = debug
   shared['ball'..nc] = ball
-  --shared['goal'..nc] = goal
-  --shared['landmark'..nc] = landmark
-  --shared['line'..nc] = line
-  --shared['corner'..nc] = corner
-  --shared['robot'..nc] = robot
+  shared['line'..nc] = line
 end
 
 
 util.init_shm_segment(getfenv(), _NAME, shared, shsize);
 
-debug_message='';
---
-----For vision debugging
-function refresh_debug_message()
-  if string.len(debug_message)==0 then
-    --it is not updated for whatever reason
-    --just keep the latest message
-  else
-    --Update SHM
-    set_debug_message(debug_message);
-    debug_message='';
-  end
-end
+debug_message = '';
 
 function add_debug_message(message)
-  if string.len(debug_message)>1000 then
+  if string.len(debug_message)>600 then
     --something is wrong, just reset it 
     debug_message='';
   end
   debug_message=debug_message..message;
-end
-
-function bboxStats(color, bboxB, rollAngle, scale)
-  scale = scale or scaleB[1];
-  local bboxA = {};
-  bboxA[1] = scale*bboxB[1];
-  bboxA[2] = scale*bboxB[2] + scale - 1;
-  bboxA[3] = scale*bboxB[3];
-  bboxA[4] = scale*bboxB[4] + scale - 1;
-  if rollAngle then
- --hack: shift boundingbox 1 pix helps goal detection
- --not sure why this thing is happening...
-
---    bboxA[1]=bboxA[1]+1;
-      bboxA[2]=bboxA[2]+1;
-
---    return ImageProc.tilted_color_stats(labelA.data, labelA.m, labelA.n, color, bboxA,rollAngle);
---  else
---    return ImageProc.color_stats(labelA.data, labelA.m, labelA.n, color, bboxA);
-  end
-  return bboxA
 end
 
 function bboxB2A(bboxB, scaleB)

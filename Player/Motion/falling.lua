@@ -6,17 +6,33 @@ require('vcm')
 
 t0 = 0;
 timeout = Config.falling_timeout or 0.3;
-qLArmFront = vector.new({45,9,-135})*math.pi/180;
-qRArmFront = vector.new({45,-9,-135})*math.pi/180;
+--qLArmFront = vector.new({45,9,-135,0})*math.pi/180;
+--qRArmFront = vector.new({45,-9,-135,0})*math.pi/180;
 
+headfwd = {-0.047595977783203,0.52765417098999};
+headbkwd = {-0.013848066329956,-0.69034194946289};
 
 --Prepare the body to safely fall. This primarily involves setting all joints
 --to zero hardness, so that the motors will be safe after the fall.
 function entry()
   print(_NAME.." entry");
 
-  -- relax all the joints while falling
-  Body.set_body_hardness(0);
+    --try to protect head
+    local imuAngle = Body.get_sensor_imuAngle()
+    if imuAngle[2] > 0  then-- falling forward
+        Body.set_head_hardness(0.6);
+        Body.set_head_command(headbkwd);
+    else
+        Body.set_head_hardness(0.6);
+        Body.set_head_command(headfwd);
+    end
+
+  -- relax all the other joints while falling 
+  Body.set_lleg_hardness(0);
+  Body.set_rleg_hardness(0);
+  Body.set_larm_hardness(0);
+  Body.set_rarm_hardness(0);
+ 
 
   t0 = Body.get_time();
   -- Body.set_syncread_enable(1); --OP specific
@@ -37,7 +53,7 @@ function update()
     end
   else
     local imuAngle = Body.get_sensor_imuAngle()
-    print("imuangle: ",imuAngle[1]*180/math.pi,imuAngle[2]*180/math.pi)
+    --print("imuangle: ",imuAngle[1]*180/math.pi,imuAngle[2]*180/math.pi)
 
     if math.abs(imuAngle[1]) < 45*math.pi/180 and math.abs(imuAngle[2]) < 45*math.pi/180 then
       return "restand"

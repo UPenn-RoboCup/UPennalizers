@@ -9,7 +9,7 @@ require('cutil')
 require('vcm')
 require('wcm');
 require('gcm');
-
+require('ImageProc')
 
 --Player ID: 1 to 5
 --Role enum we used before
@@ -43,6 +43,15 @@ local role_std_to_penn={
   ROLE_ATTACKER,
   ROLE_LOST,
 }
+
+function pack_float(f) --pack a floating number
+  local packedf = util.mod_angle(f)
+  return math.floor(packedf/2/math.pi*256)
+end
+
+function unpack_float(pack_f)
+  return pack_f/256*2*math.pi
+end
 
 
 function pack_v(v) --pack pose xy into two bytes
@@ -83,7 +92,6 @@ function convert_state_penn_to_std(sp)
   local goalAttack = wcm.get_goal_attack()
   local dir,abias = 1000,0
   if goalAttack[1]<0 then dir,abias = -1000,math.pi end
-
   local state = {
     version=6,
     playerNum = sp.id, --1 to 5
@@ -97,8 +105,14 @@ function convert_state_penn_to_std(sp)
     ballAge = sp.ball.t_seen*1000, --ms till last saw the ball, -1 if we have never seen it
     ball = {sp.ball.x*1000,sp.ball.y*1000}, --x(mm)/y(mm), Local coordinate
     ballVel = {sp.ball.vx*1000,sp.ball.vy*1000}, --x(mm)/y(mm), Local coordinate
+    suggestion = sp.suggestion,
     intention = role_penn_to_std[sp.role+1], --0 nothing / 1 keeper / 2 defender / 3 attacker / 4 lost
+    averageWalkSpeed = sp.averageWalkSpeed,
+    maxKickDistance = sp.maxKickDistance,
+    currentPositionConfidence = sp.currentPositionConfidence*100,
+    currentSideConfidence = sp.currentSideConfidence,
     numOfDataBytes = 0,
+    
     data={
       sp.teamNumber,	--Byte 1
       sp.penalty,	--Byte 2
@@ -106,7 +120,7 @@ function convert_state_penn_to_std(sp)
 
       -- Vision data
       sp.goal,		--Byte 4
-      sp.corner,	--Byte 5
+      0,	--Byte 5
 	
       0,0, --goalv1	--Byte 6 and 7
       0,0, --goalv2	--Byte 8 and 9
@@ -122,22 +136,28 @@ function convert_state_penn_to_std(sp)
       sp.goalB2[1],sp.goalB2[2],
       ((sp.goalB2[3]*180/math.pi+360)%360)/2,
       sp.goalB2[4],sp.goalB2[5],
-      },    
+      sp.ball.p*255, --byte 22
+      }      
   }
 
-
-  state.numOfDataBytes = 800
---  print ("Data bytes used:",#state.data)
-
+  --put vision info in correct data bytes
   state.data[6],state.data[7]=pack_v(sp.goalv1)
   state.data[8],state.data[9]=pack_v(sp.goalv2)
-  state.data[10],state.data[11]=pack_v(sp.cornerv)
-
-
---print("state data size:",#sp.data)
-  for i=1,math.max(#sp.data,800-21) do
-    state.data[21+i]=sp.data[i]
+  if (sp.corner ~= 0 and sp.cornerv[1]~=0 and sp.cornerv[2]~=0) then
+    state.data[10],state.data[11]=pack_v(sp.cornerv)
+    state.data[5]=pack_float(sp.corner)
   end
+
+  --Figure out how much extra data we can send
+  MaxDataBytes = 780; --specified by SPL
+  cur_data_size = #state.data; -- should be 22
+  extraBytes = math.min(#sp.data,MaxDataBytes-cur_data_size);
+ 
+  --add as much extra data as we can
+  for i=1,extraBytes do
+    state.data[cur_data_size+i]=sp.data[i]
+  end
+  state.numOfDataBytes = #state.data;
   return state
 end
 
@@ -152,13 +172,12 @@ function convert_state_std_to_penn(ss,teamnum)
   local dir,abias = 0.001,0
   if goalAttack[1]<0 then dir,abias = -0.001,math.pi end
 
-
   local state = { 
     id = ss.playerNum,
     teamNumber = ss.teamNum,
     fall=ss.fallen,
     pose = {x=ss.pose[1]*dir,y=ss.pose[2]*dir,a=util.mod_angle(ss.pose[3]+abias)},
-    ball = {t_seen = ss.ballAge/1000, p = 0, 
+    ball = {t_seen = ss.ballAge/1000, p = ss.data[22]/255, 
             x=ss.ball[1]/1000, y=ss.ball[2]/1000, 
             vx=ss.ballVel[1]/1000, vy=ss.ballVel[1]/1000},
     role = role_std_to_penn[ss.intention+1],  
@@ -172,14 +191,20 @@ function convert_state_std_to_penn(ss,teamnum)
      
     penalty = ss.data[2],
     battery_level = ss.data[3],
+    suggestion = ss.suggestion,
+    averageWalkSpeed = ss.averageWalkSpeed,
+    maxKickDistance = ss.maxKickDistance,
+    currentPositionConfidence = ss.currentPositionConfidence/100,
+    currentSideConfidence = ss.currentSideConfidence,
 
     --Added key vision infos
     goal = ss.data[4],
-    corner = ss.data[5],
+    
+    corner = 0,
 
     goalv1=unpack_v(ss.data[6],ss.data[7]),
     goalv2=unpack_v(ss.data[8],ss.data[9]),
-    cornerv=unpack_v(ss.data[10],ss.data[11]),
+    cornerv={0,0},
 
     goalB1={
 	ss.data[12],ss.data[13],
@@ -200,6 +225,10 @@ function convert_state_std_to_penn(ss,teamnum)
     labelBind = 0,
     labelB = {}
   }
+  if ss.data[5]~=0 and ss.data[10]~=0 and ss.data[11]~=0 then
+    state.corner = unpack_float(ss.data[5]);
+    state.cornerv = unpack_v(ss.data[10],ss.data[11]);
+  end
   for i,v in pairs(Config.robot_names_ids) do
     if ss.playerNum == v then
       state.robotName = i
@@ -211,7 +240,7 @@ function convert_state_std_to_penn(ss,teamnum)
   state.ball.t = state.tReceived - state.ball.t_seen
 --  print("ball tSeen:",state.ball.t_seen)
   
-  dindex = 23
+  dindex = 22
   index = 1
   ended = false
   while not ended do
@@ -222,7 +251,7 @@ function convert_state_std_to_penn(ss,teamnum)
     end
     dindex = dindex+1
   end
-  state.labelBind = ss.data[22]
+  state.labelBind = ss.data[23]
   return state
 end
 
@@ -236,6 +265,11 @@ function get_default_state()
     role = -1,  
     walkingTo = {0,0},
     shootingTo = {0,0},
+    suggestion = {0,0,0,0,0},
+    averageWalkSpeed = 50,
+    maxKickDistance = 2000,
+    currentPositionConfidence = 0,
+    currentSideConfidence = 0,
     
     --Game state info
     time = unix.time(),
@@ -256,7 +290,7 @@ function get_default_state()
     goalv2={0,0},
     goalB1={0,0,0,0,0},--Centroid X Centroid Y Orientation Axis1 Axis2
     goalB2={0,0,0,0,0},
-    corner=0, --0 for non-detect, 1 for L, 2 for T
+    corner=0, --corner angle if not detect  both angle and positions are 0
     cornerv={0,0},  
   }
   return state
@@ -290,8 +324,9 @@ function pack_vision_info(state)
   state.corner=0
   state.cornerv={0,0}
   if vcm.get_corner_detect()>0 then
-    state.corner = vcm.get_corner_type();
+    local a = vcm.get_corner_angle();
     local v = vcm.get_corner_v();
+    state.corner = a;
     state.cornerv[1],state.cornerv[2]=v[1],v[2];
   end  
   return state
@@ -322,7 +357,18 @@ function pack_labelB_TeamMsg(state, ind)
   labelB = vcm["get_image"..ind.."_labelB"]()
   width = vcm["get_image"..ind.."_width"]()/Config.vision.scaleA[ind]/Config.vision.scaleB[ind]
   height = vcm["get_image"..ind.."_height"]()/Config.vision.scaleA[ind]/Config.vision.scaleB[ind]
-  local arr = cutil.label2array_rle(labelB, width*height)
+
+  --the wireless broadcast label size is always less than 80 by 60
+  --And nao top labelB is size of 160 by 120
+
+  local arr
+  if ind==1 then
+    local labelC = ImageProc.block_bitor(labelB,width,height,2,2)
+    arr = cutil.label2array_rle(labelC, width*height/4)
+  else
+    arr = cutil.label2array_rle(labelB, width*height)
+  end
+
   state.data[1] = ind -- for recognizition
   for i=1, #arr do
     state.data[1+i] = arr[i] 
@@ -331,32 +377,3 @@ function pack_labelB_TeamMsg(state, ind)
 end
 
 
-function pack_labelB_TeamMsg_old(state)
-  state.data={}
---We have 800 data bytes
---initial 21 bytes are used for metadata
-
-  labelB1 = vcm.get_image1_labelB()
-  labelB2 = vcm.get_image2_labelB()
-  width1 = vcm.get_image1_width()/Config.vision.scaleA[1]/Config.vision.scaleB[1]
-  height1 = vcm.get_image1_height()/Config.vision.scaleA[1]/Config.vision.scaleB[1]
-  width2 = vcm.get_image2_width()/Config.vision.scaleA[2]/Config.vision.scaleB[2]
-  height2 = vcm.get_image2_height()/Config.vision.scaleA[2]/Config.vision.scaleB[2]
-  local arr1 = cutil.label2array_rle(labelB1,width1*height1)
-  local arr2 = cutil.label2array_rle(labelB2,width2*height2)
-
-  --TODO: better memory copy
-  index=1
-  for i=1,#arr2 do
-    state.data[index]=arr2[i]
-    index=index+1
-  end
-  state.data[index]=7 --separation byte
-  index = index + 1
-  for i=1,#arr1 do
-    state.data[index]=arr1[i]
-    index=index+1
-  end
-  state.data[index]=7 --separation byte
---  print("state copying done, size :",#state.data)
-end

@@ -1,0 +1,11 @@
+<Simulation>
+
+  <Surface name="ballOrange" diffuseColor="rgb(100%, 0%, 0%)" specularColor="rgb(60%, 60%, 60%)" shininess="30"/>
+
+  <Body name="ball">
+    <SphereAppearance radius="0.0325">
+      <Surface ref="ballOrange"/>
+    </SphereAppearance>
+  </Body>
+
+</Simulation>

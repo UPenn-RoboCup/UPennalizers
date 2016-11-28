@@ -1,0 +1,183 @@
+<Simulation>
+  
+  <Body name="Nao"><!-- A box that looks like a Nao -->
+    <Translation z="335mm"/>
+    <Set name="NaoColor" value="blue"/>
+
+    <ComplexAppearance ref="CHESTBUTTON_FACES"/>
+    <ComplexAppearance ref="CHESTBUTTONLED_FACES"/>
+    <ComplexAppearance ref="CHESTPLATE_FACES"/>
+    <ComplexAppearance ref="INNERTORSO_FACES"/>
+    <ComplexAppearance ref="TORSO_FACES"/>
+    
+    <!-- Head -->
+    <Appearance name="Neck">
+      <Translation z="126.5mm"/><!-- NeckOffsetZ -->
+      <ComplexAppearance ref="NECK_FACES"/>
+      <Appearance name="Head">
+        <ComplexAppearance ref="EARS_FACES"/>
+        <ComplexAppearance ref="HEAD_FACES"/>
+        <ComplexAppearance ref="HEADBACKGROUND_FACES"/>
+        <ComplexAppearance ref="HEADTOPCOVER_FACES"/>
+        <ComplexAppearance ref="LEARLED_FACES"/>
+        <ComplexAppearance ref="LEYE_FACES"/>
+        <ComplexAppearance ref="PUPILS_FACES"/>
+        <ComplexAppearance ref="REARLED_FACES"/>
+        <ComplexAppearance ref="REYE_FACES"/>
+      </Appearance>
+    </Appearance>
+    
+    <!-- Left Arm -->
+    <Appearance name="LUpperArm">
+      <Translation y="98mm" z="100mm"/><!-- ShoulderOffsetY, ShoulderOffsetZ -->
+      <ComplexAppearance ref="LSHOULDERPITCH_FACES"/>
+      <ComplexAppearance ref="LSHOULDERPLATE_FACES">
+        <Rotation y="90degree"/>
+        <ComplexAppearance ref="LBICEPS_FACES">
+          <Rotation z="5degree"/>
+          <ComplexAppearance ref="LELBOW_FACES"/>
+          <ComplexAppearance ref="LELBOWROLL_FACES">
+            <Translation x="105mm" y="15mm"/><!-- UpperArmLength, ElbowOffsetY -->
+            <ComplexAppearance ref="WRIST_FACES">
+              <Translation x="55.95mm" y="0mm"/><!-- LowerARmLength -->
+              <Rotation x="-90degree"/>
+              <ComplexAppearance ref="WRISTPLATE_FACES"/>
+              <ComplexAppearance ref="WRISTRUBBER_FACES"/>
+            </ComplexAppearance>
+          </ComplexAppearance>
+        </ComplexAppearance>
+      </ComplexAppearance>
+    </Appearance>
+    
+    <!-- Right Arm -->
+    <Appearance name="RUpperArm">
+      <Translation y="-98mm" z="100mm"/><!-- ShoulderOffsetY, ShoulderOffsetZ -->
+      <ComplexAppearance ref="RSHOULDERPITCH_FACES"/>
+      <ComplexAppearance ref="RSHOULDERPLATE_FACES">
+        <Rotation y="90degree"/>
+        <ComplexAppearance ref="RBICEPS_FACES">
+          <Rotation z="-5degree"/>
+          <ComplexAppearance ref="RELBOW_FACES"/>
+          <ComplexAppearance ref="RELBOWROLL_FACES">
+            <Translation x="105mm" y="-15mm"/><!-- UpperArmLength, ElbowOffsetY -->
+            <ComplexAppearance ref="WRIST_FACES">
+              <Translation x="55.95mm" y="0mm"/><!-- LowerARmLength -->
+              <Rotation x="90degree"/>
+              <ComplexAppearance ref="WRISTPLATE_FACES"/>
+              <ComplexAppearance ref="WRISTRUBBER_FACES"/>
+            </ComplexAppearance>
+          </ComplexAppearance>
+        </ComplexAppearance>
+      </ComplexAppearance>
+    </Appearance>
+    
+    <!-- Left Leg -->
+    <Appearance name="LHip">
+      <Translation y="50mm" z="-85mm"/><!-- HipOffsetY, HipOffsetZ -->
+      <ComplexAppearance ref="LINNERPELVIS_FACES"/>
+      <ComplexAppearance ref="LOUTERPELVIS_FACES"/>
+      <ComplexAppearance ref="LHIPROLL_FACES"/>
+      <ComplexAppearance ref="LINNERTHIGH_FACES"/>
+      <ComplexAppearance ref="LOUTERTHIGH_FACES"/>
+      <ComplexAppearance ref="LOUTERTHIGH_FACES"/>
+      <Appearance name="LTibia">
+        <Translation z="-100mm"/><!-- ThighLength -->
+        <ComplexAppearance ref="LINNERTIBIA_FACES"/>
+        <ComplexAppearance ref="LOUTERTIBIA_FACES"/>
+        <ComplexAppearance ref="LTIBIASIDEPLATE_FACES"/>
+        <Appearance name="LFOOT">
+          <Translation z="-102.9mm"/><!-- TibiaLength -->
+          <ComplexAppearance ref="LANKLEPITCH_FACES"/>
+          <ComplexAppearance ref="LANKLEROLL_FACES"/>
+          <ComplexAppearance ref="LFOOT_FACES"/>
+          <ComplexAppearance ref="LFOOTBUMPER_FACES"/>
+          <ComplexAppearance ref="LFOOTLED_FACES"/>
+        </Appearance>
+      </Appearance>
+    </Appearance>
+    
+    <!-- Right Leg -->
+    <Appearance name="RHip">
+      <Translation y="-50mm" z="-85mm"/><!-- HipOffsetY, HipOffsetZ -->
+      <ComplexAppearance ref="RINNERPELVIS_FACES"/>
+      <ComplexAppearance ref="ROUTERPELVIS_FACES"/>
+      <ComplexAppearance ref="RHIPROLL_FACES"/>
+      <ComplexAppearance ref="RINNERTHIGH_FACES"/>
+      <ComplexAppearance ref="ROUTERTHIGH_FACES"/>
+      <ComplexAppearance ref="ROUTERTHIGH_FACES"/>
+      <Appearance name="RTibia">
+        <Translation z="-100mm"/><!-- ThighLength -->
+        <ComplexAppearance ref="RINNERTIBIA_FACES"/>
+        <ComplexAppearance ref="ROUTERTIBIA_FACES"/>
+        <ComplexAppearance ref="RTIBIASIDEPLATE_FACES"/>
+        <Appearance name="RFOOT">
+          <Translation z="-102.9mm"/><!-- TibiaLength -->
+          <ComplexAppearance ref="RANKLEPITCH_FACES"/>
+          <ComplexAppearance ref="RANKLEROLL_FACES"/>
+          <ComplexAppearance ref="RFOOT_FACES"/>
+          <ComplexAppearance ref="RFOOTBUMPER_FACES"/>
+          <ComplexAppearance ref="RFOOTLED_FACES"/>
+        </Appearance>
+      </Appearance>
+    </Appearance>
+    
+  </Body>
+
+  <Include href="NAOV5H25Meshes/Surfaces.rsi2"/>
+  
+  <Include href="NAOV5H25Meshes/ChestButton.rsi2"/>
+  <Include href="NAOV5H25Meshes/ChestButtonLED.rsi2"/>
+  <Include href="NAOV5H25Meshes/ChestPlate.rsi2"/>
+  <Include href="NAOV5H25Meshes/Ears.rsi2"/>
+  <Include href="NAOV5H25Meshes/Head.rsi2"/>
+  <Include href="NAOV5H25Meshes/HeadBackground.rsi2"/>
+  <Include href="NAOV5H25Meshes/HeadTopCover.rsi2"/>
+  <Include href="NAOV5H25Meshes/InnerTorso.rsi2"/>
+  <Include href="NAOV5H25Meshes/LAnklePitch.rsi2"/>
+  <Include href="NAOV5H25Meshes/LAnkleRoll.rsi2"/>
+  <Include href="NAOV5H25Meshes/LBiceps.rsi2"/>
+  <Include href="NAOV5H25Meshes/LEarLED.rsi2"/>
+  <Include href="NAOV5H25Meshes/LElbow.rsi2"/>
+  <Include href="NAOV5H25Meshes/LElbowRoll.rsi2"/>
+  <Include href="NAOV5H25Meshes/LEye.rsi2"/>
+  <Include href="NAOV5H25Meshes/LFoot.rsi2"/>
+  <Include href="NAOV5H25Meshes/LFootBumper.rsi2"/>
+  <Include href="NAOV5H25Meshes/LFootLED.rsi2"/>
+  <Include href="NAOV5H25Meshes/LHipRoll.rsi2"/>
+  <Include href="NAOV5H25Meshes/LInnerPelvis.rsi2"/>
+  <Include href="NAOV5H25Meshes/LInnerThigh.rsi2"/>
+  <Include href="NAOV5H25Meshes/LInnerTibia.rsi2"/>
+  <Include href="NAOV5H25Meshes/LOuterPelvis.rsi2"/>
+  <Include href="NAOV5H25Meshes/LOuterThigh.rsi2"/>
+  <Include href="NAOV5H25Meshes/LOuterTibia.rsi2"/>
+  <Include href="NAOV5H25Meshes/LShoulderPitch.rsi2"/>
+  <Include href="NAOV5H25Meshes/LShoulderPlate.rsi2"/>
+  <Include href="NAOV5H25Meshes/LTibiaSidePlate.rsi2"/>
+  <Include href="NAOV5H25Meshes/Neck.rsi2"/>
+  <Include href="NAOV5H25Meshes/Pupils.rsi2"/>
+  <Include href="NAOV5H25Meshes/RAnklePitch.rsi2"/>
+  <Include href="NAOV5H25Meshes/RAnkleRoll.rsi2"/>
+  <Include href="NAOV5H25Meshes/RBiceps.rsi2"/>
+  <Include href="NAOV5H25Meshes/REarLED.rsi2"/>
+  <Include href="NAOV5H25Meshes/RElbow.rsi2"/>
+  <Include href="NAOV5H25Meshes/RElbowRoll.rsi2"/>
+  <Include href="NAOV5H25Meshes/REye.rsi2"/>
+  <Include href="NAOV5H25Meshes/RFoot.rsi2"/>
+  <Include href="NAOV5H25Meshes/RFootBumper.rsi2"/>
+  <Include href="NAOV5H25Meshes/RFootLED.rsi2"/>
+  <Include href="NAOV5H25Meshes/RHipRoll.rsi2"/>
+  <Include href="NAOV5H25Meshes/RInnerPelvis.rsi2"/>
+  <Include href="NAOV5H25Meshes/RInnerThigh.rsi2"/>
+  <Include href="NAOV5H25Meshes/RInnerTibia.rsi2"/>
+  <Include href="NAOV5H25Meshes/ROuterPelvis.rsi2"/>
+  <Include href="NAOV5H25Meshes/ROuterThigh.rsi2"/>
+  <Include href="NAOV5H25Meshes/ROuterTibia.rsi2"/>
+  <Include href="NAOV5H25Meshes/RShoulderPitch.rsi2"/>
+  <Include href="NAOV5H25Meshes/RShoulderPlate.rsi2"/>
+  <Include href="NAOV5H25Meshes/RTibiaSidePlate.rsi2"/>
+  <Include href="NAOV5H25Meshes/Torso.rsi2"/>
+  <Include href="NAOV5H25Meshes/Wrist.rsi2"/>
+  <Include href="NAOV5H25Meshes/WristPlate.rsi2"/>
+  <Include href="NAOV5H25Meshes/WristRubber.rsi2"/>
+  
+</Simulation>

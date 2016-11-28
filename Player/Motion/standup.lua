@@ -48,7 +48,6 @@ end
   else
     pose = wcm.get_pose();
     batt_level=Body.get_battery_level();
---[[
     if batt_level<9 then
       print("standupFromBack_slow");
       keyframe.do_motion("standupFromBack2");
@@ -56,12 +55,6 @@ end
       print("standupFromBack");
       keyframe.do_motion("standupFromBack");
     end
---]]
-    if getup_flag==0 and batt_level>9 then
-keyframe.do_motion("standupFromBack");
-else
-keyframe.do_motion("standupFromBack2");
-end
 end
   --vcm.set_vision_enable(0);
 end
@@ -80,6 +73,7 @@ getup_flag=1;
     	walk.still=true;
 getup_flag=0;
     	walk.set_velocity(0, 0, 0);
+	mcm.set_walk_isGetupDone(1);
       return "done";
     end
   end

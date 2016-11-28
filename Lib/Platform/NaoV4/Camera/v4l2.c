@@ -190,6 +190,7 @@ int v4l2_init(v4l2_device * vdev) {
     /* Get current format */
     struct v4l2_format video_fmt;
     video_fmt.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
+    video_fmt.fmt.pix.pixelformat = V4L2_PIX_FMT_YUYV; //added by sagar
     if (xioctl(vdev->fd, VIDIOC_G_FMT, &video_fmt) == -1)
         return v4l2_error("VIDIOC_G_FMT: Fail Get Format");
 
@@ -251,6 +252,7 @@ int v4l2_init(v4l2_device * vdev) {
 }
 
 int v4l2_stream_on(v4l2_device * vdev) {
+    printf("IN v4l2_stream_on %d \n", vdev->count);
     int i = 0;
     struct v4l2_buffer buf;
     for (i = 0; i < NBUFFERS; i++) {

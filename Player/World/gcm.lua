@@ -12,13 +12,16 @@ shsize = {};
 
 shared.game = {};
 shared.game.state = vector.zeros(1);
+shared.game.whistle = vector.zeros(1);
 shared.game.nplayers = vector.zeros(1);
 shared.game.kickoff = vector.zeros(1);
+shared.game.kickoff_from_whistle = vector.zeros(1);
 shared.game.half = vector.zeros(1);
 shared.game.penalty = vector.zeros(Config.game.nPlayers);
 shared.game.opponent_penalty = vector.zeros(Config.game.nPlayers);
 shared.game.time_remaining = vector.zeros(1);
 shared.game.last_update = vector.zeros(1);
+shared.game.controllerState = vector.zeros(1);
 
 shared.game.paused = vector.zeros(1);
 shared.game.gc_latency = vector.zeros(1);--GC message latency
@@ -29,7 +32,8 @@ shared.game.was_penalized = vector.zeros(1);
 shared.game.our_score = vector.zeros(1);
 shared.game.opponent_score = vector.zeros(1);
 
-
+shared.game.coachMessage = '';
+shared.game.coachMessageTime = vector.zeros(1);
 
 
 
@@ -97,7 +101,7 @@ set_team_number(Config.game.teamNumber);
 set_game_nplayers(Config.game.nPlayers);
 
 -- initialize state to 'initial'
-set_game_state(0);
+set_game_state(-1);
 set_team_role(Config.game.role);
 set_game_bodystate(0)
 
@@ -110,8 +114,8 @@ function in_penalty()
 end
 
 function say_id()
-  Speak.talk('Player ID '..Config.game.playerID);
-  Speak.talk('Team Number '..Config.game.teamNumber);
-  Speak.talk("Team color equals " .. Config.game.teamColor)
+  --Speak.talk('Player ID '..Config.game.playerID);
+  --Speak.talk('Team Number '..Config.game.teamNumber);
+  --Speak.talk("Team color equals " .. Config.game.teamColor)
 end
 

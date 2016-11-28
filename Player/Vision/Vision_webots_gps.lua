@@ -58,8 +58,9 @@ end
 
 function update_shm_fov(sel)
   --This function projects the boundary of current labeled image
-  local sa = Config.vision.scaleA
+  
   cidx = sel + 1 
+  local sa = Config.vision.scaleA[cidx]
   local fovC={Config.camera.width[cidx]/2/sa,Config.camera.height[cidx]/2/sa}
   local fovBL={0,Config.camera.height[cidx]/sa}
   local fovBR={Config.camera.width[cidx]/sa,Config.camera.height[cidx]/sa}

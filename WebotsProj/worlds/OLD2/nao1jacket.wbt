@@ -1,0 +1,70 @@
+#VRML_SIM V6.0 utf8
+WorldInfo {
+  info [
+    "Simulation of the Robocup Standard Platform League"
+    "Authors: Olivier Michel, Yvan Bourquin, Fabien Rohrer"
+    "Webpage: http://www.robotstadium.org"
+  ]
+  title "Robotstadium"
+  basicTimeStep 40
+}
+Viewpoint {
+  orientation 0.0105224 0.992143 0.124668 3.30868
+  position 0.992918 1.4676 -3.7832
+}
+Background {
+  skyColor [
+    0.678431 0.847059 0.901961
+  ]
+}
+DirectionalLight {
+  ambientIntensity 1.6
+  direction -0.5 -2 -0.5
+  intensity 0.3
+  castShadows TRUE
+}
+DirectionalLight {
+  ambientIntensity 1.6
+  direction 0.5 -0.5 0.5
+  intensity 0.5
+}
+TeenSoccerField {
+}
+TeenWalls {
+}
+DEF YELLOW_GOAL KidGoal {
+  translation 4.5 0 0
+  postColor 0.992157 0.854902 0.219608
+  supportColor 0.7 0 0
+}
+DEF BLUE_GOAL KidGoal {
+  translation -4.5 0 0
+  rotation 0 1 0 3.14159
+  postColor 0.992157 0.854902 0.219608
+  supportColor 0.152941 0.505882 0.733333
+}
+DEF BALL BallGPS {
+  translation 0 0.0323921 0
+  channel 13
+}
+DEF PLAYER_1_1 Nao_H21_V40GPS_JACKET {
+  translation 1.18339 0.331434 0.570334
+  rotation -0.580336 0.575657 0.576045 2.08894
+  controller "nao_team_0"
+  controllerArgs "1 1"
+  bottomCameraWindowPosition 0 0.2
+  waistBand TRUE
+  waistBandColor 0.9 0.5 0.5
+  shirt_color 0.54 0 0.54
+}
+
+DEF PLAYER_2_1 Nao_H21_V40GPS_JACKET {
+  translation 1.58339 0.331434 0.570334
+  rotation -0.580336 0.575657 0.576045 2.08894
+  controller "nao_team_0"
+  controllerArgs "1 2"
+  bottomCameraWindowPosition 0 0.2
+  waistBand TRUE
+  waistBandColor 0.9 0.5 0.5
+  shirt_color 0 0.54 0.54
+}

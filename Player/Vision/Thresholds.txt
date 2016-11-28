@@ -1,0 +1,20 @@
+Details what the thresholds are for detectCircle and detectCorner:
+
+All thresholds are changed in Player/Config/Vision/Config_NaoV4_Vision.lua by searching the name of the treshold EXCEPT for angle_threshold and disCornerThresh, which are local to detectCircle.lua and detectCorner.lua respectively
+
+detectCirlce.lua:
+1. var_threshold: variance in where the center is (calculated by many different pairs of lines)
+
+2. angle_threshold: 10 * math.pi/180 rads (10 degrees) -->  used to check if their are too many parallel lines for there to be a circle (eliminating false circle --> local 
+
+
+detectCorner.lua:
+1. T_thr: used to be used to detect T corners, but isn't used anymore
+
+2. dist_threshold: used to be two different values as testing if L corners or T corners are valid, but isn't used anymore
+
+3. angle_threshold: used to make sure corners are only created by two lines that are close to being perpendicular (within the threshold, in radians)
+
+4. length_threshold: makes sure the lines used to create corners are long enough (probably to avoid spots and other robots) 
+
+5. distCornerThresh: determines the radius (in # of pixels) of the intersection of two lines: if an endpoint of one line is within the radius, we have a T-Corner (if the intersection is within the bounds of the second line); if an endpoint of each line is within the radius, we have an L-Corner --> local change

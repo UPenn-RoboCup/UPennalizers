@@ -144,16 +144,53 @@ if (type(val) == "number") then
 end
 set_actuator_hardness(val, indexRLeg);
 end
+function set_lleg_velocity(val)
+  if (type(val) == "number") then val = val* vector.ones(nJointLLeg);end
+  set_actuator_velocity(val, indexLLeg);
+end
+function set_rleg_velocity(val)
+  if (type(val) == "number") then val = val* vector.ones(nJointRLeg);end
+  set_actuator_velocity(val, indexRLeg);
+end
+
+
 function set_waist_hardness(val)
 end
 
-function set_lleg_command(val)
-set_actuator_command(val, indexLLeg);
-for i=1,#val do
 
-	commanded_joint_angles[6+ i] = val[i];
+--Use velocity to smoothe jaggedness
+local last_qLeg
+local last_t=get_time()
+function set_lleg_command(val)
+  if Config.walk.use_velocity_smoothing and #val==12 then
+    local t=get_time()
+    --use read joint angels (otherwise the error will accumulate)
+    local qLLeg = get_lleg_position()
+    local qRLeg = get_rleg_position()
+    local last_qLeg =vector.zeros(12)
+    for i=1,6 do
+	last_qLeg[i]=qLLeg[i]
+	last_qLeg[i+6]=qRLeg[i] 
+    end
+
+    local velocity_smoothing_factor = Config.walk.velocity_smoothing_factor or 1.0
+    if last_qLeg and t>last_t then
+      vel=(vector.new(val)-last_qLeg)/(t-last_t)*velocity_smoothing_factor
+      last_t=t
+--	print("Vel:",unpack(vel))
+      set_actuator_command(last_qLeg, indexLLeg);
+      set_actuator_velocity(vel, indexLLeg);
+    end	
+    last_qLeg=vector.new(val)
+  else
+    set_actuator_command(val, indexLLeg);
+  end
+  for i=1,#val do
+    commanded_joint_angles[6+ i] = val[i];
+  end
 end
-end
+
+
 function set_rleg_command(val)
 set_actuator_command(val, indexRLeg);
 end

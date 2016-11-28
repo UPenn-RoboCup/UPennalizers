@@ -10,22 +10,38 @@ require('vcm');
 require('gcm');
 require('mcm');
 
+local log = require 'log';
+if Config.log.enableLogFiles then
+    --log.outfile = (Config.log.behaviorFile);
+end
+log.level = Config.log.logLevel;
+
 -- intialize sound localization if needed
 useSoundLocalization = Config.world.enable_sound_localization or 0;
 if (useSoundLocalization > 0) then
   require('SoundFilter');
 end
 
---SJ: Velocity filter is always on
---We can toggle whether to use velocity to update ball position estimate
---In Filter2D.lua
-
+--various configuration and setup
 mod_angle = util.mod_angle;
-
 goal_led = {0,0,0}
 ball_led={1,0,0}
-
 use_kalman_velocity = Config.use_kalman_velocity or 0;
+uOdometry0 = vector.new({0, 0, 0});
+count = 0;
+cResample = Config.world.cResample; 
+playerID = Config.game.playerID;
+odomScale = Config.world.odomScale;
+odomScale2 = Config.world.odomScale2;
+wcm.set_robot_odomScale(odomScale);
+
+--for manual placement
+lifted1 = 0;
+lifted2 = 0;
+liftedT = 0;
+
+--Get starting sideline pose
+startPose = Config.world.initPositionSidelines[playerID]
 
 if use_kalman_velocity>0 then
   Velocity = require('kVelocity');	
@@ -43,10 +59,10 @@ use_team_ball = Config.team.use_team_ball or 0;
 team_ball_timeout = Config.team.team_ball_timeout or 0;
 team_ball_threshold = Config.team.team_ball_threshold or 0;
 
-
 --For NSL, eye LED is not allowed during match
 led_on = 1; --Default is ON
 
+--Initialize ball filter
 ballFilter = Filter2D.new();
 ball = {};
 ball.t = 0;  --Detection time
@@ -56,35 +72,25 @@ ball.vx = 0;
 ball.vy = 0;
 ball.p = 0; 
 
+--Initialize pose
 pose = {};
 pose.x = 0;
 pose.y = 0;
 pose.a = 0;
 pose.tGoal = 0; --Goal detection time
 
-uOdometry0 = vector.new({0, 0, 0});
-count = 0;
-cResample = Config.world.cResample; 
-
-playerID = Config.game.playerID;
-
-odomScale = Config.walk.odomScale or Config.world.odomScale;
-wcm.set_robot_odomScale(odomScale);
-
---SJ: they are for IMU based navigation
-imuYaw = Config.world.imuYaw or 0;
-yaw0 =0;
-
 --Track gcm state
 gameState = 0;
 
+
+--Inititalizing particle filter
 function init_particles()
   local goalDefend=get_goal_defend();
-  if gcm.get_team_role() == 5 then --Fix coach position!
+  local dir = goalDefend[1]/math.abs(goalDefend[1]);
+
+  --Coach
+  if gcm.get_team_role() == 5 then 
     half = gcm.get_game_half()    
-    --TODO!!!!!!
-    --Which part of the table are we starting with?
-    --We can use a button-press
     if half==0 then --First half, coach our side      
       PoseFilter.initialize_unified(
         vector.new({goalDefend[1]/2, -Config.world.yMax*1.05,  math.pi/2}),
@@ -94,87 +100,101 @@ function init_particles()
         vector.new({-goalDefend[1]/2, -Config.world.yMax*1.05,  math.pi/2}),
         vector.new({-goalDefend[1]/2,  Config.world.yMax*1.05, -math.pi/2}));        
     end
+
+  --All other players
   else
-    --Now we ALWAYS use the same colored goalposts
-    --Init particles to our side
-    PoseFilter.initialize_unified(
-      vector.new({goalDefend[1]/2, -Config.world.yLineBoundary,  math.pi/2}),
-      vector.new({goalDefend[1]/2,  Config.world.yLineBoundary, -math.pi/2}));
+     --check to see if we are initializing for the ready state or not
+     if wcm.get_robot_penalty() == 0 or Config.world.forceSidelinePos == 1 then
+	   spread = Config.world.initPositionSidelinesSpread
+           startPoseOriented = {dir*startPose[1],dir*startPose[2],dir*startPose[3]};
+           PoseFilter.initialize(startPoseOriented,spread);
+     else
+           --use gyro to determine which direction we are facing and unpenalize from that side
+	   PoseFilter.initialize_unPennalized({1.5, 0.1, 10*math.pi/180});
+     end
   end
---  if (useSoundLocalization > 0) then
---    SoundFilter.reset();
---  end
 end
 
+--Start World processing
 function entry()
   count = 0;
-  init_particles();
+  wcm.set_robot_penalty(0);
+    init_particles();
   Velocity.entry();
 end
 
+--Initialize particles when the robots are manually placed
 function init_particles_manual_placement()
-  print('re-initializing particles in world')
-  if gcm.get_team_role() == 0 then
-  -- goalie initialized to different place
-    goalDefend=get_goal_defend();
-    --util.ptable(goalDefend);
-    dp = vector.new({0.04,0.04,math.pi/8});
-    if goalDefend[1] > 0 then
-      PoseFilter.initialize(vector.new({goalDefend[1],0,math.pi}), dp);
-    else
-      PoseFilter.initialize(vector.new({goalDefend[1],0,0}), dp);
-    end
-  else
-    dp = vector.new({1.0, 1.0,math.pi/8});
+  
+  --change direction based on goalDefend
+   local goalDefend=get_goal_defend();
+   local dir = goalDefend[1]/math.abs(goalDefend[1]);
 
-    if goalDefend[1] > 0 then 
-      PoseFilter.initialize({goalDefend[1]/2,0,math.pi},dp);
+  -- goalie initialized to different place
+  if gcm.get_team_role() == 0 then
+  
+    pGoalie = Config.world.pGoalie;
+    dpGoalie = Config.world.dpGoalie;    
+    if goalDefend[1] > 0 then
+      PoseFilter.initialize({pGoalie[1],pGoalie[2],math.pi}, dpGoalie);
     else
-      PoseFilter.initialize({goalDefend[1]/2,0,0},dp);
+      PoseFilter.initialize({-pGoalie[1],pGoalie[2],0}, dpGoalie);
     end
+
+  --regular players get initialized on the field
+  else
+
+    --If it is our kickoff, one player might be near circle
+    if gcm.get_game_kickoff() == 1   then
+	    
+	    --parameters for bimodal distibution
+	    pCircle = Config.world.pCircle;
+	    dpCircle = Config.world.dpCircle;
+	    pLine = Config.world.pLine;
+	    dpLine = Config.world.dpLine;
+	    fraction = Config.world.fraction;
+
+	    PoseFilter.initializeBimodal(pLine,dpLine,pCircle,dpCircle,fraction,dir);	    
+
+    --If it isn't our kickoff, then we are on the penalty box line (3.9 m from middle)
+    else
+	    --parameters for only on line
+        pLine = Config.world.pLine;
+	    dpLine = Config.world.dpLine;
+	    if dir > 0 then 
+	      PoseFilter.initialize({pLine[1],pLine[2],math.pi},dpLine);
+	    else
+	      PoseFilter.initialize({-pLine[1],pLine[2],0},dpLine);
+	    end
+    end
+
     if (useSoundLocalization > 0) then
       SoundFilter.reset();
     end
   end
 end
 
-function allLessThanTenth(table)
-  for k,v in pairs(table) do
-    if v >= .1 then
-      return false
-    end
-  end
-  return true
-end
 
-function allZeros(table)
-  for k,v in pairs(table) do
-    if v~=0 then
-      return false
-    end
-  end
-  return true
-end
-
-
+--Update filter with how locomotion believes we moved
 function update_odometry()
 
-  odomScale = wcm.get_robot_odomScale();
   count = count + 1;
+  
+  --Get odometry estimate from walk
   uOdometry, uOdometry0 = mcm.get_odometry(uOdometry0);
 
-  uOdometry[1] = odomScale[1]*uOdometry[1];
-  uOdometry[2] = odomScale[2]*uOdometry[2];
-  uOdometry[3] = odomScale[3]*uOdometry[3];
-
-  --Gyro integration based IMU
-  if imuYaw==1 then
-    yaw = Body.get_sensor_imuAngle(3);
-    uOdometry[3] = yaw-yaw0;
-    yaw0 = yaw;
-    --print("Body yaw:",yaw*180/math.pi, " Pose yaw ",pose.a*180/math.pi)
+  --scale odometry estimate (forwards and backwards are different)
+  if uOdometry[1] > 0 then
+      uOdometry[1] = odomScale[1]*uOdometry[1];
+      uOdometry[2] = odomScale[2]*uOdometry[2];
+      uOdometry[3] = odomScale[3]*uOdometry[3];
+  else
+      uOdometry[1] = odomScale2[1]*uOdometry[1];
+      uOdometry[2] = odomScale2[2]*uOdometry[2];
+      uOdometry[3] = odomScale2[3]*uOdometry[3]; 
   end
 
+  --Update filters with odomoetry data
   ballFilter:odometry(uOdometry[1], uOdometry[2], uOdometry[3]);
   PoseFilter.odometry(uOdometry[1], uOdometry[2], uOdometry[3]);
   if (useSoundLocalization > 0) then
@@ -183,26 +203,24 @@ function update_odometry()
   end
 end
 
-
-function update_pos()
-  -- update localization without vision (for odometry testing)
+-- update localization without vision (for odometry testing)
+function update_pos()  
   if count % cResample == 0 then
     PoseFilter.resample();
   end
-
   pose.x,pose.y,pose.a = PoseFilter.get_pose();
   update_shm();
 end
 
-
+--Run checks on all vision data for localization filter corrections
 function update_vision()
 
---print("UPD_VIS_CALLED")
+--For using gps stuff
   --update ground truth
   if gps_enable>0 then
+
     gps_pose0=Body.get_sensor_gps();
 
---print("gpspose:",unpack(gps_pose0))
     --GPS is attached at torso, so we should discount body offset
     uBodyOffset = mcm.get_walk_bodyOffset();
     gps_pose = util.pose_global(-uBodyOffset,gps_pose0);
@@ -223,8 +241,9 @@ function update_vision()
 
   --We may use ground truth data only (for behavior testing)
   if use_gps_only>0 then
---print("WEREINTROUBLE")
+    --print("WEREINTROUBLE")
     --Use GPS pose instead of using particle filter
+
     pose.x,pose.y,pose.a=gps_pose[1],gps_pose[2],gps_pose[3];
     --Use GPS ball pose instead of ball filter
     ballGlobal=wcm.get_robot_gps_ball();    
@@ -249,12 +268,13 @@ function update_vision()
     end
 
     update_shm();
-
     return;
   end
  
+-----------------------
+--Actual non-gps stuff
 
-  -- only add noise while robot is moving
+  --add noise while robot is moving
   if count % cResample == 0 and gcm.get_team_role()~=5 then
     PoseFilter.resample();
     if mcm.get_walk_isMoving()>0 then
@@ -262,60 +282,98 @@ function update_vision()
     end
   end
 
-  -- Reset heading if robot is down
-  if (mcm.get_walk_isFallDown() == 1) then
-    PoseFilter.reset_heading();
-    if (useSoundLocalization > 0) then
-      SoundFilter.reset();
-    end
-  end
-
-
   --Flip particles if a localization flip is detected and not corrected for
   if wcm.get_robot_flipped() == 1 and gcm.get_team_role()~=5 then
     PoseFilter.flip_particles();
     wcm.set_robot_flipped(0);
   end
 
+  --check game state
   gameState = gcm.get_game_state();
   if (gameState == 0) then
     init_particles();
     gcm.set_coach_confirm(0)
     gcm.set_coach_side(0)
   end
-  -- if (gameState == 2) then
-  --   init_particles_manual_placement();
-  if gcm.in_penalty() then
-    init_particles()
-  end
 
   -- Penalized?
   if gcm.in_penalty() then
     wcm.set_robot_penalty(1);
+    update_shm();
+    if wcm.get_robot_resetOrientation() == 1 then
+        print("Resetting Orientation");
+        PoseFilter.initialize({0,0,0},{.1,.1,.1});
+        wcm.set_robot_resetOrientation(0);
+     end
+    return 
+  elseif gcm.in_penalty() and gcm.get_game_controllerState() == 2 then
+      
+      if wcm.get_robot_penalty() == 1 then
+        wcm.set_robot_penalty(1);  --dont do motion in set penalty if we are already in penalty
+        return 
+      else
+        wcm.set_robot_penalty(-1);  --motion in set penalty
+        update_shm();
+        return
+      end
   else
-    wcm.set_robot_penalty(0);
+      if wcm.get_robot_penalty() == 1 then 
+         init_particles()
+	     wcm.set_robot_penalty(0);
+      end
   end
 
+  --For using webots
   webots = Config.webots
-  if not webots or webots==0 and gcm.get_team_role()~=5 then
+  
+  --Check for manual initialization
+  if (not webots or webots==0) and gcm.get_team_role()~=5 and gcm.get_game_state() ==2 then
+        
+    --get foot sensor data
     fsrRight = Body.get_sensor_fsrRight()
     fsrLeft = Body.get_sensor_fsrLeft()
-
-    --reset particle to face opposite goal when getting manual placement on set
-    if gcm.get_game_state() ==2 then
-      if (not allZeros(fsrRight)) and (not allZeros(fsrLeft)) then --Do not do this if sensor is broken
-        if allLessThanTenth(fsrRight) and allLessThanTenth(fsrLeft) then
-          init_particles_manual_placement()
+    curT = Body.get_time();
+        
+    --check if we are in the air
+    if allLessThanTenth(fsrRight) and allLessThanTenth(fsrLeft) then
+        
+        --if this is first time we are sensing lifting, note the time
+        if lifted1 == 0 then
+            lifted1 = 1;
+            liftedT = curT;
+            
+        --if we sensed lifting before, check again to make sure its legit    
+        elseif lifted1 == 1 and (curT-liftedT)>0.25 then               
+            lifted2 = 1; --now we are sure
+            lifted1 = 0; --reset lifted1
         end
-      end
-    end
-
-  end
     
-  -- ball
+    --otherwise we are on the ground
+    else
+        
+        --check if we were lifted for long enough to count for manual placement
+        if lifted2 == 1 then
+            
+            --now we are sure we can manually place
+            init_particles_manual_placement();
+            
+            --reset values
+            lifted1 = 0;
+            lifted2 = 0;
+            liftedT = 0;
+        
+        --if we haven't, then just reset all values
+        else
+            lifted1 = 0;
+            lifted2 = 0;
+            liftedT = 0;
+        end                 
+    end    
+  end
+
+  -- ball detection
   ball_gamma = 0.3;
   t=Body.get_time();
-
 
   if (vcm.get_ball_detect() == 1) then
     tVisionBall = Body.get_time();
@@ -344,14 +402,18 @@ function update_vision()
     else
       Velocity.update_noball(ball.t);--notify that ball is missing
     end
+    --print('Ball Seen')
+    wcm.set_robot_use_team_ball(0);
   else
     ball.p = (1-ball_gamma)*ball.p;
     Velocity.update_noball(Body.get_time());--notify that ball is missing
     ball_led={0,0,0};
   end
-  -- TODO: handle goal detections more generically
-  
 
+  --log.debug("Ball prob",ball.p)    
+
+
+  --Goal detection
 
   if vcm.get_goal_detect() == 1 then
     pose.tGoal = Body.get_time();
@@ -360,7 +422,7 @@ function update_vision()
     local v1 = vcm.get_goal_v1();
     local v2 = vcm.get_goal_v2();
     local v = {v1, v2};
-
+    
     if gcm.get_team_role()==5 then
       if gcm.get_coach_confirm()==1 then 
         --Coach position is already confirmed, so don't update
@@ -388,40 +450,73 @@ function update_vision()
     goal_led={0,0,0};
   end
 
-  -- line update
-  if vcm.get_line_detect() == 1 and gcm.get_team_role()~=5 then
-    local v = vcm.get_line_v();
-    local a = vcm.get_line_angle();
-
-    PoseFilter.line(v, a);--use longest line in the view
-  end
-
-  if vcm.get_corner_detect() == 1 and gcm.get_team_role()~=5 then
-    local v=vcm.get_corner_v();
-    PoseFilter.corner(v);
-  end
-
-  if vcm.get_landmark_detect() == 1 and gcm.get_team_role()~=5 then
-    local color = vcm.get_landmark_color();
-    local v = vcm.get_landmark_v();
-    --FIXME
-    if color == Config.color.white then
-    	  print('pose filter SPOT!')
-        PoseFilter.spot(v);
+  -- bottom camera line update
+  if vcm.get_line2_detect() == 1 and vcm.get_circle_detect() == 0 and vcm.get_corner_detect() == 0 and gcm.get_team_role()~=5 then
+    if vcm.get_line_lengthB() > 0.8 then
+      local v = vcm.get_line_v();
+      local a = vcm.get_line_angle();
+      PoseFilter.btmLineUpdate(v, a);--use longest line in the view
     end
   end
 
+  -- top camera line update
+ if vcm.get_line1_detect() == 1 and vcm.get_circle_detect() == 0 and vcm.get_corner_detect() == 0 and gcm.get_team_role()~=5 then
+    if vcm.get_line_lengthB() > 2.2 and vcm.get_line_lengthB() < 4 then
+      local v = vcm.get_line_v();
+      local a = vcm.get_line_angle();
+      PoseFilter.topLineUpdate(v, a);--use longest line in the view
+    end
+  end
+
+  --circle detection
+  if vcm.get_circle_detect() == 1 and gcm.get_team_role()~=5 then
+    local  x = vcm.get_circle_y(); --x and y are flipped because vision reports them backwards
+    local  y = vcm.get_circle_x();
+    local  v = {};
+    local  a = vcm.get_circle_angle();
+    v[1]=x;
+    v[2]=y;
+    --print('Circle Update');
+    --print("x:" .. x, "y:" .. y);
+    PoseFilter.circle(v,a);
+  end
+
+  --corner detection
+  if vcm.get_corner_detect() == 1 and gcm.get_team_role()~=5 then    
+    --L corner
+    if vcm.get_corner_type() == 1 then
+        local v=vcm.get_corner_v();
+        local a=vcm.get_corner_angle();
+        PoseFilter.cornerL(v,a);
+    --T corner
+    elseif vcm.get_corner_type() == 2 then
+        local v=vcm.get_corner_v();
+        local a=vcm.get_corner_angle();
+        PoseFilter.cornerT(v,a);
+    end
+  end
+
+  --Spot detection
+  if vcm.get_spot_detect() == 1 and gcm.get_team_role()~=5 then
+    local color = vcm.get_spot_color();
+    local v = vcm.get_spot_v();
+    if color == Config.color.white then
+      PoseFilter.spot(v);
+    end
+  end
+
+  --get updated info from filters
   ball.x, ball.y = ballFilter:get_xy();
   pose.x,pose.y,pose.a = PoseFilter.get_pose();
 
---Use team vision information when we cannot find the ball ourselves
-
+  --Use team vision information when we cannot find the ball ourselves
   team_ball = wcm.get_robot_team_ball();
   team_ball_score = wcm.get_robot_team_ball_score();
 
   t=Body.get_time();
   if use_team_ball>0 and
     (t-tVisionBall)>team_ball_timeout and
+    ball.p < 0.6 and --should be sure we saw the ball before ignoring team
     gcm.get_team_role()>0 and --GOALIE SHOULDNT USE THE TEAM BALL
     team_ball_score > team_ball_threshold then
 
@@ -430,14 +525,19 @@ function update_vision()
     ball.x = ballLocal[1];
     ball.y = ballLocal[2];
     ball.t = t;
+    ball.p = 0;
     ball_led={0,1,1}; 
---print("TEAMBALL")
+    wcm.set_robot_use_team_ball(1)
+   print("TEAMBALL")
+    wcm.set_robot_use_team_ball(1);
   end
   
+  --update LEDs and SHM with new info
   update_led();
   update_shm();
 end
 
+--Update LEDs to show useful information
 function update_led()
   --Turn on the eye light according to team color
   --If gamecontroller is down
@@ -467,12 +567,12 @@ function update_led()
   end
 end
 
+-- update shm values
 function update_shm()
-  -- update shm values
-
-  --print(string.format( 
+   
   wcm.set_robot_pose({pose.x, pose.y, pose.a});
   wcm.set_robot_time(Body.get_time());
+  wcm.set_robot_confidence(PoseFilter.get_confidence());
 
   wcm.set_ball_x(ball.x);
   wcm.set_ball_y(ball.y);
@@ -498,6 +598,7 @@ function update_shm()
   wcm.set_particle_w(PoseFilter.wp);
 
 end
+
 
 function exit()
 end
@@ -605,6 +706,24 @@ function pose_relative(pGlobal, pose)
   local py = pGlobal[2]-pose[2];
   local pa = pGlobal[3]-pose[3];
   return vector.new{ca*px + sa*py, -sa*px + ca*py, mod_angle(pa)};
+end
+
+function allLessThanTenth(table)
+  for k,v in pairs(table) do
+    if v >= .1 then
+      return false
+    end
+  end
+  return true
+end
+
+function allZeros(table)
+  for k,v in pairs(table) do
+    if v~=0 then
+      return false
+    end
+  end
+  return true
 end
 
 

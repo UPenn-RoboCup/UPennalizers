@@ -25,7 +25,7 @@ Motion.entry();
 darwin = false;
 webots = false;
 
-wcm.set_process_broadcast(0) --Force turn off broadcast
+wcm.set_process_broadcast(0) --Force turn off broadcast; turning this on can lead to arb crashing (trying to do actions on a "role" which has a nil value)
 
 init = false;
 calibrating = false;
@@ -39,6 +39,7 @@ count = 0;
 lcount = 0;
 tUpdate = unix.time();
 BatteryLevel = 0
+
 
 function update()
 --[[

@@ -1,0 +1,18 @@
+2016.11.05-15.51.14: League = SPL
+2016.11.05-15.51.14: Game type = round robin
+2016.11.05-15.51.14: Auto color change = false
+2016.11.05-15.51.14: Using broadcast address /192.168.1.255
+2016.11.05-15.51.14: Listening on address /192.168.1.56
+2016.11.05-15.51.14: UPennalizers (Blue) vs Bembelbots (Red)
+2016.11.05-15.55.14: Ready
+2016.11.05-15.55.59: Set
+2016.11.05-15.57.29: Playing
+2016.11.05-16.00.18: Inactive Player Blue 4
+2016.11.05-16.01.07: Inactive Player Blue 2
+2016.11.05-16.01.08: Inactive Player Blue 3
+2016.11.05-16.01.24: Unpenalised Blue 4
+2016.11.05-16.03.07: Finished
+2016.11.05-16.03.48: Request for PickUp Blue 2
+2016.11.05-16.04.01: Unpenalised Blue 2
+2016.11.05-16.08.07: 2nd Half
+2016.11.05-16.15.05: Shutdown GameController

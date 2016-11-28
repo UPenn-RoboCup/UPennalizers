@@ -1,0 +1,159 @@
+PROTO Linearactuator_saffir [
+  field SFColor UpperColor 0.35 0.35 0.35
+  field SFColor LowerColor 1 1 1
+  field SFVec3f Translation 0 0 0
+  field SFRotation Rotation 0 1 0 0
+  field SFFloat Position 0
+  field SFString ServoName "linear_actuator"
+  field SFString SolidName "solidname"
+  field SFFloat MaxVelocity 100 #(0,inf)
+  field SFFloat MaxForce 10000 #[0,inf)
+  field SFFloat ControlP 100 #(0,inf)
+  field SFFloat MinPosition 0 #(-inf,0]
+  field SFFloat MaxPosition 0 #[0,inf)
+  field SFFloat MinStop 0 #[-pi,0]
+  field SFFloat MaxStop 0 #[0,pi]
+  field SFFloat SpringConstant 0 #[0,inf)
+  field SFFloat DampingConstant 0 #[0,inf)
+  field SFVec3f ServoTrans  0 0 -0.2
+]
+{
+Servo {
+  type "none" #[rotational, linear]
+  # SFFloat  maxVelocity 10 #(0,inf)
+  # SFFloat  maxForce 10 #[0,inf)
+  # SFFloat  controlP 10 #(0,inf)
+  # SFFloat  acceleration -1 #-1 or (0,inf)
+  # SFFloat  position 0
+  # SFFloat  minPosition 0 #(-inf,0]
+  # SFFloat  maxPosition 0 #[0,inf)
+  # SFFloat  minStop 0 #[-pi,0]
+  # SFFloat  maxStop 0 #[0,pi]
+  # SFFloat  springConstant 0 #[0,inf)
+  # SFFloat  dampingConstant 0 #[0,inf)
+  name IS SolidName
+  # SFString model ""
+  description "The top universal joint for a SAFFiR linear actuator"
+  # SFString contactMaterial "default"
+  boundingObject DEF UPPERPISTON Group {
+    children [
+      DEF UPPERCYL Transform {
+	translation 0 0 -0.115
+	rotation 1 0 0 1.5708
+	# SFVec3f    scale 1 1 1
+	children [
+	  Shape {
+	    appearance DEF UPPERAPPEARANCE Appearance {
+	      material Material {
+		# SFFloat ambientIntensity 0.2  #[0,1]
+		diffuseColor IS UpperColor
+		# SFColor emmisiveColor 0 0 0 #[0,1]
+		# SFFloat shininess 0.2  #[0,1]
+		# SFColor specularColor 0 0 0 #[0,1]
+		# SFFloat transparency 0  #[0,1]
+	      }
+	      # SFNode texture NULL
+	      # SFNode textureTransform NULL
+	    }
+	    geometry Cylinder {
+	      # SFBool  bottom TRUE
+	      height 0.22 #(-inf,inf)
+	      radius 0.01 #(-inf,inf)
+	      # SFBool  side TRUE
+	      # SFBool  top TRUE
+	      # SFInt32 subdivision 12 #(2,inf)
+	    }
+	  }
+	] # end transform children
+      }
+    ] # end group children
+  }
+  physics Physics {
+    density 10 #kg/m^3 -1 or > 0
+    # SFFloat mass -1 #kg -1 or > 0
+    # SFVec3f centerOfMass 0 0 0 #(-inf,inf)
+    # MFFloat intertiaMatrix [] #empty or 6 values
+    # SFNode  damping NULL #optional damping node
+  }
+  translation IS Translation
+  rotation IS Rotation
+  # SFVec3f    scale 1 1 1
+  children [
+    DEF ENDSPHERE Shape {
+      appearance USE UPPERAPPEARANCE
+      geometry Sphere {
+        radius .005 #(-inf, inf)
+        # SFInt32 subdivision 1 #[0,5] or 10
+      }
+    }
+    USE UPPERCYL
+    DEF LINEARACTUATOR Servo {
+      type "linear" #[rotational, linear]
+      maxVelocity IS MaxVelocity
+      maxForce IS MaxForce
+      controlP IS ControlP
+      # SFFloat  acceleration -1 #-1 or (0,inf)
+      position IS Position
+      minPosition IS MinPosition
+      maxPosition IS MaxPosition
+      minStop  IS MinStop
+      maxStop  IS MaxStop 
+      springConstant IS SpringConstant
+      dampingConstant IS DampingConstant
+      name IS ServoName
+      # SFString model ""
+      description "The actual servo controlling the LA"
+      # SFString contactMaterial "default"
+      boundingObject DEF LOWERCYL Transform { 
+        translation 0 0 0
+        rotation 1 0 0 1.5708
+        # SFVec3f    scale 1 1 1
+        children [
+          Shape {
+	    appearance DEF LOWERAPPEARANCE Appearance {
+	      material Material {
+		# SFFloat ambientIntensity 0.2  #[0,1]
+		diffuseColor IS LowerColor
+		# SFColor emmisiveColor 0 0 0 #[0,1]
+		# SFFloat shininess 0.2  #[0,1]
+		# SFColor specularColor 0 0 0 #[0,1]
+		# SFFloat transparency 0  #[0,1]
+	      }
+            }
+            geometry Cylinder {
+              # SFBool  bottom TRUE
+              height 0.14 #(-inf,inf)
+              radius 0.006 #(-inf,inf)
+              # SFBool  side TRUE
+              # SFBool  top TRUE
+              # SFInt32 subdivision 12 #(2,inf)
+            }
+          }
+        ]
+      }
+      physics Physics {
+        density 10 #kg/m^3 -1 or > 0
+        # SFFloat mass -1 #kg -1 or > 0
+        # SFVec3f centerOfMass 0 0 0 #(-inf,inf)
+        # MFFloat intertiaMatrix [] #empty or 6 values
+        # SFNode  damping NULL #optional damping node
+      }
+      # SFBool   locked FALSE
+      translation IS ServoTrans
+      rotation 1 0 0 0
+      # SFVec3f    scale 1 1 1
+      children [
+        USE LOWERCYL
+        Transform {
+          translation 0 0 -0.075
+          # SFRotation rotation 0 1 0 0
+          # SFVec3f    scale 1 1 1
+          children [
+	    USE ENDSPHERE
+          ]
+        }
+      ]
+    }
+  ]
+}
+} # END PROTO

@@ -49,6 +49,7 @@ local function get_image(self)
 end
 
 local function get_labelA(self, lut)
+	self: select_camera(self.select_cam)
 	--rgb2label
 	local image = controller.to_rgb( tags.camera )
 	return ImageProc.rgb_to_label( image, lut, width, height );

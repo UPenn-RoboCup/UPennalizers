@@ -1,0 +1,29 @@
+<Simulation>
+
+  <Vertices name="NECK_VERTICIES">
+-0.012600 -0.012600 -0.012477
+0.012600 -0.012600 -0.012477
+0.012600 -0.012600 0.012723
+-0.012600 -0.012600 0.012723
+0.012600 0.012600 -0.012477
+-0.012600 0.012600 -0.012477
+-0.012600 0.012600 0.012723
+0.012600 0.012600 0.012723
+  </Vertices>
+
+  <ComplexAppearance name="NECK_FACES">
+    <Surface ref="STRUCTURE_MATERIAL"/>
+    <Vertices ref="NECK_VERTICIES"/>
+    <Triangles>
+0 1 2
+0 2 3
+4 5 7
+5 6 7
+1 4 7
+1 7 2
+6 5 3
+5 0 3
+    </Triangles>
+  </ComplexAppearance>
+
+</Simulation>

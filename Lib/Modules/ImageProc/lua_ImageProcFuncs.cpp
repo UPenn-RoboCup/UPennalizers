@@ -110,6 +110,102 @@ static int lua_yuyv_to_label(lua_State *L) {
   return 1;
 }
 
+
+static int lua_rgb_to_yuyv(lua_State *L) {
+  static std::vector<uint32_t> yuyv;
+
+  /* Get the RGB Image */
+  uint8_t *rgb = (uint8_t *) lua_touserdata(L, 1);
+  if ((rgb == NULL) || !lua_islightuserdata(L, 1))
+    return luaL_error(L, "Input RGB not light user data");
+  
+  /* Get the width and height */
+  int m = luaL_checkint(L, 2);
+  int n = luaL_checkint(L, 3);
+
+  /* YUYV is 2px per pixel */
+  yuyv.resize(m*n/2);
+
+  int count=0;
+  uint8_t r,g,b,y1,u,y2,v;
+  for (int i = 0; i < n; i++){
+    /* Every other RGB Pixel for YUYV */
+    for (int j = 0; j < m; j+=2) {
+      r = *rgb++;
+      g = *rgb++;
+      b = *rgb++;
+      
+      // Formulate YUV
+      y1 = g;
+      u = 128 + (b-g)/2;
+      v = 128 + (r-g)/2;
+
+      r = *rgb++;
+      g = *rgb++;
+      b = *rgb++;
+      // Add the other Y
+      y2 = g;
+      // Construct Y6U6V6 index
+      yuyv[count++] = (v << 24) | (y2 << 16) | (u << 8) | y1;
+    }
+  }
+    
+  lua_pushlightuserdata(L, &yuyv[0]);
+  return 1;
+}
+
+
+static int lua_rgb_to_label(lua_State *L) {
+  static std::vector<uint8_t> label;
+
+  // 1st Input: Original RGB-format input image
+  uint8_t *rgb = (uint8_t *) lua_touserdata(L, 1);
+  if ((rgb == NULL) || !lua_islightuserdata(L, 1))
+    return luaL_error(L, "Input RGB not light user data");
+
+  // 2nd Input: YUYV->Label Lookup Table
+  uint8_t *cdt = (uint8_t *) lua_touserdata(L, 2);
+  if (cdt == NULL)
+    return luaL_error(L, "Input CDT not light user data");
+
+  // 3rd Input: Width (in pixels) of the original RGB image  
+  int m = luaL_checkint(L, 3);
+  // 4th Input: Width (in pixels) of the original RGB image
+  int n = luaL_checkint(L, 4);
+  label.resize(m*n);
+  
+  int label_ind = 0;
+  uint8_t r,g,b,y,u,v;
+  uint32_t index;
+  while(label_ind<m*n){   
+    r = *rgb++;
+    g = *rgb++;
+    b = *rgb++;
+    // Formulate YUV data
+    y = g;
+    u = 128 + (b-g)/2;
+    v = 128 + (r-g)/2;
+    // Construct Y6U6V6 index
+    index = ((v & 0xFC) >> 2) | ((u & 0xFC) << 4) | ((y & 0xFC) << 10);
+    // Put labeled pixel into label vector
+    label[label_ind++] = cdt[index];
+  }
+  
+  lua_pushlightuserdata(L, &label[0]);
+  return 1;
+}
+
+
+
+
+
+
+
+
+
+
+
+
 static const struct luaL_Reg imageProcFuncs_lib [] = {
   {"block_bitor", lua_block_bitor},
   {"yuyv_to_label", lua_yuyv_to_label},
@@ -122,9 +218,15 @@ static const struct luaL_Reg imageProcFuncs_lib [] = {
   {"goal_posts_white", lua_goal_posts_white},
   {"tilted_goal_posts", lua_tilted_goal_posts},
   {"field_lines", lua_field_lines},
+  {"line_connect",lua_line_connect},
   {"field_spots", lua_field_spots},
   {"field_occupancy", lua_field_occupancy},
   {"robots", lua_robots},
+
+  //WHY THE HELL WERE THEY REMOVED?????
+  {"rgb_to_yuyv", lua_rgb_to_yuyv},
+  {"rgb_to_label", lua_rgb_to_label},
+  {"color_count", lua_color_count},
   {NULL, NULL}
 };
 

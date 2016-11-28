@@ -2,7 +2,7 @@
 #include <string.h>
 #include <stdio.h>
 #include <vector>
-#include "zlib.h"
+#include "zlib-src/zlib.h"
 
 #ifdef __cplusplus
 extern "C"

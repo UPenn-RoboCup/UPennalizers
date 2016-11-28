@@ -15,12 +15,9 @@ extern "C" {
 
 #include <vector>
 
-#include "RadonTransform.h"
-
-static RadonTransform radonTransform;
 static uint8_t colorLine = 0x10;
 //field 0x08 and ball 0x01 are all considered field
-static uint8_t colorField = 0x09;
+static uint8_t colorField = 0x08;
 static int widthMin = 1;
 static int widthMax = 10;
 
@@ -54,7 +51,7 @@ int lineState(uint8_t label, int i)
     if (label & colorLine){
       state = STATE_LINE;
       width = 1;
-    }else if (label & colorField==0){
+    }else if (!(label & colorField)){
       state = STATE_TRANS;
     }
     break;
@@ -100,7 +97,7 @@ int lineState(uint8_t label, int i)
 
 struct SegmentStats {
   int state; //0 for inactive, 1 for active, 2 for ended
-  int gap; //gap handling
+  int gap; //gap handling -- when gap>=max_gap+2,allow jump once
   int count; //the horizontal length of the line
   int x0,y0; //start point
   int x1,y1; //end point
@@ -136,12 +133,12 @@ void segment_init(){
   num_segments=0;
 }
 
-void segment_refresh(){
+void segment_refresh(int max_gap){
   //end active segments if they were not updated for one line scan
   for(int i=0;i<num_segments;i++){
     if ((segments[i].state==1) && (segments[i].updated==0)){ 
-      if (segments[i].gap>0)
-	      segments[i].gap--;
+      if (segments[i].gap>=max_gap+2)
+	      segments[i].gap = 0;
       else{
         //printf("terminating segments %d\n",i);
         segments[i].state=2;
@@ -168,14 +165,14 @@ void updateLineStat(struct SegmentStats *statPtr, int i, int j, int width, int m
   stat.mean_width=(stat.mean_width*stat.count+width)/(stat.count+1);
   stat.count++;
   stat.gap++;
-  if (stat.gap>max_gap+1) stat.gap=max_gap+1;
+  if (stat.gap>max_gap+2) stat.gap=max_gap+2;
 }
 
-void initStat(struct SegmentStats *statPtr,int i, int j){
+void initLineStat(struct SegmentStats *statPtr,int i, int j, int width){
   struct SegmentStats &stat=*statPtr;
   stat.state=1;
   stat.count=1;
-  stat.gap=1;
+  stat.gap=0;
   stat.grad=0;
   stat.x0=i;
   stat.y0=j;
@@ -186,6 +183,7 @@ void initStat(struct SegmentStats *statPtr,int i, int j){
   stat.yy=j*j;
   stat.xMean=i;
   stat.yMean=j;
+  stat.mean_width=width;
   stat.updated=1;
 }
 
@@ -194,19 +192,26 @@ void initStat(struct SegmentStats *statPtr,int i, int j){
 void addHorizontalPixel(int i, int j, double connect_th, int max_gap, int width){
   //Find best matching active segment
   int seg_updated=0;
+  //printf("Position: (%d %d)\n",i,j);
   for (int k=0;k<num_segments;k++){
     if(segments[k].state==1){
       double yProj = segments[k].yMean + segments[k].grad*(i-segments[k].xMean);
-      double yErr = j-yProj;if (yErr<0) yErr=-yErr;
-      if (yErr<connect_th){
-        //printf("Add piece (%d %d) to segment %d starting at (%d %d)\n",
-          //i,j,k,segments[k].x0,segments[k].y0);
+      double yErr = j-yProj;
+      double wErr = (double(width)-segments[k].mean_width)/width;
+      if (wErr<0) wErr=-wErr;if (yErr<0) yErr=-yErr;
+      double yErrRatio = yErr/segments[k].mean_width;
+      //printf("  Checking segments %d. yErr: %.2f; yErrRatio: %.2f; wErr:%.2f\n",
+      //  k,yErr,yErrRatio,wErr);
+      //TODO: add wErr yErrRatio xErrRatio to Config files if necessary
+      if ((yErr<connect_th or yErrRatio<0.25) and wErr<0.5){
+        //printf("  Add piece (%d %d) to segment %d starting at (%d %d)\n",
+        //  i,j,k,segments[k].x0,segments[k].y0);
 	      updateLineStat(&segments[k],i,j,width,max_gap);
         segments[k].grad=(double) 
 		      (segments[k].xy- segments[k].x*segments[k].y/segments[k].count)
 		      /(segments[k].xx-segments[k].x*segments[k].x/segments[k].count);
         if ((segments[k].grad>1.0) ||(segments[k].grad<-1.0)){
-	        //printf("segment %d killed by grad\n",k);
+	        //printf("  segment %d killed by grad\n",k);
           segments[k].state=2; //kill anything that exceeds 45 degree
 	        segments[k].count=0;
 	      }
@@ -223,7 +228,7 @@ void addHorizontalPixel(int i, int j, double connect_th, int max_gap, int width)
   }
   if ((seg_updated==0)&&(num_segments<MAX_SEGMENTS)){
     //printf("New segment %d started at %d,%d\n",num_segments,i,j);
-    initStat(&segments[num_segments],i,j);
+    initLineStat(&segments[num_segments],i,j, width);
     num_segments++;
   }
 }
@@ -236,17 +241,22 @@ void addVerticalPixel(int i, int j, double connect_th, int max_gap, int width){
   for (int k=0;k<num_segments;k++){
     if(segments[k].state==1){
       double xProj = segments[k].xMean + segments[k].invgrad*(j-segments[k].yMean);
-      double xErr = i-xProj;if (xErr<0) xErr=-xErr;
-      if (xErr<connect_th){
-        //printf("Add piece (%d %d) to segment %d starting at (%d %d)\n",
-          //i,j,k,segments[k].x0,segments[k].y0);
+      double xErr = i-xProj;
+      double wErr = double(width-segments[k].mean_width)/width; 
+      if (wErr<0) wErr=-wErr;if (xErr<0) xErr=-xErr;
+      double xErrRatio = xErr/segments[k].mean_width;
+      //printf("  Checking segments %d. xErr: %.2f; xErrRatio: %.2f; wErr:%.2f\n",
+      //  k,xErr,xErrRatio,wErr);
+      if ((xErr<connect_th or xErrRatio<0.25) and wErr<0.5){
+        //printf("  Add piece (%d %d) to segment %d starting at (%d %d)\n",
+        //  i,j,k,segments[k].x0,segments[k].y0);
         updateLineStat(&segments[k],i,j,width,max_gap);
         segments[k].invgrad=(double) 
 		      (segments[k].xy- segments[k].x*segments[k].y/segments[k].count)
 		      /(segments[k].yy-segments[k].y*segments[k].y/segments[k].count);
 
         if ((segments[k].invgrad>1.0) ||(segments[k].invgrad<-1.0)){
-          //printf("segment %d killed by invgrad\n",k);
+          //printf("  segment %d killed by invgrad\n",k);
           segments[k].state=2; //kill anything that exceeds 45 degree
           segments[k].count=0;
         }
@@ -263,7 +273,7 @@ void addVerticalPixel(int i, int j, double connect_th, int max_gap, int width){
   }
   if ((seg_updated==0)&&(num_segments<MAX_SEGMENTS)){
     //printf("New segment %d started at:%d,%d\n",num_segments,i,j);
-    initStat(&segments[num_segments],i,j);
+    initLineStat(&segments[num_segments],i,j,width);
     num_segments++;
   }
 }
@@ -296,7 +306,7 @@ int lua_field_lines(lua_State *L) {
         addVerticalPixel(iline,j,connect_th,max_gap,width);
       }
     }
-    segment_refresh();
+    segment_refresh(max_gap);
   }
   segment_terminate();
   //printf("===== HORIZONTAL =====\n");
@@ -313,7 +323,7 @@ int lua_field_lines(lua_State *L) {
       }
 
     }
-    segment_refresh();
+    segment_refresh(max_gap);
   }
 
   int valid_segments=0;
@@ -339,11 +349,16 @@ int lua_field_lines(lua_State *L) {
       lua_pushnumber(L, segments[k].length);
       lua_settable(L, -3);
 
+      // max_width field
+      lua_pushstring(L, "max_width");
+      lua_pushnumber(L, segments[k].max_width);
+      lua_settable(L, -3);
+      
       // average_width field
       lua_pushstring(L, "mean_width");
       lua_pushnumber(L, segments[k].mean_width);
       lua_settable(L, -3);
-     
+
       //x_mean and y_mean
       lua_pushstring(L, "meanpoint");
       lua_createtable(L, 2, 0);
@@ -374,122 +389,67 @@ int lua_field_lines(lua_State *L) {
 }
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-/*
-int lua_field_lines_old(lua_State *L) {
+//Function to check pixel colors between two points in label
+//If all are white, the two points are on the same line
+//return 0 for false and 1 for true
+int lua_line_connect(lua_State *L){
+  int error_count = 0;
   uint8_t *im_ptr = (uint8_t *) lua_touserdata(L, 1);
   if ((im_ptr == NULL) || !lua_islightuserdata(L, 1)) {
     return luaL_error(L, "Input image not light user data");
   }
   int ni = luaL_checkint(L, 2);
   int nj = luaL_checkint(L, 3);
-  if (lua_gettop(L) >= 4)
-    widthMax = luaL_checkint(L, 4);
-
-  radonTransform.clear();
-  // Scan for vertical line pixels:
-  for (int j = 0; j < nj; j++) {
-    uint8_t *im_col = im_ptr + ni*j;
-    lineState(0); // Initialize
-    for (int i = 0; i < ni; i++) {
-      uint8_t label = *im_col++;
-      int width = lineState(label);
-      if ((width >= widthMin) && (width <= widthMax)) {
-	int iline = i - (width+1)/2;
-	radonTransform.addVerticalPixel(iline, j);
-      }
-    }
-  }
-
-  // Scan for horizontal field line pixels:
-  for (int i = 0; i < ni; i++) {
-    uint8_t *im_row = im_ptr + i;
-    lineState(0); //Initialize
-    for (int j = 0; j < nj; j++) {
-      uint8_t label = *im_row;
-      im_row += ni;
-      int width = lineState(label);
-      if ((width >= widthMin) && (width <= widthMax)) {
-	int jline = j - (width+1)/2;
-	radonTransform.addHorizontalPixel(i, jline);
-      }
-    }
-  }
-
-  //LineStats bestLine0 = radonTransform.getLineStats();
-  //LineStats bestLine[10];
-  //bestLine[0]=bestLine0;
-
-  LineStats* bestLine = radonTransform.getMultiLineStats(ni,nj,im_ptr);
-
-  int lines_num=0;
-  for (int i=0;i<MAXLINES;i++){
-    if (bestLine[i].count>5) lines_num=i;
-  }
+  int x1 = luaL_checkint(L, 4);
+  int y1 = luaL_checkint(L, 5);
+  int x2 = luaL_checkint(L, 6); 
+  int y2 = luaL_checkint(L, 7);
   
-  lua_createtable(L, lines_num, 0);
-  for (int i = 0; i < lines_num; i++) {
-      lua_createtable(L, 0, 3);
-
-      // count field
-      lua_pushstring(L, "count");
-      lua_pushnumber(L, bestLine[i].count);
-      lua_settable(L, -3);
-
-      // centroid field
-      lua_pushstring(L, "centroid");
-      double centroidI = bestLine[i].iMean;
-      double centroidJ = bestLine[i].jMean;
-      lua_createtable(L, 2, 0);
-      lua_pushnumber(L, centroidI);
-      lua_rawseti(L, -2, 1);
-      lua_pushnumber(L, centroidJ);
-      lua_rawseti(L, -2, 2);
-      lua_settable(L, -3);
-
-      // endpoint field
-      lua_pushstring(L, "endpoint");
-      lua_createtable(L, 4, 0);
-      lua_pushnumber(L, bestLine[i].iMin);
-      lua_rawseti(L, -2, 1);
-      lua_pushnumber(L, bestLine[i].iMax);
-      lua_rawseti(L, -2, 2);
-      lua_pushnumber(L, bestLine[i].jMin);
-      lua_rawseti(L, -2, 3);
-      lua_pushnumber(L, bestLine[i].jMax);
-      lua_rawseti(L, -2, 4);
-      lua_settable(L, -3);
-
-      lua_rawseti(L, -2, i+1);
+  //check on the direction where slope is small
+  if (y1==y2 or (y2-y1)<(x2-x1)){ 
+  //make sure x1 is smaller than x2
+    if (x1 > x2){
+      int xbuf = x1; int ybuf = y1;
+      x1=x2; y1=y2; x2=xbuf; y2=ybuf;
+    }
+    int limit = (x2-x1)/5;
+    double k = double(y2-y1)/(x2-x1);
+    for (int x=x1+1; x<x2; ++x){
+      int y = int(k*(x-x1))+y1;
+      uint8_t label = *(im_ptr+y*ni+x);  
+      //printf("  Color at (%d, %d) %d\n",x,y,label);
+      if (!(label&colorLine)){
+        //printf("Break at (%d %d)\n",x,y);
+        ++error_count;
+        if (error_count > limit){
+          lua_pushnumber(L,0);
+          return 1;
+        }
+      }
+    }
+  }else{
+    //make sure y1 is smaller than y2
+    if (y1 > y2){
+      int xbuf = x1; int ybuf = y1;
+      x1=x2; y1=y2; x2=xbuf; y2=ybuf;
+    }
+    int limit = (y2-y1)/5;
+    double invk = double(x2-x1)/(y2-y1);
+    for (int y=y1+1; y<y2; ++y){
+      int x = int(invk*(y-y1))+x1;
+      uint8_t label = *(im_ptr+y*ni+x);
+      //printf("  Color at (%d, %d) %d\n",x,y,label);
+      if (!(label&colorLine)){
+        //printf("  Break at (%d %d)\n",x,y);
+        ++error_count;
+        if (error_count > limit){        
+          lua_pushnumber(L,0);
+          return 1;
+        }
+      }
+    }
   }
-
+  lua_pushnumber(L, 1);
   return 1;
 }
 
-*/

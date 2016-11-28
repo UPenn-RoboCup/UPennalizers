@@ -12,7 +12,6 @@ require('wcm')
 require('mcm')
 require('matcm')
 require('serialization');
-require('ImageProc')
 require('Config');
 
 --CommWired=require('Comm');

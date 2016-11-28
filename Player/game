@@ -1,0 +1,203 @@
+#!/bin/bash
+
+KERNEL=`uname -r`
+
+init(){
+  # Kill all processes to reset player
+  killall -q naoqi-bin naoqi hal espeak lua luajit luajit2 screen
+  #
+  
+  # kill all screen log
+  rm -f screenlog*
+  #rm -f /dev/shm/*
+}
+
+SCREEN_FLAGS="-dm -L -s /bin/bash -S"
+
+reset_wb(){
+  init
+#Do White Balance
+  uvcdynctrl -d video0 -s 'White Balance Temperature, Auto' -- 1
+  echo "Reset WB. Make Sure Robot Facing Field"
+  sleep 2;
+  uvcdynctrl -d video0 -s 'White Balance Temperature, Auto' -- 0
+  sleep 1;
+}
+
+run_demo(){
+  echo "Starting DEMO..."
+  cd $PLAYER_DIR
+
+  if [ $(screen -ls | wc -l) -ne 8 ]
+  then
+     echo "Some screen missing"
+     echo "Killing all screen"
+     killall screen
+     run_nao
+     sleep 1
+  fi
+  
+  $SCREEN_COM -m -L -S main $LUA_COM run_demo.lua
+  echo "Rock and Roll!"
+}
+
+run_main(){
+  echo "Starting Main..."
+
+  cd $PLAYER_DIR
+  if [ $(screen -ls | wc -l) -ne 8 ]
+  then
+     echo "Some screen missing"
+     echo "Killing all screen"
+     killall screen
+     run_nao
+     sleep 1
+  fi
+  
+  $SCREEN_COM $SCREEN_FLAGS main $LUA_COM run_main.lua
+  #$SCREEN_COM $SCREEN_FLAGS sound $LUA_COM detect_whistle.lua
+  $SCREEN_COM -ls
+  echo "Rock and Roll!"
+}
+
+run_main_whistle(){
+  echo "Starting Main..."
+
+  cd $PLAYER_DIR
+  if [ $(screen -ls | wc -l) -ne 8 ]
+  then
+     echo "Some screen missing"
+     echo "Killing all screen"
+     killall screen
+     run_nao
+     sleep 1
+  fi
+  
+  $SCREEN_COM $SCREEN_FLAGS main $LUA_COM run_main.lua
+  sleep 3
+  $SCREEN_COM $SCREEN_FLAGS sound $LUA_COM detect_whistle.lua
+  $SCREEN_COM -ls
+  echo "Rock and Roll!"
+}
+
+run_coach(){
+  echo "Starting Coach..."
+
+  cd $PLAYER_DIR
+  if [ $(screen -ls | wc -l) -ne 8 ]
+  then
+     echo "Some screen missing"
+     echo "Killing all screen"
+     killall screen
+     run_nao
+     sleep 1
+  fi
+  
+  $SCREEN_COM $SCREEN_FLAGS coach $LUA_COM run_coach.lua
+  $SCREEN_COM -ls
+  echo "Coach is watching!"
+}
+
+run_nao_vision(){
+  cd $PLAYER_DIR
+  $SCREEN_COM $SCREEN_FLAGS v1 $LUA_COM run_parallel_cognition.lua 1
+  sleep 3
+  $SCREEN_COM $SCREEN_FLAGS v2 $LUA_COM run_parallel_cognition.lua 2
+  sleep 3
+  $SCREEN_COM $SCREEN_FLAGS arb $LUA_COM run_arbitrator.lua
+  $SCREEN_COM -ls
+}
+
+run_nao(){
+  init
+  cd $PLAYER_DIR
+  echo "Starting hal..."
+  $SCREEN_COM $SCREEN_FLAGS naohal /usr/bin/hal
+  sleep 10
+  echo "Starting naoqi..."
+  $SCREEN_COM $SCREEN_FLAGS naoqi /usr/bin/naoqi
+  sleep 10
+  run_nao_vision
+}
+
+
+run_test_vision(){
+  echo "Starting Test vision..."
+  if [ $(screen -ls | wc -l) -ne 8 ]
+  then
+     echo "Some screen missing"
+     echo "Killing all screen"
+     killall screen
+     run_nao
+     sleep 1
+  fi
+  cd $PLAYER_DIR
+  $SCREEN_COM -m -L -S vis $LUA_COM run_test_vision.lua
+  echo "Rock and Roll!"
+}
+
+run_param_4() {
+  echo "Starting Set Param..."
+  init
+  cd $PLAYER_DIR
+  echo "Starting hal..."
+  $SCREEN_COM $SCREEN_FLAGS naohal /usr/bin/hal
+  sleep 7
+  echo "Starting naoqi..."
+  $SCREEN_COM $SCREEN_FLAGS naoqi /usr/bin/naoqi
+  sleep 3  
+  $SCREEN_COM $SCREEN_FLAGS vis $LUA_COM run_test_vision.lua
+  sleep 3
+  $SCREEN_COM -m -L -S param $LUA_COM Set_Param.lua
+  echo "Rock and Roll p2!"
+}
+
+run_param_5() {
+  echo "Starting Set Param..."
+  init
+  cd $PLAYER_DIR
+  echo "Starting hal..."
+  $SCREEN_COM $SCREEN_FLAGS naohal /usr/bin/hal
+  sleep 7
+  echo "Starting naoqi..."
+  $SCREEN_COM $SCREEN_FLAGS naoqi /usr/bin/naoqi
+  sleep 3
+  $SCREEN_COM $SCREEN_FLAGS vis $LUA_COM run_test_vision.lua
+  sleep 3
+  $SCREEN_COM -m -L -S param $LUA_COM Set_Param_NaoV5.lua
+  echo "Rock and Roll p2!"
+}
+
+case "$KERNEL" in
+        *aldebaran*) 
+                #PLAYER_DIR=/home/nao/UPennDev/Player
+                #TODO: auto detect
+                PLAYER_DIR=/home/nao/RoboCup/Player
+                LUA_COM=/usr/local/bin/luajit
+                SCREEN_COM=/usr/local/bin/screen;;
+        *)
+                PLAYER_DIR=/home/darwin/UPennDev/Player
+                SCREEN_COM=/usr/bin/screen
+                LUA_COM=/usr/bin/luajit;;
+esac
+
+case "$1" in
+  '')
+    echo "Start naoqi and cognition..."
+    run_nao;;
+  'main')
+    run_main;;
+  'mainw')
+    run_main_whistle;;
+  'coach')
+    run_coach;;
+  'demo')
+    run_demo;;
+  'v') 
+    run_test_vision;;
+  'p4')
+    run_param_4;;
+  'p5')
+    run_param_5;;
+    
+esac

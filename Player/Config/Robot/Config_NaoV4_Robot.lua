@@ -28,6 +28,7 @@ head.pitchMin = -35*math.pi/180;
 head.pitchMax = 30*math.pi/180;
 head.yawMin = -120*math.pi/180;
 head.yawMax = 120*math.pi/180;
+head.yawMax_coach = 75*math.pi/180;
 --Update with naoV4 camera values
 head.cameraPos = {{0.05871, 0.0, 0.06364},
                   {0.05071, 0.0, 0.01774}}; 

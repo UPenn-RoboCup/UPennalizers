@@ -2,8 +2,16 @@ module(... or "", package.seeall)
 require('init')
 require('getch')
 require('wcm')
-local Arbitrator = require('Parallel_Arbitrator')
+require('Config')
 
+local Arbitrator = {} 
+if Config.game.role == 5 then
+  print("===== COACH =====")
+  Arbitrator = require('Coach_Arbitrator')
+else
+  Arbitrator = require('Parallel_Arbitrator')
+end
+--util.ptable(Arbitrator);
 maxFPS = Config.vision.maxFPS;
 tperiod = 1.0/maxFPS;
 

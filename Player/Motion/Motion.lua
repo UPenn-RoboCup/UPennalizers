@@ -26,13 +26,13 @@ require('dive')
 require 'grip'
 
 if Config.largestep_enable then
-  require ('largestep')
+  require ('stepkick')
 end
 
 sit_disable = Config.sit_disable or 0;
 
 if sit_disable==0 then --For smaller robots
-  fallAngle = Config.fallAngle or 30*math.pi/180;
+  fallAngle = Config.fallAngle or 40*math.pi/180; --30*math.pi/180;
 
   sm = fsm.new(relax);
   sm:add_state(stance);
@@ -74,9 +74,9 @@ if sit_disable==0 then --For smaller robots
 
   --ZMP preview motion transitions
   if Config.largestep_enable then
-    sm:add_state(largestep);
-    sm:set_transition(walk, 'step', largestep);
-    sm:set_transition(largestep, 'done', walk);
+    sm:add_state(stepkick);
+    sm:set_transition(walk, 'step', stepkick);
+    sm:set_transition(stepkick, 'done', walk);
   end
 
   sm:set_transition(divewait, 'dive', dive);
@@ -168,12 +168,23 @@ function update()
   UltraSound.update();
   Left, Right = UltraSound.check_obstacle()
   role = gcm.get_team_role() 
-  if (Left or Right) and role>1 then
-    -- attacker and goalie never stops
-    frontobs = 1
-  else
+
+  if (role == 0) then
+    -- goalie never stops
     frontobs = 0
+  else
+    if (vcm.get_ball_detect() == 1 or wcm.get_ball_t() > 5) and role == 1 then
+      -- attacker will not stop if it sees a ball
+      frontobs = 0
+    else
+      if (Left or Right) then
+        frontobs = 1
+      else
+        frontobs = 0
+      end
+    end
   end
+
   local imuAngle = Body.get_sensor_imuAngle();
   local maxImuAngle = math.max(math.abs(imuAngle[1]), math.abs(imuAngle[2]-bodyTilt));
   fall = mcm.get_motion_fall_check() --Should we check for fall? 1 = yes
@@ -184,7 +195,8 @@ function update()
 
   if (maxImuAngle > fallAngle and fall==1) then
     sm:add_event("fall");
-    mcm.set_walk_isFallDown(1); --Notify world to reset heading 
+    mcm.set_walk_isFallDown(1); --Notify world to reset heading
+    mcm.set_walk_isGetupDone(0); 
   else
     mcm.set_walk_isFallDown(0); 
   end

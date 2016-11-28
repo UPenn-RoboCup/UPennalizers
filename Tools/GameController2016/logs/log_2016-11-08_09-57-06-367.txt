@@ -1,0 +1,10 @@
+2016.11.08-09.57.06: League = SPL
+2016.11.08-09.57.06: Game type = round robin
+2016.11.08-09.57.06: Auto color change = false
+2016.11.08-09.57.06: Using broadcast address /192.168.1.255
+2016.11.08-09.57.06: Listening on address /192.168.1.56
+2016.11.08-09.57.06: UPennalizers (Blue) vs Invisibles (Red)
+2016.11.08-09.57.09: Ready
+2016.11.08-09.57.11: Set
+2016.11.08-10.08.57: Finished
+2016.11.08-10.09.00: Shutdown GameController

@@ -36,5 +36,8 @@ bat_med = 999;
 km = {};
 km.standup_front = 'km_WebotsNao_StandupFromFront.lua';
 km.standup_back = 'km_WebotsNao_StandupFromBackBackup.lua';
+km.standup_front2 = 'km_WebotsNao_StandupFromFront.lua';
+km.standup_back2 = 'km_WebotsNao_StandupFromBackBackup.lua';
+
 km.time_to_stand = 30; -- average time it takes to stand up in seconds
 

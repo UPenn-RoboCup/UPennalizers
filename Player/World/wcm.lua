@@ -39,10 +39,14 @@ shared.robot.odomScale = vector.zeros(3);
 
 shared.robot.team_ball = vector.zeros(3);
 shared.robot.team_ball_score = vector.zeros(1);
+shared.robot.use_team_ball = vector.zeros(1);
 
 shared.robot.flipped = vector.zeros(1);
 shared.robot.is_confused = vector.zeros(1);
 shared.robot.t_confused = vector.zeros(1);
+shared.robot.resetWorld = vector.zeros(1);
+shared.robot.confidence = vector.zeros(1);
+shared.robot.resetOrientation = vector.zeros(1);
 
 shared.ball = {};
 shared.ball.x = vector.zeros(1);
@@ -75,6 +79,13 @@ shared.team.defender2_pose = vector.zeros(3);
 shared.team.supporter_pose = vector.zeros(3);
 shared.team.goalie_pose = vector.zeros(3);
 
+shared.team.attacker_walkTo = vector.zeros(2);
+shared.team.defender_walkTo = vector.zeros(2);
+shared.team.defender2_walkTo = vector.zeros(2);
+shared.team.supporter_walkTo = vector.zeros(2);
+shared.team.goalie_walkTo = vector.zeros(2);
+
+shared.team.players_alive = vector.zeros(1);
 
 
 shared.goal = {};
@@ -215,9 +226,9 @@ if listen_monitor>0 then
   shared.teamdata.goalB24=vector.zeros(10);
   shared.teamdata.goalB25=vector.zeros(10);
 
-  shared.teamdata.landmark=vector.zeros(10);
-  shared.teamdata.landmarkv1=vector.zeros(10);
-  shared.teamdata.landmarkv2=vector.zeros(10);
+  shared.teamdata.cornera=vector.zeros(10);
+  shared.teamdata.cornerv1=vector.zeros(10);
+  shared.teamdata.cornerv2=vector.zeros(10);
 
 --Team LabelB monitoring
   if type(Config.camera.width) == 'number' then

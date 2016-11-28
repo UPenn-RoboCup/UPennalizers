@@ -1,0 +1,587 @@
+module(..., package.seeall);
+
+require('Config');
+require('Body');
+require('Comm');
+require('Speak');
+require('vector');
+require('util')
+require('serialization');
+require('wcm');
+require('vcm');
+require('gcm');
+require('utilMsg')
+
+--Player ID: 1 to 5
+--Role enum we used before
+ROLE_GOALIE = 0
+ROLE_ATTACKER = 1
+ROLE_DEFENDER = 2
+ROLE_SUPPORTER = 3
+ROLE_DEFENDER2 = 4
+ROLE_LOST = 5
+ROLE_COACH = 6
+
+--New Teamplay code 
+--That uses new SPL standardized team message
+--Now coach is not even allowed to use the same comm! 
+   
+
+local state = utilMsg.get_default_state()
+
+--------------------------------------------------------------
+Comm.init(Config.dev.ip_wireless,Config.dev.ip_wireless_port);
+print('Receiving Team Message From',Config.dev.ip_wireless);
+playerID = gcm.get_team_player_id();
+msgTimeout = Config.team.msgTimeout;
+nonAttackerPenalty = Config.team.nonAttackerPenalty;
+nonDefenderPenalty = Config.team.nonDefenderPenalty;
+fallDownPenalty = Config.team.fallDownPenalty;
+ballLostPenalty = Config.team.ballLostPenalty;
+walkSpeed = Config.team.walkSpeed;
+turnSpeed = Config.team.turnSpeed;
+standStillPenalty = Config.team.standStillPenalty or fallDownPenalty/2
+
+
+goalie_ball={0,0,0};
+
+count = 0; 
+cidx = 1
+
+states = {};
+states[playerID] = state;
+
+--We maintain pose of all robots 
+--For obstacle avoidance
+poses={};
+player_roles=vector.zeros(10);
+t_poses=vector.zeros(10);
+tLastMessage = 0;
+tLastSent = Body.get_time()
+send_fps = Config.send_fps or 5
+
+function recv_msgs_new_comm()
+  local msg
+  if Config.dev.comm == 'WebotsComm' then
+    local rcv = Comm.receive();
+    if rcv and #rcv==14 then
+      --THIS IS BALL POSITION MESSAGE
+      ball_gpsx=(tonumber(string.sub(rcv,2,6))-5)*2;
+      ball_gpsy=(tonumber(string.sub(rcv,8,12))-5)*2;
+      wcm.set_robot_gps_ball({ball_gpsx,ball_gpsy,0});
+--      print("Ball gps pos:",ball_gpsx,ball_gpsy)
+    end
+    msg = serialization.deserialize(rcv);
+  else
+    msg = Comm.receive()
+  end
+  while msg do
+    t = utilMsg.convert_state_std_to_penn(msg) 
+    if t and (t.teamNumber) and (t.id) then
+      tLastMessage = Body.get_time();
+      if t.id ~=playerID then        
+        poses[t.id]=t.pose;
+        player_roles[t.id]=t.role;
+        t_poses[t.id]=Body.get_time();
+      end
+      --Is the message from our team?
+      if (t.teamNumber == state.teamNumber) and 
+        (t.id ~= playerID) then
+        t.tReceive = Body.get_time();
+        t.labelB = {}; --Kill labelB information
+        states[t.id] = t;
+      end
+    end
+    msg=Comm.receive()
+  end
+end
+
+
+function entry()
+  if Config.dev.comm=='TeamComm' or Config.dev.comm=='WebotsComm'then 
+  else
+    print("!!! ERROR: SHOULD USE TEAMCOMM !!!")
+    return
+  end
+
+end
+---------------------------------------
+prevMessage = '';
+currentMessage = '';
+messageTime = 0;
+function readCoachMessage() 
+    --print('gcm.coachMessage '..gcm.get_game_coachMessage());
+    currentMessage = gcm.get_game_coachMessage();
+    if (currentMessage ~= prevMessage) then
+        msg = util.split(currentMessage, " ");
+        messageTime = Body.get_time();
+        gcm.set_game_coachMessageTime(messageTime);
+        prevMessage = currentMessage;
+    else 
+        msg = nil;
+    end
+    if (msg ~= nil) then 
+        if (#msg > 1 and msg[1] ~= no) then 
+            coach_fix_flip(msg);
+        end
+    end
+        --[[elseif (msg[2] == 'ball') then
+        elseif (msg[3] == 'ball') then
+        elseif (msg[1] == 'in') then--]]
+end
+---------------------------------------
+function coach_fix_flip(msg)
+    local pose = wcm.get_pose();
+    local ball = wcm.get_ball();
+    local ball_global = util.pose_global({ball.x,ball.y,0},{pose.x,pose.y,pose.a});
+    local t = Body.get_time();
+    local messageTime = gcm.get_game_coachMessageTime();
+    
+    if (t - messageTime < flip_threshold_t and t - ball.t < flip_threshold_t) then
+        if (msg[2] == 'ball' and #msg > 7) then  --ball is to the left, ball global x should be negative
+            if (ball_global[1] > 1.5 and Config.vision.coach.home_left) then  --if ball_global is positive, then robot is flipped
+                print('====================coach is flipping other robots========================');
+                wcm.set_robot_flipped(1);
+                Speak.talk('coach is flipping the other robots');
+	    elseif (ball_global[1] < - 1.5 and not Config.vision.coach.home_left) then
+		wcm.set_robot_flipped(1);
+	    end 
+        elseif (msg[3] == 'ball' and #msg > 8) then  --ball is to the right, ball global x should be positive
+            if (ball_global[1] < -1.5 and Config.vision.coach.home_left) then  --if ball_global is negative, then robot is flipped
+                print('====================coach is flipping other robots========================');
+                wcm.set_robot_flipped(1);
+                Speak.talk('coach is flipping the other robots');
+	    elseif (ball_global[1] > 1.5 and not Config.vision.coach.home_left)then
+		wcm.set_robot_flipped(1);
+	    end
+        end
+    end 
+end
+---------------------------------------
+
+function update()
+  if Config.game.playerID==6 then return end --Coach does not send anything
+---------------------------------------
+  --readCoachMessage();
+---------------------------------------
+  count = count + 1;
+  --Update own state struct
+
+  state.time = Body.get_time();
+  state.teamNumber = gcm.get_team_number();
+  state.teamColor = gcm.get_team_color();
+  state.pose = wcm.get_pose();
+  state.ball = wcm.get_ball();
+  state.ball.t_seen = Body.get_time() - state.ball.t  --added
+  state.role = role;
+  state.attackBearing = wcm.get_attack_bearing();
+  state.battery_level = wcm.get_robot_battery_level();
+  --put emergency stop penalty in 
+  if wcm.get_robot_is_fall_down() == 1 then
+    state.fall=1;
+  elseif wcm.get_robot_is_emergency_stop() == 1 then
+    state.fall=2;
+  else
+    state.fall=0;
+  end
+  if gcm.in_penalty() then  state.penalty = 1 else  state.penalty = 0 end
+  state.gc_latency=gcm.get_game_gc_latency();
+  state.tm_latency=Body.get_time()-tLastMessage;
+  --state.body_state = gcm.get_fsm_body_state();
+  --the previous line crashed once. This is a temporary hack - Dickens
+  state.body_state = ' '
+  state.walkingTo = gcm.get_game_walkingto()
+  state.shootingTo = gcm.get_game_shootingto()
+
+
+  gcm.set_team_body_state(state.body_state) --hack
+
+  utilMsg.pack_vision_info(state)
+  randind = 1 
+  if math.random()>0.5 then
+    randind = 2
+  end
+
+  --use a random number to pack labelB to avoid always having top when receiving packages
+  utilMsg.pack_labelB_TeamMsg(state, randind)
+
+
+  t = Body.get_time()
+  if t-tLastSent > 1/send_fps then
+    tLastSent = t
+    if Config.dev.comm == 'WebotsComm' then
+      msg=serialization.serialize(state)
+      Comm.send(msg,#msg)
+    else
+      msg = utilMsg.convert_state_penn_to_std(state)
+      Comm.send(msg)      
+    end
+    
+    state.tReceive = Body.get_time();
+    states[playerID] = state;
+  end
+  recv_msgs_new_comm();  -- receive new messages every frame
+
+  -- eta and defend distance calculation:
+  eta = {};
+  ddefend = {};
+  roles = {};
+  t = Body.get_time();
+  for id = 1,5 do 
+    if not states[id] or not states[id].ball.x then  -- no info from player, ignore him
+      eta[id] = math.huge;
+      ddefend[id] = math.huge;
+      roles[id]=ROLE_LOST
+    else    -- Estimated Time of Arrival to ball (in sec)
+
+      --New ETA calculation considering turning, ball uncertainty
+      --walkSpeed: seconds needed to walk 1m
+      --turnSpeed: seconds needed to turn 360 degrees
+      --TODO: Consider sidekick
+
+      rBall = math.sqrt(states[id].ball.x^2 + states[id].ball.y^2);
+      tBall = states[id].ball.t_seen
+
+      eta[id] = rBall/walkSpeed + --Walking time
+        math.abs(states[id].attackBearing)/(2*math.pi)*turnSpeed+ --Turning 
+        ballLostPenalty * math.max(tBall-1.0,0);  --Ball uncertainty
+
+      roles[id]=states[id].role;
+      dgoalPosition = vector.new(wcm.get_goal_defend());-- distance to our goal
+
+      ddefend[id] = 	math.sqrt((states[id].pose.x - dgoalPosition[1])^2 +
+  		 (states[id].pose.y - dgoalPosition[2])^2);
+
+      if (states[id].role ~= ROLE_ATTACKER ) then eta[id] = eta[id] + nonAttackerPenalty/walkSpeed end
+
+      -- Non defender penalty:
+      if (states[id].role ~= ROLE_DEFENDER and states[id].role~=ROLE_DEFENDER2) then 
+        ddefend[id] = ddefend[id] + 0.3;
+      end
+
+      if (states[id].fall==1) then eta[id] = eta[id] + fallDownPenalty end
+
+      if (states[id].fall==2) then
+	      if id~=playerID then 
+          print ("Player "..id.." is having emergency stop") 
+        end
+	      eta[id] = eta[id] + standStillPenalty
+	    end
+
+      --Store this
+      if id==playerID then wcm.set_team_my_eta(eta[id]) end
+
+      --Ignore goalie, reserver, penalized player, confused player
+      if (states[id].penalty > 0) or 
+        (t - states[id].tReceive > msgTimeout) or
+        (states[id].role ==ROLE_LOST) or 
+        (states[id].role ==ROLE_GOALIE) then
+        eta[id] = math.huge;
+        ddefend[id] = math.huge;
+      end
+    end
+  end
+
+
+  --For defender behavior testing
+  force_defender = Config.team.force_defender or 0;
+  if force_defender == 1 then gcm.set_team_role(ROLE_DEFENDER)
+  elseif force_defender ==2 then gcm.set_team_role(ROLE_DEFENDER2) end
+
+  if role ~= gcm.get_team_role() then set_role(gcm.get_team_role()) end
+  if gcm.get_game_state()==3 and force_defender ==0 then
+    -- goalie, coah and reserve player never changes role
+    if role~=ROLE_GOALIE and role<ROLE_LOST then 
+      minETA, minEtaID = util.min(eta);
+      if minEtaID == playerID or Config.team.force_attacker==1 then set_role(ROLE_ATTACKER)
+      else
+        maxDDefID, maxDDef = 0,0
+        minDDefID , minDDef = 0,math.huge
+
+        --Find the player most away from the defending goal
+        --TODO: 2nd defender 
+        for id = 1,5 do
+          --goalie, current attacker and and reserve don't count
+          if id ~= minEtaID and roles[id]~=ROLE_ATTACKER and roles[id]<ROLE_LOST then 
+	    --Dead players have infinite ddefend
+            if ddefend[id] > maxDDef and ddefend[id]<20.0 then maxDDefID ,maxDDef = id,ddefend[id] end               
+            if ddefend[id] < minDDef then minDDefID,minDDef  = id, ddefend[id] end
+          end
+        end
+--	print("min max",minDDefID, maxDDefID)
+        if maxDDefID == minDDefID then set_role(ROLE_DEFENDER) --only one player, go defend
+        elseif maxDDefID == playerID then set_role(ROLE_SUPPORTER) -- most away player does support
+        else set_role(ROLE_DEFENDER) --other players go defend
+        end
+      end
+    end
+
+    --Switch roles between left and right defender
+    if role==ROLE_DEFENDER then
+      --Are there any other defender?
+      goalDefend =  wcm.get_goal_defend();
+      for id = 1,5 do
+        if id ~= playerID and 	  
+          (roles[id]==ROLE_DEFENDER or roles[id]==ROLE_DEFENDER2) then          
+          --Check if he is on my right side
+          if state.pose.y * goalDefend[1] < 
+							states[id].pose.y * goalDefend[1] then
+					  set_role(ROLE_DEFENDER2);
+          end
+        end
+      end
+    end
+    --We assign role based on player ID during initial and ready state
+  elseif gcm.get_game_state()<2 then 
+    if role==ROLE_ATTACKER then
+      --Check whether there are any other attacker with smaller playerID
+      role_switch = false;
+      for id=1,5 do
+        if roles[id]==ROLE_ATTACKER and id<playerID then
+          role_switch = true;
+        end
+      end
+      if role_switch then set_role(ROLE_DEFENDER);end --Switch to defender
+    end
+    if role==ROLE_DEFENDER then
+      --Check whether there are any other depender with smaller playerID
+      role_switch = false;
+      for id=1,5 do
+        if roles[id]==ROLE_DEFENDER and id<playerID then
+          role_switch = true;
+        end
+      end
+      if role_switch then set_role(ROLE_SUPPORTER);end --Switch to supporter
+    end
+  end
+  update_shm(); 
+  update_teamdata();
+  update_obstacle();
+  check_confused();
+  fix_flip();
+  readCoachMessage();
+end
+
+function update_teamdata()
+  attacker_eta = math.huge;
+  defender_eta = math.huge;
+  defender2_eta = math.huge;
+  supporter_eta = math.huge;
+  goalie_alive = 0; 
+
+  attacker_pose = {0,0,0};
+  defender_pose = {0,0,0};
+  defender2_pose = {0,0,0};
+  supporter_pose = {0,0,0};
+  goalie_pose = {0,0,0};
+
+  best_scoreBall = 0;
+  best_ball = {0,0,0};
+  for id = 1,5 do
+    --Update teammates pose information
+    if states[id] and states[id].tReceive and
+      (t - states[id].tReceive < msgTimeout) then
+
+      --Team ball calculation here
+      --Score everyone's ball position info and pick the best one
+      if id~=playerID and states[id].role<4 then
+        rBall = math.sqrt(states[id].ball.x^2 + states[id].ball.y^2);
+        --tBall = states[id].time - states[id].ball.t;
+        tBall = states[id].ball.t_seen
+        pBall = states[id].ball.p;
+        scoreBall = pBall * 
+        math.exp(-rBall^2 / 12.0)*
+        math.max(0,1.0-tBall);
+        --print(string.format("r%.1f t%.1f p%.1f s%.1f",rBall,tBall,pBall,scoreBall))
+        if scoreBall > best_scoreBall then
+          best_scoreBall = scoreBall;
+          posexya=vector.new( 
+            {states[id].pose.x, states[id].pose.y, states[id].pose.a} );
+          best_ball=util.pose_global(
+            {states[id].ball.x,states[id].ball.y,0}, posexya);
+        end
+      end
+
+      if states[id].role==ROLE_GOALIE then
+        goalie_alive =1;
+        goalie_pose = {states[id].pose.x,states[id].pose.y,states[id].pose.a};
+        goalie_ball = util.pose_global({states[id].ball.x,states[id].ball.y,0},	  goalie_pose);
+        goalie_ball[3] = states[id].ball.t_seen
+
+      elseif states[id].role==ROLE_ATTACKER then
+          attacker_pose = {states[id].pose.x,states[id].pose.y,states[id].pose.a};
+          attacker_eta = eta[id];
+      elseif states[id].role==ROLE_DEFENDER then
+          defender_pose = {states[id].pose.x,states[id].pose.y,states[id].pose.a};
+          defender_eta = eta[id];
+      elseif states[id].role==ROLE_SUPPORTER then
+          supporter_eta = eta[id];
+          supporter_pose = {states[id].pose.x,states[id].pose.y,states[id].pose.a};
+      end
+    end
+  end
+
+  wcm.set_robot_team_ball(best_ball);
+  wcm.set_robot_team_ball_score(best_scoreBall);
+
+  wcm.set_team_attacker_eta(attacker_eta);
+  wcm.set_team_defender_eta(defender_eta);
+  wcm.set_team_supporter_eta(supporter_eta);
+  wcm.set_team_defender2_eta(defender2_eta);
+  wcm.set_team_goalie_alive(goalie_alive);
+
+  wcm.set_team_attacker_pose(attacker_pose);
+  wcm.set_team_defender_pose(defender_pose);
+  wcm.set_team_goalie_pose(goalie_pose);
+  wcm.set_team_supporter_pose(supporter_pose);
+  wcm.set_team_defender2_pose(defender2_pose);
+
+end
+
+function exit() end
+function get_role()   return role; end
+function get_player_id()    return playerID; end
+function update_shm() gcm.set_team_role(role);end
+
+function set_role(r)
+  if role ~= r then 
+    role = r;
+    Body.set_indicator_role(role);
+  end
+  update_shm();
+end
+
+--NSL role can be set arbitarily, so use config value
+set_role(Config.game.role or 1);
+
+
+confused_threshold_x= Config.team.confused_threshold_x or 3.0;
+confused_threshold_y= Config.team.confused_threshold_y or 3.0;
+flip_threshold_x= Config.team.flip_threshold_x or 1.0;
+flip_threshold_y= Config.team.flip_threshold_y or 1.5;
+flip_threshold_t= Config.team.flip_threshold_t or 0.5;
+flip_check_t = Config.team_flip_check_t or 3.0;
+flip_threshold_hard_x= Config.team.flip_threshold_hard_x or 2.0;
+
+function check_confused()
+  
+  if wcm.get_team_goalie_alive()==0 then  --Goalie's dead, we're doomed. Kick randomly
+    wcm.set_robot_is_confused(0);
+    return; 
+  end 
+   --Goalie or reserve players never get confused
+  if role==ROLE_GOALIE or role > ROLE_DEFENDER2  then 
+    wcm.set_robot_is_confused(0);
+    return; 
+  end
+
+  pose = wcm.get_pose();
+  t = Body.get_time();
+  is_confused = wcm.get_robot_is_confused();
+
+  if is_confused>0 then  --Currently confused
+    if gcm.get_game_state() ~= 3     --If game state is not gamePlaying
+       or gcm.in_penalty() then     --Or the robot is penalized
+      wcm.set_robot_is_confused(0); --Robot gets out of confused state!
+    end
+  else     --Should we turn confused?
+    if wcm.get_robot_is_fall_down()>0 
+       and math.abs(pose.x)<confused_threshold_x 
+       and math.abs(pose.y)<confused_threshold_y 
+       and gcm.get_game_state() == 3 then --Only get confused during playing
+      wcm.set_robot_is_confused(1);
+      wcm.set_robot_t_confused(t);
+    end
+  end
+
+end
+
+function fix_flip()
+  local pose = wcm.get_pose();
+  local ball = wcm.get_ball();
+  local ball_global = util.pose_global({ball.x,ball.y,0},{pose.x,pose.y,pose.a});
+  local t = Body.get_time();
+
+
+  --TODO: Can we trust FAR bal observations?
+
+  --Even the robot thinks he's not flipped, fix flipping if it's too obvious
+  if t-ball.t<flip_threshold_t  and goalie_ball[3]<flip_threshold_t then --Both robot seeing the ball
+   if (math.abs(ball_global[1])>flip_threshold_hard_x) and
+      (math.abs(goalie_ball[1])>flip_threshold_hard_x) and      --Check X position
+      ball_global[1]*goalie_ball[1]<0 then 
+      wcm.set_robot_flipped(1) 
+	  print('flip1');
+	  print(debug.traceback());
+    end
+  else
+    return --cannot fix flip if both robot are not seeing the ball
+  end
+
+  if wcm.get_robot_is_confused()==0 then return; end
+  local t_confused = wcm.get_robot_t_confused();
+  if t-t_confused < flip_check_t then return; end   --Give the robot some time to localize
+
+  --Both I and goalie should see the ball
+  if (math.abs(ball_global[1])>flip_threshold_x) and
+    (math.abs(goalie_ball[1])>flip_threshold_x) then      --Check X position
+    if ball_global[1]*goalie_ball[1]<0 then wcm.set_robot_flipped(1)
+		print('flip2');
+		print(debug.traceback());
+	 end
+
+   --Now we are sure about our position
+   wcm.set_robot_is_confused(0);
+  elseif (math.abs(ball_global[2])>flip_threshold_y) and
+        (math.abs(goalie_ball[2])>flip_threshold_y) then      --Check Y position
+    if ball_global[2]*goalie_ball[2]<0 then wcm.set_robot_flipped(1)
+		print('flip3');
+		print(debug.traceback());
+    end   
+   --Now we are sure about our position
+   wcm.set_robot_is_confused(0);
+  end
+
+end
+
+
+function update_obstacle()
+  --Update local obstacle information based on other robots' localization info
+  local t = Body.get_time();
+  local t_timeout = 2.0;
+  local closest_pose={};
+  local closest_dist =100;
+  local closest_index = 0;
+  local closest_role = 0;
+  pose = wcm.get_pose();
+  avoid_other_team = Config.avoid_other_team or 0;
+  if avoid_other_team>0 then num_teammates = 10;end
+  obstacle_count = 0;
+  obstacle_x=vector.zeros(10);
+  obstacle_y=vector.zeros(10);
+  obstacle_dist=vector.zeros(10);
+  obstacle_role=vector.zeros(10);
+  for i=1,10 do
+    if t_poses[i]~=0 and 
+      t-t_poses[i]<t_timeout and
+      player_roles[i]< ROLE_LOST  then
+      obstacle_count = obstacle_count+1;
+      local obstacle_local = util.pose_relative({poses[i].x,poses[i].y,0},{pose.x,pose.y,pose.a}); 
+      dist = math.sqrt(obstacle_local[1]^2+obstacle_local[2]^2);
+      obstacle_x[obstacle_count]=obstacle_local[1];
+      obstacle_y[obstacle_count]=obstacle_local[2];
+      obstacle_dist[obstacle_count]=dist;
+      if i<6 then --Same team
+        obstacle_role[obstacle_count] = player_roles[i]; --0,1,2,3,4
+      else --Opponent team
+        obstacle_role[obstacle_count] = player_roles[i]+5; --5,6,7,8,9
+      end
+    end
+  end
+  wcm.set_obstacle_num(obstacle_count);
+  wcm.set_obstacle_x(obstacle_x);
+  wcm.set_obstacle_y(obstacle_y);
+  wcm.set_obstacle_dist(obstacle_dist);
+  wcm.set_obstacle_role(obstacle_role);
+  --print("Closest index dist", closest_index, closest_dist);
+end

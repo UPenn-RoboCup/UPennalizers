@@ -1,14 +1,6 @@
 #!/bin/sh
 EXT_TERM=0
-JIT=`which luajit`
-if [ "$JIT" == "/usr/local/bin/luajit" ] 
-then
-	LUA=luajit
-	echo "use LUAJIT"
-else
-	LUA=lua
-	echo "use LUA"
-fi
+LUA=luajit
 COMPUTER=`uname`
 #if [ "$COMPUTER" == "Darwin" ]
 #  then

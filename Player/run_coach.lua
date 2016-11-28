@@ -1,39 +1,19 @@
-require'init'
-require'Config'
-require'Body'
-require'CoachComm'
-CoachComm.init(Config.dev.ip_wireless)
+cwd = os.getenv('PWD')
+require('init')
 
--- Coach runs every 10 seconds
-local tperiod = 1 / 10
-local count = 0
-local running = true
-local get_time = Body.get_time
-local usleep = unix.usleep
-local t0
-local coach_msg, coach_ret
-local teamNumber = Config.game.teamNumber
+require('unix');
+require('coach');
+require('Body')
 
-local function entry()
-  t0 = get_time()
-  print("Let's get to rumble!")
+local t_last = Body.get_time()
+while 1 do 
+  local t=Body.get_time() 
+  tPassed = t-t_last
+  t_last = t
+  if tPassed>0.005 then
+    update()
+  end 
+  tDelay = 0.005*1E6;	
+  unix.usleep(tDelay);
 end
 
-local function update()
-  coach_msg = string.format("Hi %d", count)
-  coach_ret = coachcomm.send(teamNumber, coach_msg)
-end
-
-local function exit()
-  print("Good game!")
-end
-
-entry()
-while running do
-  tstart = get_time()
-  update()
-  tloop = get_time() - tstart
-  count = count + 1
-  if tloop < tperiod then usleep(1e6*(tperiod - tloop)) end
-end
-exit()

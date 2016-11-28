@@ -285,7 +285,7 @@ int set_capture_volume(int volume, const char *card, const char *selemName) {
   }
 
   // free the sound element object
-  snd_mixer_selem_id_free(selemid);
+  //snd_mixer_selem_id_free(selemid);
   // close the mixer
   ret = snd_mixer_close(mixer);
   if (ret < 0) {
@@ -303,7 +303,6 @@ int set_playback_volume(int volume, const char *card, const char *selemName) {
   long vmax;
   snd_mixer_t *mixer;
   snd_mixer_selem_id_t *selemid;
-
   // open mixer (mode is not used by alsa)
   int mode = 0;
   ret = snd_mixer_open(&mixer, mode);
@@ -329,7 +328,6 @@ int set_playback_volume(int volume, const char *card, const char *selemName) {
     fprintf(stderr, "unable to load mixer: %s\n", snd_strerror(ret));
     return ret;
   }
-
   // create new sound element object
   snd_mixer_selem_id_alloca(&selemid);
   if (selemid == NULL) {
@@ -343,7 +341,6 @@ int set_playback_volume(int volume, const char *card, const char *selemName) {
     fprintf(stderr, "unable to find selem.\n"); 
     return ret;
   }
-
   // get playback volume range
   ret = snd_mixer_selem_get_playback_volume_range(elem, &vmin, &vmax);
   if (ret < 0) {
@@ -355,16 +352,16 @@ int set_playback_volume(int volume, const char *card, const char *selemName) {
     fprintf(stderr, "unable to set playback volume: %s\n", snd_strerror(ret));
     return ret;
   }
-
   // free the sound element object
-  snd_mixer_selem_id_free(selemid);
+  //snd_mixer_selem_id_free(selemid);
   // close the mixer
   ret = snd_mixer_close(mixer);
+  printf("position 9\n");
   if (ret < 0) {
     fprintf(stderr, "unable to close mixer: %s\n", snd_strerror(ret));
     return ret;
   }
-
+  printf("position 10\n");
   return 0;
 }
 

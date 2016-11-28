@@ -10,6 +10,8 @@ public:
 
   void clear();
   Transform &translate(double x, double y, double z);
+  Transform &translate(const double* p);
+
   Transform &translateX(double x = 0);
   Transform &translateY(double y = 0);
   Transform &translateZ(double z = 0);
@@ -29,5 +31,6 @@ Transform operator* (const Transform &t1, const Transform &t2);
 Transform inv (const Transform &t1);
 Transform transform6D(const double p[6]);
 std::vector<double> position6D(const Transform &t1);
+Transform trcopy (const Transform &t1);
 
 #endif

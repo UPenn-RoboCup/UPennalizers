@@ -209,27 +209,46 @@ static int lua_teamcomm_recv_parse(lua_State *L, SPLStandardMessage *data) {
   lua_rawseti(L, -2, 2);
   lua_settable(L, -3);
 
+  lua_pushstring(L, "suggestion");
+  lua_createtable(L, 2, 0);
+  lua_pushnumber(L, data->suggestion[0]);
+  lua_rawseti(L, -2, 1);
+  lua_pushnumber(L, data->suggestion[1]);
+  lua_rawseti(L, -2, 2);
+  lua_pushnumber(L, data->suggestion[2]);
+  lua_rawseti(L, -2, 3);
+  lua_pushnumber(L, data->suggestion[3]);
+  lua_rawseti(L, -2, 4);
+  lua_pushnumber(L, data->suggestion[4]);
+  lua_rawseti(L, -2, 5);
+  lua_settable(L, -3);
+
   // Intention
   lua_pushstring(L, "intention");
   lua_pushnumber(L, data->intention);
+  lua_settable(L, -3);
+  
+  lua_pushstring(L, "averageWalkSpeed");
+  lua_pushnumber(L, data->averageWalkSpeed);
+  lua_settable(L, -3);
+  
+  lua_pushstring(L, "maxKickDistance");
+  lua_pushnumber(L, data->maxKickDistance);
+  lua_settable(L, -3);
+  
+  lua_pushstring(L, "currentPositionConfidence");
+  lua_pushnumber(L, data->currentPositionConfidence);
+  lua_settable(L, -3);
+  
+  lua_pushstring(L, "currentSideConfidence");
+  lua_pushnumber(L, data->currentSideConfidence);
   lua_settable(L, -3);
 
   lua_pushstring(L, "numOfDataBytes");
   lua_pushnumber(L, data->numOfDataBytes);
   lua_settable(L, -3);
 
-/*
-  uint16_t textlength = data->numOfDataBytes;
-  char *text = new char[textlength];
-  for (int i=0; i<textlength; i++)
-    text[i] = data->data[i];
-  lua_pushstring(L, "data");
-  lua_pushstring(L, text);
-  lua_settable(L, -3);
-*/
-
-
-//Simple array instead of string
+  //Simple array instead of string
   uint16_t textlength = data->numOfDataBytes;
   lua_pushstring(L, "data");
   lua_createtable(L, textlength, 0);
@@ -333,9 +352,39 @@ static int lua_teamcomm_send_parse(lua_State *L, SPLStandardMessage *msg) {
   }
   lua_pop(L,1);
 
+  lua_pushstring(L, "suggestion");
+  lua_gettable(L, -2);
+  for (int i=0; i<5; i++) {
+    lua_pushinteger(L, i+1);
+    lua_gettable(L, -2);
+    msg->suggestion[i] = (int8_t)lua_tonumber(L, -1);
+    lua_pop(L, 1);
+  }
+  lua_pop(L,1);
+
   lua_pushstring(L, "intention");
   lua_gettable(L, -2);
-  msg->intention = lua_tonumber(L, -1);
+  msg->intention = (int8_t)lua_tonumber(L, -1);
+  lua_pop(L, 1);
+
+  lua_pushstring(L, "averageWalkSpeed");
+  lua_gettable(L, -2);
+  msg->averageWalkSpeed = (int16_t)lua_tonumber(L, -1);
+  lua_pop(L, 1);
+  
+  lua_pushstring(L, "maxKickDistance");
+  lua_gettable(L, -2);
+  msg->maxKickDistance = (int16_t)lua_tonumber(L, -1);
+  lua_pop(L, 1); 
+  
+  lua_pushstring(L, "currentPositionConfidence");
+  lua_gettable(L, -2);
+  msg->currentPositionConfidence = (int8_t)lua_tonumber(L, -1);
+  lua_pop(L, 1);
+  
+  lua_pushstring(L, "currentSideConfidence");
+  lua_gettable(L, -2);
+  msg->currentSideConfidence = (int8_t)lua_tonumber(L, -1);
   lua_pop(L, 1);
 
   lua_pushstring(L, "numOfDataBytes");
@@ -347,17 +396,6 @@ static int lua_teamcomm_send_parse(lua_State *L, SPLStandardMessage *msg) {
   }
   msg->numOfDataBytes = num;
   lua_pop(L, 1);
-  // TODO: data array
-
-/*  
-  lua_pushstring(L, "data");
-  lua_gettable(L, -2);
-  char *text = new char[num];
-  text = (char*)lua_tostring(L, -1);
-  for (int i=0; i<num; i++)
-    msg->data[i] = (uint8_t)text[i];
-  lua_pop(L, 1);
-*/
 
   //Simple array instead of string
   lua_pushstring(L, "data");

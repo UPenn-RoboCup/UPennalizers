@@ -12,10 +12,15 @@ require('Speak')
 require('Body')
 require('Motion')
 require('gcm')
+require ('UltraSound')
+require("World")
+
 --require('Broadcast')
+require('log_sensor_positions')
 
+UltraSound.entry()
 
-wcm.set_process_broadcast(2) --enable broadcasting
+wcm.set_process_broadcast(1) --enable broadcasting
 
 
 gcm.say_id()
@@ -158,7 +163,7 @@ function process_keyinput()
     -- Head pitch fine tuning (for camera angle calibration)
     elseif byte==string.byte("e") then	
       headsm_running=0;headangle[2]=headangle[2]-1*math.pi/180;
-    elseif byte==string.byte("c") then	
+    elseif byte==string.byte("c") then
       headsm_running=0;headangle[2]=headangle[2]+1*math.pi/180;
 
     -- Head FSM testing
@@ -185,6 +190,11 @@ function process_keyinput()
 
     elseif byte==string.byte("f") then
       behavior.cycle_behavior();
+
+    --For localization debugging
+    elseif byte==string.byte("z") then
+      wcm.set_robot_resetWorld(1);
+      print("World Reset")
 
     --Logging mode
 
@@ -311,6 +321,7 @@ function update()
     
     Motion.update();
     Body.update();
+    UltraSound.update()
     -- Keep setting monitor flag
     --[[
     vcm.set_camera_broadcast(broadcast_enable);

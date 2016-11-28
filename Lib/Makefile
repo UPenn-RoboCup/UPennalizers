@@ -38,6 +38,15 @@ naoqi:
 	sed -i -e 's/$(PWD)/HOME/g' $(NAOQIDIR)/src/dcmprocess.cpp
 	@echo "\n"
 
+naoqiv5:
+	@echo "Compiling Custom NaoqiV5 Modules...\n"
+	@echo $(PWD)
+	sed -i -e 's/HOME/$(PWD)/g' $(NAOQIDIRV5)/src/dcmprocess.cpp
+	cd $(NAOQIDIRV5) && make && cd $(CWD)
+	sed -i -e 's/$(PWD)/HOME/g' $(NAOQIDIRV5)/src/dcmprocess.cpp
+	@echo "\n"
+
+
 xos:
 	@echo "Compiling XOS Lua/C++ Libraries...\n"
 	@cd $(XOSDIR) && make && cd $(CWD)
@@ -188,18 +197,27 @@ setup_naoqi: naoqi setup_util
 	$(V)sed -i -e 's/HOME/$(PWD)/g' $(INSTDIR)/nao_init.lua
 	@echo "\n"
 
+setup_naoqiv5: naoqiv5 setup_util
+	@echo "Setting up NaoQi V5 module...\n"
+	$(V)mkdir -p $(INSTDIR)
+	$(V)find $(NAOQIDIRV5) $(REGEX) -exec cp -v {} $(INSTDIR) \;
+	$(V)sed -i -e 's/HOME/$(PWD)/g' $(INSTDIR)/nao_init.lua
+	@echo "\n"
+
+
 clean:
 	cd $(IMAGEDIR) && make clean && cd $(CWD)
 	cd $(COMMDIR) && make clean && cd $(CWD)
 	cd $(UTILDIR) && make clean && cd $(CWD)
 	cd $(WEBOTSDIR) && make clean && cd $(CWD)
-	cd $(NAODIR) && make clean && cd $(CWD)
+#	cd $(NAODIR) && make clean && cd $(CWD)
 	cd $(NAOV4DIR) && make clean && cd $(CWD)
+	cd $(NAOQIDIRV5) && make clean && cd $(CWD)
 	cd $(NAOQIDIR) && make clean && cd $(CWD)
 	cd $(WEBOTSNAODIR) && make clean && cd $(CWD)
-	cd $(WEBOTSOPDIR) && make clean && cd $(CWD)
-	cd $(XOSDIR) && make clean && cd $(CWD) 
-	cd $(OPDIR) && make clean && cd $(CWD)
+#	cd $(WEBOTSOPDIR) && make clean && cd $(CWD)
+#	cd $(XOSDIR) && make clean && cd $(CWD) 
+#	cd $(OPDIR) && make clean && cd $(CWD)
 	cd $(PLAYERDIR)/Config && rm -f Config.lua && cd $(CWD)
 	cd $(PLAYERDIR) && rm -rf Lib && cd $(CWD)
 	rm -rf $(WEBOTSCONTDIR)

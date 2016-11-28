@@ -79,7 +79,13 @@ local camera_setting_Naov4 = function(self, c)
   self.camera:set_param('Auto Exposure',0, c-1);
   self.camera:set_param ('Exposure', expo, c-1);
   self.camera:set_param ('Gain', gain, c-1);
+  self.camera:set_param('White Balance Temperature', Config.camera.param[12].val[c],c-1);
   self.camera:set_param ('Do White Balance', Config.camera.param[10].val[c], c-1);
+  local rname = Config.game.robotName;
+--  if rname == 'ticktock' or rname == 'ruffio' or rname == 'dickens' then
+  self.camera:set_param('White Balance Temperature', Config.camera.param[12].val[c],c-1);
+  --end
+
   print('Camera #'..c..' set');
 end
 
@@ -158,7 +164,12 @@ local update_shm = function(t, cidx, headAngles)
     if vcm.get_camera_broadcast() > 0 then --Wired monitor broadcasting
       vcm['set_image'..cidx..'_labelA'](t.labelA.data);
       vcm['set_image'..cidx..'_labelB'](t.labelB.data);
-      vcm['set_debug'..cidx..'_message'](t.debug_message);
+      if #t.debug_message <= 600 then
+        vcm['set_debug'..cidx..'_message'](t.debug_message);
+      else
+        vcm['set_debug'..cidx..'_message'](string.sub(t.debug_message,1,599));
+      end
+      
     elseif vcm.get_camera_teambroadcast() > 0 then --Wireless Team broadcasting
       --Only copy labelB
       vcm['set_image'..cidx..'_labelB'](t.labelB.data);
@@ -236,10 +247,12 @@ local zmq_broadcast = function(t, cidx)
 end
 
 local add_debug_message = function(self, message)
-  if string.len(self.debug_message)>1000 then
+  --[[
+  if string.len(self.debug_message)>600 then
     --something is wrong, just reset it 
     self.debug_message_buf='';
   end
+  --]]
   self.debug_message_buf = self.debug_message_buf..message;
 end
 
@@ -295,6 +308,7 @@ function Vision.entry(cidx)
   self.labelB.n = self.labelA.n / self.scaleB;
   self.labelB.npixel = self.labelB.m * self.labelB.n;
 
+  vcm['set_image'..cidx..'_scaleA'](Config.vision.scaleA[cidx]);
   vcm['set_image'..cidx..'_scaleB'](Config.vision.scaleB[cidx]);
   print('Vision LabelA size: ('..self.labelA.m..', '..self.labelA.n..')');
   print('Vision LabelB size: ('..self.labelB.m..', '..self.labelB.n..')');

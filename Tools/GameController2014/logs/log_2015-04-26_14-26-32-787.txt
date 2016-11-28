@@ -1,7 +1,0 @@
-2015.4.26-14.26.32: GC2 1.2
-2015.4.26-14.26.32: League = SPL
-2015.4.26-14.26.32: Play-off = false
-2015.4.26-14.26.32: Auto color change = false
-2015.4.26-14.26.32: Using broadcast address 192.168.1.255
-2015.4.26-14.26.32: UPennalizers vs Invisibles
-2015.4.26-14.28.09: Shutdown GameController

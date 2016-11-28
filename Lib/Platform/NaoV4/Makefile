@@ -14,7 +14,7 @@ all:
 	cd GameControl && make && cd $(CWD)
 	cd Kinematics && make && cd $(CWD)
 	cd TeamComm && make && cd $(CWD)
-#	cd Sound && make && cd $(CWD)
+	#cd Sound && make && cd $(CWD)
 
 clean:
 	cd Body && make clean && cd $(CWD)
@@ -22,5 +22,5 @@ clean:
 	cd Kinematics && make clean && cd $(CWD)
 	cd GameControl && make clean && cd $(CWD)
 	cd TeamComm && make clean && cd $(CWD)
-#	cd Sound && make clean && cd $(CWD)
+	#cd Sound && make clean && cd $(CWD)
 
