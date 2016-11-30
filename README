@@ -1,4 +1,4 @@
-# Project Background
+Project Background
 This project is a modularized software framework for use with humanoid robot
 development and research. The modularized platform separates low level
 components that vary from robot to robot from the high level logic that does not
@@ -13,11 +13,11 @@ the 2011 RoboCup season and is continuing to evolve into an ever more
 generalized and versatile robot software framework.
 
 
-## Documentation:
+Documentation:
   The GitHub Wiki hosts the main source of documentation for this project:
     - https://github.com/UPenn-RoboCup/UPennalizers/wiki 
 
-## Copyright and License
+Copyright and License
   All code sources associated with this project are freely available under the
   GPLv3 license.
   
@@ -28,8 +28,7 @@ The above copyright notice and this permission notice shall be included in all c
 THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 
-
-### Contact Information:
+Contact Information:
   UPenn EMail:      upennalizers@gmail.com
   UPenn Website:    https://fling.seas.upenn.edu/~robocup/wiki/
 
